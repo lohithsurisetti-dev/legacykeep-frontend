@@ -27,6 +27,20 @@ export const typography = {
     '4xl': 36,
     '5xl': 48,
   },
+  
+  // Alias for compatibility
+  sizes: {
+    xs: 12,
+    sm: 14,
+    md: 16,
+    lg: 18,
+    xl: 20,
+    xxl: 24,
+    '2xl': 24,
+    '3xl': 30,
+    '4xl': 36,
+    '5xl': 48,
+  },
 
   // Line Heights (for better readability)
   lineHeight: {
@@ -41,6 +55,14 @@ export const typography = {
     normal: '400',
     medium: '500',
     semiBold: '600',
+    bold: '700',
+  },
+  
+  // Alias for compatibility
+  weights: {
+    normal: '400',
+    medium: '500',
+    semibold: '600',
     bold: '700',
   },
 

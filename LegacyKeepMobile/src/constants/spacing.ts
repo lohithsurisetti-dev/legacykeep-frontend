@@ -28,6 +28,14 @@ export const spacing = {
   48: 192, // 24 * unit
   56: 224, // 28 * unit
   64: 256, // 32 * unit
+  
+  // Named spacing aliases for easier use
+  xs: 4,    // 0.5 * unit
+  sm: 8,    // 1 * unit
+  md: 16,   // 2 * unit
+  lg: 24,   // 3 * unit
+  xl: 32,   // 4 * unit
+  xxl: 48,  // 6 * unit
 } as const;
 
 // Semantic spacing for common use cases

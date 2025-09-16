@@ -1,0 +1,118 @@
+/**
+ * Authentication Stack Navigator
+ * 
+ * Handles all authentication-related screens
+ */
+
+import React from 'react';
+import { createStackNavigator } from '@react-navigation/stack';
+import { AuthStackParamList, ROUTES } from './types';
+
+// Import screens (we'll create these one by one)
+import WelcomeScreen from '../screens/auth/WelcomeScreen';
+import RegistrationMethodScreen from '../screens/auth/RegistrationMethodScreen';
+import EmailRegistrationScreen from '../screens/auth/EmailRegistrationScreen';
+import PhoneRegistrationScreen from '../screens/auth/PhoneRegistrationScreen';
+import SocialLoginScreen from '../screens/auth/SocialLoginScreen';
+import LoginScreen from '../screens/auth/LoginScreen';
+import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
+import PasswordResetScreen from '../screens/auth/PasswordResetScreen';
+import EmailVerificationScreen from '../screens/auth/EmailVerificationScreen';
+import PhoneVerificationScreen from '../screens/auth/PhoneVerificationScreen';
+
+const Stack = createStackNavigator<AuthStackParamList>();
+
+const AuthStack: React.FC = () => {
+  return (
+    <Stack.Navigator
+      initialRouteName={ROUTES.WELCOME}
+      screenOptions={{
+        headerShown: false, // We'll handle headers in individual screens
+        gestureEnabled: true,
+        cardStyle: { backgroundColor: 'transparent' },
+      }}
+    >
+      <Stack.Screen
+        name={ROUTES.WELCOME}
+        component={WelcomeScreen}
+        options={{
+          title: 'Welcome to LegacyKeep',
+        }}
+      />
+      
+      <Stack.Screen
+        name={ROUTES.REGISTRATION_METHOD}
+        component={RegistrationMethodScreen}
+        options={{
+          title: 'Create Account',
+        }}
+      />
+      
+      <Stack.Screen
+        name={ROUTES.EMAIL_REGISTRATION}
+        component={EmailRegistrationScreen}
+        options={{
+          title: 'Sign Up with Email',
+        }}
+      />
+      
+      <Stack.Screen
+        name={ROUTES.PHONE_REGISTRATION}
+        component={PhoneRegistrationScreen}
+        options={{
+          title: 'Sign Up with Phone',
+        }}
+      />
+      
+      <Stack.Screen
+        name={ROUTES.SOCIAL_LOGIN}
+        component={SocialLoginScreen}
+        options={{
+          title: 'Continue with Social',
+        }}
+      />
+      
+      <Stack.Screen
+        name={ROUTES.LOGIN}
+        component={LoginScreen}
+        options={{
+          title: 'Sign In',
+        }}
+      />
+      
+      <Stack.Screen
+        name={ROUTES.FORGOT_PASSWORD}
+        component={ForgotPasswordScreen}
+        options={{
+          title: 'Reset Password',
+        }}
+      />
+      
+      <Stack.Screen
+        name={ROUTES.PASSWORD_RESET}
+        component={PasswordResetScreen}
+        options={{
+          title: 'Set New Password',
+        }}
+      />
+      
+      <Stack.Screen
+        name={ROUTES.EMAIL_VERIFICATION}
+        component={EmailVerificationScreen}
+        options={{
+          title: 'Verify Email',
+        }}
+      />
+      
+      <Stack.Screen
+        name={ROUTES.PHONE_VERIFICATION}
+        component={PhoneVerificationScreen}
+        options={{
+          title: 'Verify Phone',
+        }}
+      />
+    </Stack.Navigator>
+  );
+};
+
+export default AuthStack;
