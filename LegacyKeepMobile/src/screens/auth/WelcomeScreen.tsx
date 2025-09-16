@@ -13,10 +13,12 @@ import {
   SafeAreaView,
   StatusBar,
 } from 'react-native';
+import { GradientBackground, GlassmorphismContainer } from '../../components/ui';
 import { useNavigation } from '@react-navigation/native';
 import { AuthStackScreenProps } from '../../navigation/types';
 import { ROUTES } from '../../navigation/types';
 import { colors, typography, spacing } from '../../constants';
+import { componentColors } from '../../constants/designSystem';
 
 type Props = AuthStackScreenProps<typeof ROUTES.WELCOME>;
 
@@ -32,10 +34,11 @@ const WelcomeScreen: React.FC<Props> = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.neutral[50]} />
-      
-      <View style={styles.content}>
+    <GradientBackground gradient="peacock" style={styles.container}>
+      <SafeAreaView style={styles.safeArea}>
+        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+        
+        <View style={styles.content}>
         {/* Logo and Title */}
         <View style={styles.header}>
           <Text style={styles.logo}>LegacyKeep</Text>
@@ -80,15 +83,18 @@ const WelcomeScreen: React.FC<Props> = () => {
             <Text style={styles.secondaryButtonText}>Sign In</Text>
           </TouchableOpacity>
         </View>
-      </View>
-    </SafeAreaView>
+        </View>
+      </SafeAreaView>
+    </GradientBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.neutral[50],
+  },
+  safeArea: {
+    flex: 1,
   },
   content: {
     flex: 1,
@@ -100,14 +106,17 @@ const styles = StyleSheet.create({
     marginTop: spacing.xxl,
   },
   logo: {
-    fontSize: typography.sizes.xxl,
+    fontSize: typography.sizes['5xl'],
     fontWeight: typography.weights.bold,
-    color: colors.primary[600],
+    color: colors.neutral[50],
     marginBottom: spacing.md,
+    textShadowColor: 'rgba(255, 255, 255, 0.3)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
   },
   tagline: {
     fontSize: typography.sizes.lg,
-    color: colors.neutral[600],
+    color: componentColors.glassmorphism.text,
     textAlign: 'center',
     lineHeight: 24,
     paddingHorizontal: spacing.md,
@@ -128,36 +137,44 @@ const styles = StyleSheet.create({
   },
   featureText: {
     fontSize: typography.sizes.md,
-    color: colors.neutral[700],
+    color: componentColors.glassmorphism.text,
     fontWeight: typography.weights.medium,
   },
   actions: {
     marginBottom: spacing.xxl,
   },
   primaryButton: {
-    backgroundColor: colors.primary[600],
+    backgroundColor: colors.neutral[50],
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.lg,
     borderRadius: 12,
     marginBottom: spacing.md,
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 4,
   },
   primaryButtonText: {
-    color: colors.neutral[50],
+    color: componentColors.primaryButton.text,
     fontSize: typography.sizes.lg,
-    fontWeight: typography.weights.semibold,
+    fontWeight: typography.weights.bold,
   },
   secondaryButton: {
-    backgroundColor: 'transparent',
+    backgroundColor: componentColors.glassmorphism.background,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.lg,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: colors.primary[600],
+    borderColor: componentColors.glassmorphism.border,
     alignItems: 'center',
   },
   secondaryButtonText: {
-    color: colors.primary[600],
+    color: colors.neutral[50],
     fontSize: typography.sizes.lg,
     fontWeight: typography.weights.semibold,
   },

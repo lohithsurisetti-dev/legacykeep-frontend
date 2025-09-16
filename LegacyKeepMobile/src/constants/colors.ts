@@ -95,21 +95,102 @@ export const colors = {
     dark: '#757575',
   },
 
+  // Error Colors
+  error: {
+    50: '#FFEBEE',
+    100: '#FFCDD2',
+    200: '#EF9A9A',
+    300: '#E57373',
+    400: '#EF5350',
+    500: '#F44336', // Main Error Red
+    600: '#E53935',
+    700: '#D32F2F',
+    800: '#C62828',
+    900: '#B71C1C',
+  },
+
+  // Success Colors
+  success: {
+    50: '#E8F5E8',
+    100: '#C8E6C9',
+    200: '#A5D6A7',
+    300: '#81C784',
+    400: '#66BB6A',
+    500: '#4CAF50', // Main Success Green
+    600: '#43A047',
+    700: '#388E3C',
+    800: '#2E7D32',
+    900: '#1B5E20',
+  },
+
+  // Warning Colors
+  warning: {
+    50: '#FFF8E1',
+    100: '#FFECB3',
+    200: '#FFE082',
+    300: '#FFD54F',
+    400: '#FFCA28',
+    500: '#FFC107', // Main Warning Yellow
+    600: '#FFB300',
+    700: '#FFA000',
+    800: '#FF8F00',
+    900: '#FF6F00',
+  },
+
   // Shadow Colors
   shadow: {
     light: 'rgba(0, 0, 0, 0.1)',
     medium: 'rgba(0, 0, 0, 0.2)',
     dark: 'rgba(0, 0, 0, 0.3)',
   },
+
+  // App-specific colors - DEPRECATED: Use designSystem.ts instead
+  // Keeping for backward compatibility
+  app: {
+    peacockTeal: '#247B7B',
+    peacockBlue: '#3b5998', 
+    peacockPurple: '#8A2BE2',
+    splashTeal: '#0d9488',
+    splashPurple: '#7c3aed',
+    splashIndigo: '#6366f1',
+    accent: '#FFC75F',
+    glassmorphism: {
+      background: 'rgba(255, 255, 255, 0.2)',
+      border: 'rgba(255, 255, 255, 0.3)',
+      text: 'rgba(255, 255, 255, 0.9)',
+      textSecondary: 'rgba(255, 255, 255, 0.7)',
+    },
+  },
 } as const;
 
-// Gradient Definitions
+// Legacy gradients - DEPRECATED: Use designSystem.ts instead
 export const gradients = {
+  peacock: ['#247B7B', '#3b5998', '#8A2BE2'],
+  splash: ['#0d9488', '#7c3aed', '#6366f1'],
   primary: ['#0095F6', '#0088D1'],
-  secondary: ['#009688', '#9C27B0'], // Teal to Purple
+  secondary: ['#009688', '#9C27B0'],
   sunset: ['#FF6B6B', '#FFE66D'],
   ocean: ['#667eea', '#764ba2'],
   forest: ['#134E5E', '#71B280'],
+} as const;
+
+// Gradient configurations with start/end points
+export const gradientConfigs = {
+  peacock: {
+    colors: gradients.peacock,
+    start: { x: 0, y: 0 },
+    end: { x: 1, y: 1 },
+  },
+  splash: {
+    colors: gradients.splash,
+    start: { x: 0, y: 0 },
+    end: { x: 1, y: 1 },
+  },
+  horizontal: {
+    colors: gradients.peacock,
+    start: { x: 0, y: 0 },
+    end: { x: 1, y: 0 },
+  },
 } as const;
 
 // Theme Colors

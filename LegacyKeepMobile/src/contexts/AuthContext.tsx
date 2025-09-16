@@ -111,7 +111,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // For now, we'll simulate a successful login
       const mockUser: User = {
         id: '1',
-        email,
+        email: _email,
         username: 'testuser',
         isEmailVerified: true,
         isPhoneVerified: false,
@@ -146,12 +146,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // For now, we'll simulate a successful registration
       const mockUser: User = {
         id: '1',
-        email: userData.email || '',
-        username: userData.username,
+        email: _userData.email || '',
+        username: _userData.username,
         isEmailVerified: false,
         isPhoneVerified: false,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
+        firstName: _userData.firstName,
+        lastName: _userData.lastName,
       };
 
       setAuthState({
