@@ -24,6 +24,7 @@ import { ROUTES } from '../../navigation/types';
 import { useAuth } from '../../contexts/AuthContext';
 import { colors, typography, spacing } from '../../constants';
 import { componentColors } from '../../constants/designSystem';
+import { authTexts } from '../../constants/texts';
 import Input from '../../components/forms/Input';
 import Button from '../../components/forms/Button';
 import { validateEmailOrUsername, validatePassword } from '../../utils/validation';
@@ -87,7 +88,7 @@ const LoginScreen: React.FC<Props> = () => {
 
   const handleLogin = async () => {
     if (!isFormValid) {
-      Alert.alert('Invalid Form', 'Please check your inputs and try again.');
+      Alert.alert('Invalid Form', authTexts.validation.generalError);
       return;
     }
 
@@ -100,7 +101,7 @@ const LoginScreen: React.FC<Props> = () => {
     } catch (error) {
       console.error('Login error:', error);
       setErrors({
-        general: error instanceof Error ? error.message : 'Login failed. Please try again.',
+        general: error instanceof Error ? error.message : authTexts.validation.loginFailed,
       });
     } finally {
       setIsLoading(false);
@@ -128,11 +129,11 @@ const LoginScreen: React.FC<Props> = () => {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.title}>LegacyKeep</Text>
-            <Text style={styles.subtitle}>Preserving Family Stories</Text>
-          </View>
+              {/* Header */}
+              <View style={styles.header}>
+                <Text style={styles.title}>{authTexts.login.title}</Text>
+                <Text style={styles.subtitle}>{authTexts.login.subtitle}</Text>
+              </View>
 
           {/* Form Container with Glassmorphism */}
           <GlassmorphismContainer style={styles.formContainer}>
@@ -145,10 +146,10 @@ const LoginScreen: React.FC<Props> = () => {
 
             {/* Email/Username Input */}
             <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Email</Text>
+              <Text style={styles.inputLabel}>{authTexts.login.emailLabel}</Text>
               <TextInput
                 style={styles.input}
-                placeholder="you@example.com"
+                placeholder={authTexts.login.emailPlaceholder}
                 placeholderTextColor="rgba(255, 255, 255, 0.7)"
                 value={formData.emailOrUsername}
                 onChangeText={(value) => handleInputChange('emailOrUsername', value)}
@@ -163,10 +164,10 @@ const LoginScreen: React.FC<Props> = () => {
 
             {/* Password Input */}
             <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Password</Text>
+              <Text style={styles.inputLabel}>{authTexts.login.passwordLabel}</Text>
               <TextInput
                 style={styles.input}
-                placeholder="••••••••"
+                placeholder={authTexts.login.passwordPlaceholder}
                 placeholderTextColor="rgba(255, 255, 255, 0.7)"
                 value={formData.password}
                 onChangeText={(value) => handleInputChange('password', value)}
@@ -179,7 +180,7 @@ const LoginScreen: React.FC<Props> = () => {
 
                 {/* Login Button */}
                 <LoginButton
-                  title="Log In"
+                  title={authTexts.login.loginButton}
                   onPress={handleLogin}
                   disabled={!isFormValid || isLoading}
                   style={styles.loginButton}
@@ -191,7 +192,7 @@ const LoginScreen: React.FC<Props> = () => {
               onPress={handleForgotPassword}
               activeOpacity={0.7}
             >
-              <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+              <Text style={styles.forgotPasswordText}>{authTexts.login.forgotPassword}</Text>
             </TouchableOpacity>
           </GlassmorphismContainer>
 
@@ -199,7 +200,7 @@ const LoginScreen: React.FC<Props> = () => {
           <View style={styles.socialSection}>
             <View style={styles.divider}>
               <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>Or continue with</Text>
+              <Text style={styles.dividerText}>{authTexts.login.socialLoginDivider}</Text>
               <View style={styles.dividerLine} />
             </View>
 
@@ -208,7 +209,7 @@ const LoginScreen: React.FC<Props> = () => {
                 style={styles.socialButton}
                 onPress={() => {
                   // TODO: Implement Google login
-                  Alert.alert('Coming Soon', 'Google login will be available soon!');
+                  Alert.alert(authTexts.social.comingSoon, authTexts.social.googleComingSoon);
                 }}
                 activeOpacity={0.7}
               >
@@ -219,7 +220,7 @@ const LoginScreen: React.FC<Props> = () => {
                 style={styles.socialButton}
                 onPress={() => {
                   // TODO: Implement Facebook login
-                  Alert.alert('Coming Soon', 'Facebook login will be available soon!');
+                  Alert.alert(authTexts.social.comingSoon, authTexts.social.facebookComingSoon);
                 }}
                 activeOpacity={0.7}
               >
@@ -230,7 +231,7 @@ const LoginScreen: React.FC<Props> = () => {
                 style={styles.socialButton}
                 onPress={() => {
                   // TODO: Implement Instagram login
-                  Alert.alert('Coming Soon', 'Instagram login will be available soon!');
+                  Alert.alert(authTexts.social.comingSoon, authTexts.social.instagramComingSoon);
                 }}
                 activeOpacity={0.7}
               >
@@ -242,9 +243,9 @@ const LoginScreen: React.FC<Props> = () => {
           {/* Footer */}
           <View style={styles.footer}>
             <View style={styles.footerTextContainer}>
-              <Text style={styles.footerText}>Don't have an account? </Text>
+              <Text style={styles.footerText}>{authTexts.login.noAccount} </Text>
               <TouchableOpacity onPress={handleSignUp} activeOpacity={0.7}>
-                <Text style={styles.signUpLink}>Sign up</Text>
+                <Text style={styles.signUpLink}>{authTexts.login.signUpLink}</Text>
               </TouchableOpacity>
             </View>
           </View>

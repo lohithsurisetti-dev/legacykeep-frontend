@@ -293,49 +293,6 @@ const SplashScreen: React.FC<SplashScreenProps> = ({
         >
           Preserve your family's stories
         </Animated.Text>
-        
-        {/* Loading Dots with bounce animation */}
-        <View style={styles.loadingContainer}>
-          <Animated.View 
-            style={[
-              styles.loadingDot,
-              {
-                transform: [{
-                  scale: glowAnim.interpolate({
-                    inputRange: [0, 0.5, 1],
-                    outputRange: [0.8, 1.2, 0.8],
-                  })
-                }]
-              }
-            ]} 
-          />
-          <Animated.View 
-            style={[
-              styles.loadingDot,
-              {
-                transform: [{
-                  scale: glowAnim.interpolate({
-                    inputRange: [0, 0.5, 1],
-                    outputRange: [0.8, 1.2, 0.8],
-                  })
-                }]
-              }
-            ]} 
-          />
-          <Animated.View 
-            style={[
-              styles.loadingDot,
-              {
-                transform: [{
-                  scale: glowAnim.interpolate({
-                    inputRange: [0, 0.5, 1],
-                    outputRange: [0.8, 1.2, 0.8],
-                  })
-                }]
-              }
-            ]} 
-          />
-        </View>
       </Animated.View>
     </GradientBackground>
   );
@@ -402,16 +359,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: spacing.xxl,
     opacity: 0.9,
-  },
-  loadingContainer: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  loadingDot: {
-    width: 6,
-    height: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    borderRadius: 3,
   },
 });
 

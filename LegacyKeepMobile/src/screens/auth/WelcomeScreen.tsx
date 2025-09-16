@@ -18,7 +18,8 @@ import { useNavigation } from '@react-navigation/native';
 import { AuthStackScreenProps } from '../../navigation/types';
 import { ROUTES } from '../../navigation/types';
 import { colors, typography, spacing } from '../../constants';
-import { componentColors } from '../../constants/designSystem';
+import { componentColors, brandColors } from '../../constants/designSystem';
+import { authTexts } from '../../constants/texts';
 
 type Props = AuthStackScreenProps<typeof ROUTES.WELCOME>;
 
@@ -41,28 +42,48 @@ const WelcomeScreen: React.FC<Props> = () => {
         <View style={styles.content}>
         {/* Logo and Title */}
         <View style={styles.header}>
-          <Text style={styles.logo}>LegacyKeep</Text>
+          <Text style={styles.logo}>{authTexts.welcome.title}</Text>
           <Text style={styles.tagline}>
-            Preserve your family's stories and memories for generations
+            {authTexts.welcome.description}
           </Text>
         </View>
 
-        {/* Features */}
+        {/* Premium Features */}
         <View style={styles.features}>
-          <View style={styles.feature}>
-            <Text style={styles.featureIcon}>📚</Text>
-            <Text style={styles.featureText}>Share family stories</Text>
-          </View>
+          <Text style={styles.featuresTitle}>{authTexts.welcome.features.title}</Text>
           
-          <View style={styles.feature}>
-            <Text style={styles.featureIcon}>👨‍👩‍👧‍👦</Text>
-            <Text style={styles.featureText}>Connect with family</Text>
-          </View>
-          
-          <View style={styles.feature}>
-            <Text style={styles.featureIcon}>💬</Text>
-            <Text style={styles.featureText}>Chat and collaborate</Text>
-          </View>
+          {/* Feature Card 1 */}
+          <GlassmorphismContainer style={styles.featureCard}>
+            <View style={styles.featureIconContainer}>
+              <Text style={styles.featureIcon}>🌳</Text>
+            </View>
+            <View style={styles.featureContent}>
+              <Text style={styles.featureTitle}>{authTexts.welcome.features.familyTree.title}</Text>
+              <Text style={styles.featureDescription}>{authTexts.welcome.features.familyTree.description}</Text>
+            </View>
+          </GlassmorphismContainer>
+
+          {/* Feature Card 2 */}
+          <GlassmorphismContainer style={styles.featureCard}>
+            <View style={styles.featureIconContainer}>
+              <Text style={styles.featureIcon}>📖</Text>
+            </View>
+            <View style={styles.featureContent}>
+              <Text style={styles.featureTitle}>{authTexts.welcome.features.shareStories.title}</Text>
+              <Text style={styles.featureDescription}>{authTexts.welcome.features.shareStories.description}</Text>
+            </View>
+          </GlassmorphismContainer>
+
+          {/* Feature Card 3 */}
+          <GlassmorphismContainer style={styles.featureCard}>
+            <View style={styles.featureIconContainer}>
+              <Text style={styles.featureIcon}>💎</Text>
+            </View>
+            <View style={styles.featureContent}>
+              <Text style={styles.featureTitle}>{authTexts.welcome.features.preserveMemories.title}</Text>
+              <Text style={styles.featureDescription}>{authTexts.welcome.features.preserveMemories.description}</Text>
+            </View>
+          </GlassmorphismContainer>
         </View>
 
         {/* Action Buttons */}
@@ -72,15 +93,15 @@ const WelcomeScreen: React.FC<Props> = () => {
             onPress={handleGetStarted}
             activeOpacity={0.8}
           >
-            <Text style={styles.primaryButtonText}>Get Started</Text>
+            <Text style={styles.primaryButtonText}>{authTexts.welcome.getStartedButton}</Text>
           </TouchableOpacity>
-
+          
           <TouchableOpacity
             style={styles.secondaryButton}
             onPress={handleSignIn}
             activeOpacity={0.8}
           >
-            <Text style={styles.secondaryButtonText}>Sign In</Text>
+            <Text style={styles.secondaryButtonText}>{authTexts.welcome.signInButton}</Text>
           </TouchableOpacity>
         </View>
         </View>
@@ -123,22 +144,61 @@ const styles = StyleSheet.create({
   },
   features: {
     alignItems: 'center',
-    marginVertical: spacing.xxl,
-  },
-  feature: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.lg,
+    marginVertical: spacing.lg,
     paddingHorizontal: spacing.lg,
   },
-  featureIcon: {
-    fontSize: 24,
-    marginRight: spacing.md,
+  featuresTitle: {
+    fontSize: typography.sizes.lg,
+    fontWeight: typography.weights.bold,
+    color: colors.neutral[50],
+    textAlign: 'center',
+    marginBottom: spacing.md,
+    textShadowColor: 'rgba(255, 255, 255, 0.3)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
   },
-  featureText: {
+  featureCard: {
+    width: '100%',
+    marginBottom: spacing.sm,
+    padding: spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: colors.shadow.dark,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  featureIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: spacing.md,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  featureIcon: {
+    fontSize: 20,
+  },
+  featureContent: {
+    flex: 1,
+  },
+  featureTitle: {
     fontSize: typography.sizes.md,
+    fontWeight: typography.weights.bold,
+    color: colors.neutral[50],
+    marginBottom: 2,
+  },
+  featureDescription: {
+    fontSize: typography.sizes.xs,
     color: componentColors.glassmorphism.text,
-    fontWeight: typography.weights.medium,
+    lineHeight: 16,
   },
   actions: {
     marginBottom: spacing.xxl,

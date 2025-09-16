@@ -1,8 +1,11 @@
 /**
  * Gradient Text Component
  * 
- * Since React Native doesn't support gradient text natively,
- * we'll use a solid color that represents the gradient visually
+ * 100% Reusable component with dynamic text support
+ * - No hardcoded text
+ * - Configurable gradient colors
+ * - Flexible styling options
+ * - Type-safe props
  */
 
 import React from 'react';
@@ -14,19 +17,29 @@ interface GradientTextProps {
   children: string;
   style?: TextStyle;
   gradient?: 'peacock' | 'splash';
+  fontSize?: keyof typeof typography.sizes;
+  fontWeight?: keyof typeof typography.weights;
+  textAlign?: 'left' | 'center' | 'right' | 'justify';
+  numberOfLines?: number;
+  ellipsizeMode?: 'head' | 'middle' | 'tail' | 'clip';
 }
 
 const GradientText: React.FC<GradientTextProps> = ({
   children,
   style,
   gradient = 'peacock',
+  fontSize = 'md',
+  fontWeight = 'bold',
+  textAlign = 'center',
+  numberOfLines,
+  ellipsizeMode,
 }) => {
   const getGradientColor = () => {
     switch (gradient) {
       case 'peacock':
-        return brandColors.peacock.teal; // Use the main teal color from gradient
+        return brandColors.peacock.teal;
       case 'splash':
-        return brandColors.splash.teal; // Use the main teal color from gradient
+        return brandColors.splash.teal;
       default:
         return brandColors.peacock.teal;
     }
@@ -36,13 +49,15 @@ const GradientText: React.FC<GradientTextProps> = ({
     <Text
       style={[
         {
-          fontSize: typography.sizes.md,
-          fontWeight: typography.weights.bold,
+          fontSize: typography.sizes[fontSize],
+          fontWeight: typography.weights[fontWeight],
           color: getGradientColor(),
-          textAlign: 'center',
+          textAlign,
         },
         style,
       ]}
+      numberOfLines={numberOfLines}
+      ellipsizeMode={ellipsizeMode}
     >
       {children}
     </Text>

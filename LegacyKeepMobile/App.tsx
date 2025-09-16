@@ -14,7 +14,7 @@ export default function App() {
   if (isSplashVisible) {
     return (
       <>
-        <SplashScreen onAnimationComplete={handleSplashComplete} duration={2000} />
+        <SplashScreen onAnimationComplete={handleSplashComplete} duration={3000} />
         <StatusBar style='light' />
       </>
     );
