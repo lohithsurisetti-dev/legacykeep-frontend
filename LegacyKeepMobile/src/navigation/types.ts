@@ -24,8 +24,9 @@ export type RootStackParamList = {
 export type AuthStackParamList = {
   Welcome: undefined;
   RegistrationMethod: undefined;
-  EmailRegistration: undefined;
+  Registration: undefined;
   PhoneRegistration: undefined;
+  RegistrationSuccess: undefined;
   SocialLogin: undefined;
   Login: undefined;
   ForgotPassword: undefined;
@@ -116,8 +117,9 @@ export const ROUTES = {
   // Auth Routes
   WELCOME: 'Welcome',
   REGISTRATION_METHOD: 'RegistrationMethod',
-  EMAIL_REGISTRATION: 'EmailRegistration',
+  REGISTRATION: 'Registration',
   PHONE_REGISTRATION: 'PhoneRegistration',
+  REGISTRATION_SUCCESS: 'RegistrationSuccess',
   SOCIAL_LOGIN: 'SocialLogin',
   LOGIN: 'Login',
   FORGOT_PASSWORD: 'ForgotPassword',

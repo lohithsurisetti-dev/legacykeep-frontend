@@ -83,6 +83,73 @@ export const authTexts = {
     facebookComingSoon: 'Facebook login will be available soon!',
     instagramComingSoon: 'Instagram login will be available soon!',
   },
+  
+  // Registration Method Screen
+  registrationMethod: {
+    title: 'Create Account',
+    subtitle: 'Choose how you\'d like to sign up',
+    emailOption: 'Continue with Email',
+    phoneOption: 'Continue with Phone',
+    socialOption: 'Continue with Social',
+    alreadyHaveAccount: 'Already have an account?',
+    signInLink: 'Sign In',
+  },
+  
+  // Registration Screen
+  registration: {
+    appTitle: 'LegacyKeep',
+    title: 'Create Account',
+    subtitle: 'Create your account to start preserving your family\'s stories.',
+    firstNamePlaceholder: 'First Name',
+    lastNamePlaceholder: 'Last Name',
+    usernamePlaceholder: 'Username',
+    emailOrPhonePlaceholder: 'Email/Phone',
+    passwordPlaceholder: 'Password',
+    createAccountButton: 'Create Account',
+    termsText: 'I agree to the',
+    termsLink: 'Terms and Conditions',
+    alreadyHaveAccount: 'Already have an account?',
+    signInLink: 'Sign In',
+  },
+  
+  // Phone Registration Screen
+  phoneRegistration: {
+    title: 'Create Account',
+    subtitle: 'Enter your phone number to get started',
+    phoneLabel: 'Phone Number',
+    phonePlaceholder: '+1 (555) 123-4567',
+    sendCodeButton: 'Send Verification Code',
+    verificationTitle: 'Verify Your Phone',
+    verificationSubtitle: 'Enter the code sent to your phone',
+    codeLabel: 'Verification Code',
+    codePlaceholder: 'Enter 6-digit code',
+    verifyButton: 'Verify & Create Account',
+    resendCode: 'Resend Code',
+    changeNumber: 'Change Phone Number',
+  },
+  
+  // Registration Success Screen
+  registrationSuccess: {
+    title: 'Account Created!',
+    subtitle: 'Welcome to LegacyKeep',
+    description: 'Your account has been successfully created. You can now start preserving your family stories.',
+    getStartedButton: 'Get Started',
+  },
+  
+  // Registration Validation Messages
+  registrationValidation: {
+    firstNameRequired: 'First name is required',
+    lastNameRequired: 'Last name is required',
+    emailRequired: 'Email is required',
+    emailInvalid: 'Please enter a valid email address',
+    passwordRequired: 'Password is required',
+    passwordMinLength: 'Password must be at least 8 characters',
+    passwordMismatch: 'Passwords do not match',
+    phoneRequired: 'Phone number is required',
+    phoneInvalid: 'Please enter a valid phone number',
+    codeRequired: 'Verification code is required',
+    codeInvalid: 'Please enter a valid 6-digit code',
+  },
 } as const;
 
 // ============================================================================

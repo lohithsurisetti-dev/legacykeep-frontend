@@ -11,8 +11,9 @@ import { AuthStackParamList, ROUTES } from './types';
 // Import screens (we'll create these one by one)
 import WelcomeScreen from '../screens/auth/WelcomeScreen';
 import RegistrationMethodScreen from '../screens/auth/RegistrationMethodScreen';
-import EmailRegistrationScreen from '../screens/auth/EmailRegistrationScreen';
+import RegistrationScreen from '../screens/auth/RegistrationScreen';
 import PhoneRegistrationScreen from '../screens/auth/PhoneRegistrationScreen';
+import RegistrationSuccessScreen from '../screens/auth/RegistrationSuccessScreen';
 import SocialLoginScreen from '../screens/auth/SocialLoginScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
 import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
@@ -49,10 +50,10 @@ const AuthStack: React.FC = () => {
       />
       
       <Stack.Screen
-        name={ROUTES.EMAIL_REGISTRATION}
-        component={EmailRegistrationScreen}
+        name={ROUTES.REGISTRATION}
+        component={RegistrationScreen}
         options={{
-          title: 'Sign Up with Email',
+          title: 'Create Account',
         }}
       />
       
@@ -61,6 +62,14 @@ const AuthStack: React.FC = () => {
         component={PhoneRegistrationScreen}
         options={{
           title: 'Sign Up with Phone',
+        }}
+      />
+      
+      <Stack.Screen
+        name={ROUTES.REGISTRATION_SUCCESS}
+        component={RegistrationSuccessScreen}
+        options={{
+          title: 'Account Created',
         }}
       />
       

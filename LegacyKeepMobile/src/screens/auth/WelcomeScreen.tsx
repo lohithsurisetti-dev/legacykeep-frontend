@@ -27,7 +27,7 @@ const WelcomeScreen: React.FC<Props> = () => {
   const navigation = useNavigation();
 
   const handleGetStarted = () => {
-    (navigation as any).navigate(ROUTES.REGISTRATION_METHOD);
+    (navigation as any).navigate(ROUTES.REGISTRATION);
   };
 
   const handleSignIn = () => {

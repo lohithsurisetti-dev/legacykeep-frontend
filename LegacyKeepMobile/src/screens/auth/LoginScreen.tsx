@@ -113,7 +113,7 @@ const LoginScreen: React.FC<Props> = () => {
   };
 
   const handleSignUp = () => {
-    (navigation as any).navigate(ROUTES.REGISTRATION_METHOD);
+    (navigation as any).navigate(ROUTES.REGISTRATION);
   };
 
   return (

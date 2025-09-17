@@ -17,6 +17,10 @@ import { useNavigation } from '@react-navigation/native';
 import { AuthStackScreenProps } from '../../navigation/types';
 import { ROUTES } from '../../navigation/types';
 import { colors, typography, spacing } from '../../constants';
+import { authTexts } from '../../constants/texts';
+import GradientBackground from '../../components/ui/GradientBackground';
+import GlassmorphismContainer from '../../components/ui/GlassmorphismContainer';
+import GradientText from '../../components/ui/GradientText';
 
 type Props = AuthStackScreenProps<typeof ROUTES.REGISTRATION_METHOD>;
 
@@ -40,110 +44,158 @@ const RegistrationMethodScreen: React.FC<Props> = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.neutral[50]} />
-      
-      <View style={styles.content}>
-        <Text style={styles.title}>Create Account</Text>
-        <Text style={styles.subtitle}>Choose how you'd like to sign up</Text>
+    <GradientBackground gradient="peacock" style={styles.container}>
+      <StatusBar barStyle="light-content" />
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.content}>
+          {/* Header */}
+          <View style={styles.header}>
+            <GradientText
+              gradient="peacock"
+              fontSize="xxl"
+              fontWeight="bold"
+              style={styles.title}
+            >
+              {authTexts.registrationMethod.title}
+            </GradientText>
+            <Text style={styles.subtitle}>
+              {authTexts.registrationMethod.subtitle}
+            </Text>
+          </View>
 
-        <View style={styles.options}>
-          <TouchableOpacity
-            style={styles.optionButton}
-            onPress={handleEmailRegistration}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.optionIcon}>📧</Text>
-            <Text style={styles.optionText}>Continue with Email</Text>
-          </TouchableOpacity>
+          {/* Registration Options */}
+          <View style={styles.options}>
+            <GlassmorphismContainer style={styles.optionContainer}>
+              <TouchableOpacity
+                style={styles.optionButton}
+                onPress={handleEmailRegistration}
+                activeOpacity={0.8}
+              >
+                <View style={styles.optionIconContainer}>
+                  <Text style={styles.optionIcon}>📧</Text>
+                </View>
+                <Text style={styles.optionText}>
+                  {authTexts.registrationMethod.emailOption}
+                </Text>
+              </TouchableOpacity>
+            </GlassmorphismContainer>
 
-          <TouchableOpacity
-            style={styles.optionButton}
-            onPress={handlePhoneRegistration}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.optionIcon}>📱</Text>
-            <Text style={styles.optionText}>Continue with Phone</Text>
-          </TouchableOpacity>
+            <GlassmorphismContainer style={styles.optionContainer}>
+              <TouchableOpacity
+                style={styles.optionButton}
+                onPress={handlePhoneRegistration}
+                activeOpacity={0.8}
+              >
+                <View style={styles.optionIconContainer}>
+                  <Text style={styles.optionIcon}>📱</Text>
+                </View>
+                <Text style={styles.optionText}>
+                  {authTexts.registrationMethod.phoneOption}
+                </Text>
+              </TouchableOpacity>
+            </GlassmorphismContainer>
 
-          <TouchableOpacity
-            style={styles.optionButton}
-            onPress={handleSocialLogin}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.optionIcon}>🔗</Text>
-            <Text style={styles.optionText}>Continue with Social</Text>
-          </TouchableOpacity>
+            <GlassmorphismContainer style={styles.optionContainer}>
+              <TouchableOpacity
+                style={styles.optionButton}
+                onPress={handleSocialLogin}
+                activeOpacity={0.8}
+              >
+                <View style={styles.optionIconContainer}>
+                  <Text style={styles.optionIcon}>🔗</Text>
+                </View>
+                <Text style={styles.optionText}>
+                  {authTexts.registrationMethod.socialOption}
+                </Text>
+              </TouchableOpacity>
+            </GlassmorphismContainer>
+          </View>
+
+          {/* Sign In Link */}
+          <View style={styles.footer}>
+            <Text style={styles.signInText}>
+              {authTexts.registrationMethod.alreadyHaveAccount}{' '}
+              <TouchableOpacity onPress={handleSignIn} activeOpacity={0.8}>
+                <Text style={styles.signInLinkText}>
+                  {authTexts.registrationMethod.signInLink}
+                </Text>
+              </TouchableOpacity>
+            </Text>
+          </View>
         </View>
-
-        <TouchableOpacity
-          style={styles.signInLink}
-          onPress={handleSignIn}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.signInText}>
-            Already have an account? <Text style={styles.signInLinkText}>Sign In</Text>
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </GradientBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.neutral[50],
+  },
+  safeArea: {
+    flex: 1,
   },
   content: {
     flex: 1,
     paddingHorizontal: spacing.lg,
     justifyContent: 'center',
   },
+  header: {
+    alignItems: 'center',
+    marginBottom: spacing.xxl,
+  },
   title: {
-    fontSize: typography.sizes.xxl,
-    fontWeight: typography.weights.bold,
-    color: colors.neutral[900],
     textAlign: 'center',
     marginBottom: spacing.sm,
   },
   subtitle: {
-    fontSize: typography.sizes.md,
-    color: colors.neutral[600],
+    fontSize: typography.sizes.lg,
+    color: colors.neutral[100],
     textAlign: 'center',
-    marginBottom: spacing.xxl,
+    opacity: 0.9,
   },
   options: {
     marginBottom: spacing.xxl,
   },
+  optionContainer: {
+    marginBottom: spacing.md,
+  },
   optionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.neutral[100],
     paddingVertical: spacing.lg,
     paddingHorizontal: spacing.lg,
-    borderRadius: 12,
-    marginBottom: spacing.md,
+  },
+  optionIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: spacing.md,
   },
   optionIcon: {
     fontSize: 24,
-    marginRight: spacing.md,
   },
   optionText: {
     fontSize: typography.sizes.lg,
-    color: colors.neutral[700],
+    color: colors.neutral[100],
     fontWeight: typography.weights.medium,
+    flex: 1,
   },
-  signInLink: {
+  footer: {
     alignItems: 'center',
   },
   signInText: {
     fontSize: typography.sizes.md,
-    color: colors.neutral[600],
+    color: colors.neutral[100],
+    opacity: 0.8,
   },
   signInLinkText: {
-    color: colors.primary[600],
+    color: colors.neutral[50],
     fontWeight: typography.weights.semibold,
+    textDecorationLine: 'underline',
   },
 });
 

@@ -30,6 +30,13 @@ export const brandColors = {
     indigo: '#6366f1',
   },
   
+  // Instagram Blue Colors
+  instagram: {
+    blue: '#0095F6',
+    blueLight: '#4FC3F7',
+    blueDark: '#0066CC',
+  },
+  
   // Accent Colors
   accent: '#FFC75F', // Golden accent
   
@@ -53,6 +60,7 @@ export const brandColors = {
 export const gradients = {
   peacock: [brandColors.peacock.teal, brandColors.peacock.blue, brandColors.peacock.purple],
   splash: [brandColors.splash.teal, brandColors.splash.purple, brandColors.splash.indigo],
+  instagram: [brandColors.instagram.blueDark, brandColors.instagram.blue, brandColors.instagram.blueLight],
 } as const;
 
 /**
@@ -69,8 +77,18 @@ export const gradientConfigs = {
     start: { x: 0, y: 0 },
     end: { x: 1, y: 1 },
   },
+  instagram: {
+    colors: gradients.instagram,
+    start: { x: 0, y: 0 },
+    end: { x: 1, y: 1 },
+  },
   horizontal: {
     colors: gradients.peacock,
+    start: { x: 0, y: 0 },
+    end: { x: 1, y: 0 },
+  },
+  instagramHorizontal: {
+    colors: gradients.instagram,
     start: { x: 0, y: 0 },
     end: { x: 1, y: 0 },
   },

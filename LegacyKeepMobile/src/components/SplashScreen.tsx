@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
   },
   logoContainer: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing.sm,
     // Enhanced glow effect like the original
     shadowColor: '#ffffff',
     shadowOffset: {
