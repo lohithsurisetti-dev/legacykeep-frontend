@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 48,
     borderWidth: 1,
-    borderColor: colors.neutral[300],
+    borderColor: colors.neutral[400], // Darker border for better visibility
     borderRadius: 8,
     paddingHorizontal: spacing.md,
     fontSize: typography.sizes.md,

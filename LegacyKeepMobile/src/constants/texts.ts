@@ -136,6 +136,18 @@ export const authTexts = {
     getStartedButton: 'Get Started',
   },
   
+  // Forgot Password Screen
+  forgotPassword: {
+    appTitle: 'LegacyKeep',
+    title: 'Set your new password',
+    newPasswordLabel: 'New Password',
+    newPasswordPlaceholder: 'Enter new password',
+    confirmPasswordLabel: 'Confirm New Password',
+    confirmPasswordPlaceholder: 'Confirm new password',
+    resetPasswordButton: 'Reset Password',
+    backToLogin: 'Back to Login',
+  },
+  
   // Registration Validation Messages
   registrationValidation: {
     firstNameRequired: 'First name is required',

@@ -4,8 +4,8 @@
  * Centralized validation functions for forms
  */
 
-// Email validation regex
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Enhanced email validation regex with better syntax checking
+const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
 // Username validation regex (alphanumeric, underscore, hyphen, 3-20 chars)
 const USERNAME_REGEX = /^[a-zA-Z0-9_-]{3,20}$/;
@@ -13,8 +13,8 @@ const USERNAME_REGEX = /^[a-zA-Z0-9_-]{3,20}$/;
 // Password validation regex (at least 8 chars, 1 uppercase, 1 lowercase, 1 number)
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/;
 
-// Phone number validation regex (basic international format)
-const PHONE_REGEX = /^\+?[1-9]\d{1,14}$/;
+// Enhanced phone number validation regex (international format with better digit handling)
+const PHONE_REGEX = /^\+?[1-9]\d{6,14}$/;
 
 export interface ValidationResult {
   isValid: boolean;
@@ -22,14 +22,46 @@ export interface ValidationResult {
 }
 
 /**
- * Validates email format
+ * Validates email format with enhanced syntax checking
  */
 export const validateEmail = (email: string): ValidationResult => {
   if (!email.trim()) {
     return { isValid: false, error: 'Email is required' };
   }
   
-  if (!EMAIL_REGEX.test(email)) {
+  const trimmedEmail = email.trim();
+  
+  // Check for basic structure
+  if (!trimmedEmail.includes('@')) {
+    return { isValid: false, error: 'Email must contain @ symbol' };
+  }
+  
+  if (!trimmedEmail.includes('.')) {
+    return { isValid: false, error: 'Email must contain a domain' };
+  }
+  
+  // Check for multiple @ symbols
+  if ((trimmedEmail.match(/@/g) || []).length > 1) {
+    return { isValid: false, error: 'Email can only contain one @ symbol' };
+  }
+  
+  // Check for consecutive dots
+  if (trimmedEmail.includes('..')) {
+    return { isValid: false, error: 'Email cannot contain consecutive dots' };
+  }
+  
+  // Check for spaces
+  if (trimmedEmail.includes(' ')) {
+    return { isValid: false, error: 'Email cannot contain spaces' };
+  }
+  
+  // Check length limits
+  if (trimmedEmail.length > 254) {
+    return { isValid: false, error: 'Email is too long' };
+  }
+  
+  // Use enhanced regex
+  if (!EMAIL_REGEX.test(trimmedEmail)) {
     return { isValid: false, error: 'Please enter a valid email address' };
   }
   
@@ -37,22 +69,48 @@ export const validateEmail = (email: string): ValidationResult => {
 };
 
 /**
- * Validates username format
+ * Validates username format with enhanced checks
  */
 export const validateUsername = (username: string): ValidationResult => {
   if (!username.trim()) {
     return { isValid: false, error: 'Username is required' };
   }
   
-  if (username.length < 3) {
+  const trimmedUsername = username.trim();
+  
+  // Check length
+  if (trimmedUsername.length < 3) {
     return { isValid: false, error: 'Username must be at least 3 characters' };
   }
   
-  if (username.length > 20) {
+  if (trimmedUsername.length > 20) {
     return { isValid: false, error: 'Username must be less than 20 characters' };
   }
   
-  if (!USERNAME_REGEX.test(username)) {
+  // Check for spaces
+  if (trimmedUsername.includes(' ')) {
+    return { isValid: false, error: 'Username cannot contain spaces' };
+  }
+  
+  // Check for consecutive special characters
+  if (trimmedUsername.includes('__') || trimmedUsername.includes('--') || trimmedUsername.includes('_-') || trimmedUsername.includes('-_')) {
+    return { isValid: false, error: 'Username cannot contain consecutive special characters' };
+  }
+  
+  // Check if starts or ends with special characters
+  if (trimmedUsername.startsWith('_') || trimmedUsername.startsWith('-') || 
+      trimmedUsername.endsWith('_') || trimmedUsername.endsWith('-')) {
+    return { isValid: false, error: 'Username cannot start or end with underscore or hyphen' };
+  }
+  
+  // Check for reserved usernames (basic check)
+  const reservedUsernames = ['admin', 'root', 'user', 'test', 'guest', 'api', 'www', 'mail', 'support'];
+  if (reservedUsernames.includes(trimmedUsername.toLowerCase())) {
+    return { isValid: false, error: 'This username is reserved' };
+  }
+  
+  // Use regex for final validation
+  if (!USERNAME_REGEX.test(trimmedUsername)) {
     return { isValid: false, error: 'Username can only contain letters, numbers, underscore, and hyphen' };
   }
   
@@ -82,16 +140,45 @@ export const validatePassword = (password: string): ValidationResult => {
 };
 
 /**
- * Validates phone number format
+ * Validates phone number format with enhanced digit checking
  */
 export const validatePhoneNumber = (phone: string): ValidationResult => {
   if (!phone.trim()) {
     return { isValid: false, error: 'Phone number is required' };
   }
   
-  // Remove all non-digit characters except +
-  const cleanPhone = phone.replace(/[^\d+]/g, '');
+  const trimmedPhone = phone.trim();
   
+  // Remove all non-digit characters except +
+  const cleanPhone = trimmedPhone.replace(/[^\d+]/g, '');
+  
+  // Check if phone contains only digits and optional +
+  if (!/^\+?[\d]+$/.test(cleanPhone)) {
+    return { isValid: false, error: 'Phone number can only contain digits and +' };
+  }
+  
+  // Check for multiple + symbols
+  if ((cleanPhone.match(/\+/g) || []).length > 1) {
+    return { isValid: false, error: 'Phone number can only contain one + symbol' };
+  }
+  
+  // Check if + is at the beginning
+  if (cleanPhone.includes('+') && !cleanPhone.startsWith('+')) {
+    return { isValid: false, error: '+ symbol must be at the beginning' };
+  }
+  
+  // Check minimum length (7 digits minimum for international)
+  const digitsOnly = cleanPhone.replace(/\+/g, '');
+  if (digitsOnly.length < 7) {
+    return { isValid: false, error: 'Phone number must be at least 7 digits' };
+  }
+  
+  // Check maximum length (15 digits maximum for international)
+  if (digitsOnly.length > 15) {
+    return { isValid: false, error: 'Phone number cannot exceed 15 digits' };
+  }
+  
+  // Use enhanced regex
   if (!PHONE_REGEX.test(cleanPhone)) {
     return { isValid: false, error: 'Please enter a valid phone number' };
   }
@@ -114,6 +201,30 @@ export const validateEmailOrUsername = (input: string): ValidationResult => {
   
   // Otherwise treat as username
   return validateUsername(input);
+};
+
+/**
+ * Validates email or phone number (for registration)
+ */
+export const validateEmailOrPhone = (input: string): ValidationResult => {
+  if (!input.trim()) {
+    return { isValid: false, error: 'Email or phone number is required' };
+  }
+  
+  const trimmedInput = input.trim();
+  
+  // Check if it's an email (contains @)
+  if (trimmedInput.includes('@')) {
+    return validateEmail(trimmedInput);
+  }
+  
+  // Check if it's a phone number (contains only digits, +, spaces, dashes, parentheses)
+  if (/^[\d\s\-\+\(\)]+$/.test(trimmedInput)) {
+    return validatePhoneNumber(trimmedInput);
+  }
+  
+  // If it doesn't match either pattern, it's invalid
+  return { isValid: false, error: 'Please enter a valid email address or phone number' };
 };
 
 /**

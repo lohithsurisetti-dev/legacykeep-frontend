@@ -15,7 +15,10 @@ import { AuthStackScreenProps } from '../../navigation/types';
 import { ROUTES } from '../../navigation/types';
 import { colors, typography, spacing } from '../../constants';
 import { authTexts } from '../../constants/texts';
-import { validateEmail, validatePassword } from '../../utils/validation';
+import { validateEmail, validatePassword, validateUsername, validateEmailOrPhone } from '../../utils/validation';
+import GradientButton from '../../components/ui/GradientButton';
+import GradientText from '../../components/ui/GradientText';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type Props = AuthStackScreenProps<typeof ROUTES.REGISTRATION>;
 
@@ -72,22 +75,21 @@ const RegistrationScreen: React.FC<Props> = () => {
     }
 
     // Username validation
-    if (!formData.username.trim()) {
-      newErrors.username = 'Username is required';
+    const usernameValidation = validateUsername(formData.username);
+    if (!usernameValidation.isValid) {
+      newErrors.username = usernameValidation.error;
     }
 
     // Email/Phone validation
-    if (!formData.emailOrPhone.trim()) {
-      newErrors.emailOrPhone = 'Email or phone is required';
-    } else if (!validateEmail(formData.emailOrPhone) && !/^\+?[\d\s\-\(\)]+$/.test(formData.emailOrPhone)) {
-      newErrors.emailOrPhone = 'Please enter a valid email or phone number';
+    const emailOrPhoneValidation = validateEmailOrPhone(formData.emailOrPhone);
+    if (!emailOrPhoneValidation.isValid) {
+      newErrors.emailOrPhone = emailOrPhoneValidation.error;
     }
 
     // Password validation
-    if (!formData.password) {
-      newErrors.password = authTexts.registrationValidation.passwordRequired;
-    } else if (!validatePassword(formData.password)) {
-      newErrors.password = authTexts.registrationValidation.passwordMinLength;
+    const passwordValidation = validatePassword(formData.password);
+    if (!passwordValidation.isValid) {
+      newErrors.password = passwordValidation.error;
     }
 
     // Terms agreement validation
@@ -150,12 +152,27 @@ const RegistrationScreen: React.FC<Props> = () => {
             </Text>
           </View>
 
-          {/* Progress Indicator */}
-          <View style={styles.progressContainer}>
-            <View style={styles.progressBar} />
-            <View style={styles.progressDot} />
-            <View style={styles.progressDot} />
-          </View>
+              {/* Progress Indicator */}
+              <View style={styles.progressContainer}>
+                <LinearGradient
+                  colors={['#667eea', '#764ba2']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.progressBar}
+                />
+                <LinearGradient
+                  colors={['#667eea', '#764ba2']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.progressDot}
+                />
+                <LinearGradient
+                  colors={['#667eea', '#764ba2']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.progressDot}
+                />
+              </View>
 
           {/* Registration Form */}
           <View style={styles.formContainer}>
@@ -223,34 +240,54 @@ const RegistrationScreen: React.FC<Props> = () => {
                   onPress={() => handleInputChange('agreeToTerms', !formData.agreeToTerms)}
                   activeOpacity={0.8}
                 >
-                  <View style={[styles.checkbox, formData.agreeToTerms && styles.checkboxChecked]}>
-                    {formData.agreeToTerms && <Text style={styles.checkmark}>✓</Text>}
-                  </View>
+                  {formData.agreeToTerms ? (
+                    <LinearGradient
+                      colors={['#667eea', '#764ba2']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 0 }}
+                      style={styles.checkbox}
+                    >
+                      <Text style={styles.checkmark}>✓</Text>
+                    </LinearGradient>
+                  ) : (
+                    <View style={styles.checkbox}>
+                    </View>
+                  )}
                   <Text style={styles.termsText}>
                     {authTexts.registration.termsText}{' '}
-                    <Text style={styles.termsLink}>{authTexts.registration.termsLink}</Text>
+                    <GradientText
+                      gradient="peacock"
+                      fontSize="sm"
+                      fontWeight="medium"
+                    >
+                      {authTexts.registration.termsLink}
+                    </GradientText>
                   </Text>
                 </TouchableOpacity>
               </View>
 
               {/* Create Account Button */}
-              <TouchableOpacity
+              <GradientButton
+                title={authTexts.registration.createAccountButton}
                 onPress={handleCreateAccount}
                 disabled={isLoading}
-                style={[styles.createButton, { opacity: isLoading ? 0.6 : 1 }]}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.createButtonText}>{authTexts.registration.createAccountButton}</Text>
-              </TouchableOpacity>
+                style={styles.createButton}
+              />
             </View>
           </View>
 
-          {/* Sign In Link */}
+          {/* Footer */}
           <View style={styles.footer}>
-            <View style={styles.signInContainer}>
-              <Text style={styles.signInText}>{authTexts.registration.alreadyHaveAccount}</Text>
-              <TouchableOpacity onPress={handleSignIn} activeOpacity={0.8}>
-                <Text style={styles.signInLinkText}>{authTexts.registration.signInLink}</Text>
+            <View style={styles.footerTextContainer}>
+              <Text style={styles.footerText}>{authTexts.registration.alreadyHaveAccount} </Text>
+              <TouchableOpacity onPress={handleSignIn} activeOpacity={0.7}>
+                <GradientText
+                  gradient="peacock"
+                  fontSize="md"
+                  fontWeight="bold"
+                >
+                  {authTexts.registration.signInLink}
+                </GradientText>
               </TouchableOpacity>
             </View>
           </View>
@@ -272,9 +309,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    flexGrow: 1,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.lg,
+    minHeight: '100%',
   },
   header: {
     alignItems: 'center',
@@ -302,18 +339,14 @@ const styles = StyleSheet.create({
     height: 10, // h-2.5
     width: 32, // w-8
     borderRadius: 5, // rounded-full
-    backgroundColor: '#0095F6', // Instagram blue
   },
   progressDot: {
     height: 10, // h-2.5
     width: 10, // w-2.5
     borderRadius: 5, // rounded-full
-    backgroundColor: '#4FC3F7', // Instagram blue light
     marginLeft: spacing.sm, // space-x-2
   },
   formContainer: {
-    flex: 1,
-    justifyContent: 'center',
     marginBottom: spacing.xl,
   },
   form: {
@@ -329,7 +362,7 @@ const styles = StyleSheet.create({
   },
   nameInput: {
     borderWidth: 1,
-    borderColor: colors.neutral[300], // border-gray-300
+    borderColor: colors.neutral[400], // Darker border for better visibility
     borderRadius: 12, // rounded-xl
     paddingVertical: 14, // py-3.5
     paddingHorizontal: spacing.md, // px-4
@@ -339,7 +372,7 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: colors.neutral[300], // border-gray-300
+    borderColor: colors.neutral[400], // Darker border for better visibility
     borderRadius: 12, // rounded-xl
     paddingVertical: 14, // py-3.5
     paddingHorizontal: spacing.md, // px-4
@@ -371,10 +404,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  checkboxChecked: {
-    backgroundColor: '#0095F6', // Instagram blue
-    borderColor: '#0095F6', // checked:border-transparent
-  },
   checkmark: {
     color: colors.neutral[50], // text-white
     fontSize: 12,
@@ -386,47 +415,32 @@ const styles = StyleSheet.create({
     flex: 1,
     lineHeight: 20,
   },
-  termsLink: {
-    color: '#0095F6', // Instagram blue
-    fontWeight: typography.weights.medium, // font-medium
-  },
   createButton: {
     marginTop: spacing.md,
-    height: 56,
-    borderRadius: 12,
-    backgroundColor: '#0095F6', // Instagram blue
-    justifyContent: 'center',
-    alignItems: 'center',
+    height: 48, // Match login button height
+    borderRadius: 8, // Match login button border radius
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.25, // Match login button shadow
     shadowRadius: 4,
-    elevation: 3,
-  },
-  createButtonText: {
-    fontSize: typography.sizes.md,
-    fontWeight: typography.weights.bold,
-    color: colors.neutral[50], // White text
+    elevation: 4, // Match login button elevation
   },
   footer: {
     alignItems: 'center',
-    paddingTop: spacing.lg,
+    marginTop: spacing.lg,
+    marginBottom: spacing.xl,
   },
-  signInContainer: {
+  footerTextContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
+    justifyContent: 'center',
   },
-  signInText: {
-    fontSize: typography.sizes.sm,
+  footerText: {
     color: colors.neutral[600],
-  },
-  signInLinkText: {
-    color: '#0095F6', // Instagram blue
-    fontWeight: typography.weights.medium,
+    fontSize: typography.sizes.md,
   },
 });
 
