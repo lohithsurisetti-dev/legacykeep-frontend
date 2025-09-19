@@ -59,7 +59,7 @@ const LoginScreen: React.FC<Props> = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   // Validate form - only show errors for touched fields or when validating all
-  const validateForm = (data: LoginFormData, validateAll: boolean = false) => {
+  const validateForm = (data: LoginFormData, validateAll: boolean = false): boolean => {
     const newErrors: LoginFormErrors = {};
     
     // Validate email/username (only if touched or validateAll)
@@ -85,6 +85,8 @@ const LoginScreen: React.FC<Props> = () => {
                    data.emailOrUsername.trim() !== '' && 
                    data.password.trim() !== '';
     setIsFormValid(isValid);
+    
+    return isValid;
   };
 
   const handleInputChange = (field: keyof LoginFormData, value: string) => {
@@ -102,7 +104,8 @@ const LoginScreen: React.FC<Props> = () => {
     // Mark all fields as touched and validate
     setTouchedFields(new Set(['emailOrUsername', 'password']));
     
-    if (!validateForm(formData, true)) {
+    const isValid = validateForm(formData, true);
+    if (!isValid) {
       return;
     }
 
