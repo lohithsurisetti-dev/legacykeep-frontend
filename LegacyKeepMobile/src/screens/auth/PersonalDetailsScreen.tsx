@@ -1,0 +1,464 @@
+/**
+ * Personal Details Screen (Screen 2)
+ * 
+ * Collects user's date of birth and gender information
+ */
+
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+  Animated,
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { AuthStackScreenProps } from '../../navigation/types';
+import { ROUTES } from '../../navigation/types';
+import { colors, typography, spacing, gradients } from '../../constants';
+import { authTexts } from '../../constants/texts';
+import { BackButton, GradientButton, ProgressTracker, GradientText } from '../../components/ui';
+import { LinearGradient } from 'expo-linear-gradient';
+import DateTimePicker from '@react-native-community/datetimepicker';
+
+type Props = AuthStackScreenProps<typeof ROUTES.PERSONAL_DETAILS>;
+
+interface PersonalDetailsFormData {
+  dateOfBirth: Date | null;
+  gender: string;
+}
+
+interface PersonalDetailsFormErrors {
+  dateOfBirth?: string;
+  gender?: string;
+}
+
+const PersonalDetailsScreen: React.FC<Props> = () => {
+  const navigation = useNavigation();
+  
+  const [formData, setFormData] = useState<PersonalDetailsFormData>({
+    dateOfBirth: null,
+    gender: '',
+  });
+  
+  const [errors, setErrors] = useState<PersonalDetailsFormErrors>({});
+  const [touchedFields, setTouchedFields] = useState<Set<keyof PersonalDetailsFormData>>(new Set());
+  const [isLoading, setIsLoading] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const datePickerAnimation = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (showDatePicker) {
+      Animated.timing(datePickerAnimation, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(datePickerAnimation, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [showDatePicker]);
+
+  const validateForm = (data: PersonalDetailsFormData, validateAll: boolean = false) => {
+    const newErrors: PersonalDetailsFormErrors = {};
+    
+    // Validate date of birth (only if touched or validateAll)
+    if (validateAll || touchedFields.has('dateOfBirth')) {
+      if (!data.dateOfBirth) {
+        newErrors.dateOfBirth = 'Date of birth is required';
+      } else if (data.dateOfBirth > new Date()) {
+        newErrors.dateOfBirth = 'Date of birth must be in the past';
+      }
+    }
+    
+    // Validate gender (only if touched or validateAll)
+    if (validateAll || touchedFields.has('gender')) {
+      if (!data.gender) {
+        newErrors.gender = 'Please select your gender';
+      }
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleInputChange = (field: keyof PersonalDetailsFormData, value: any) => {
+    const newData = { ...formData, [field]: value };
+    setFormData(newData);
+    
+    // Mark field as touched
+    setTouchedFields(prev => new Set([...prev, field]));
+    
+    // Validate only the touched field
+    validateForm(newData, false);
+  };
+
+  const handleDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      handleInputChange('dateOfBirth', selectedDate);
+    }
+  };
+
+  const handleContinue = async () => {
+    if (!validateForm(formData, true)) {
+      Alert.alert('Invalid Form', 'Please correct the errors in the form.');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // TODO: Save personal details data
+      console.log('Personal details:', formData);
+      
+      // Navigate to next screen
+      (navigation as any).navigate(ROUTES.LOCATION);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to save personal details. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleBack = () => {
+    (navigation as any).goBack();
+  };
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
+  const genderOptions = [
+    { value: 'male', label: authTexts.personalDetails.genderOptions.male },
+    { value: 'female', label: authTexts.personalDetails.genderOptions.female },
+    { value: 'other', label: authTexts.personalDetails.genderOptions.other },
+    { value: 'preferNotToSay', label: authTexts.personalDetails.genderOptions.preferNotToSay },
+  ];
+
+  return (
+    <View style={styles.container}>
+      <SafeAreaView style={styles.safeArea}>
+        {/* Back Button */}
+        <BackButton onPress={handleBack} style={styles.backButton} />
+        
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.title}>{authTexts.personalDetails.title}</Text>
+            <Text style={styles.subtitle}>{authTexts.personalDetails.subtitle}</Text>
+          </View>
+
+          {/* Progress Indicator */}
+          <ProgressTracker currentStep={2} totalSteps={4} />
+
+          {/* Form */}
+          <View style={styles.formContainer}>
+            <View style={styles.form}>
+              {/* Gender Field */}
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputLabel}>{authTexts.personalDetails.genderLabel}</Text>
+                <View style={styles.genderContainer}>
+                  {genderOptions.map((option) => (
+                    formData.gender === option.value ? (
+                      <LinearGradient
+                        key={option.value}
+                        colors={gradients.peacock}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                        style={styles.genderOptionGradientWrapper}
+                      >
+                        <TouchableOpacity
+                          style={styles.genderOptionGradientInner}
+                          onPress={() => handleInputChange('gender', option.value)}
+                        >
+                          <Text style={styles.genderOptionTextSelected}>
+                            {option.label}
+                          </Text>
+                        </TouchableOpacity>
+                      </LinearGradient>
+                    ) : (
+                      <TouchableOpacity
+                        key={option.value}
+                        style={styles.genderOption}
+                        onPress={() => handleInputChange('gender', option.value)}
+                      >
+                        <Text style={styles.genderOptionText}>
+                          {option.label}
+                        </Text>
+                      </TouchableOpacity>
+                    )
+                  ))}
+                </View>
+              </View>
+
+              {/* Date of Birth Field */}
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputLabel}>{authTexts.personalDetails.dateOfBirthLabel}</Text>
+                <TouchableOpacity
+                  style={[styles.dateInput, errors.dateOfBirth && styles.inputError]}
+                  onPress={() => setShowDatePicker(!showDatePicker)}
+                >
+                  <Text style={[
+                    styles.dateInputText,
+                    !formData.dateOfBirth && styles.placeholderText
+                  ]}>
+                    {formData.dateOfBirth ? formatDate(formData.dateOfBirth) : authTexts.personalDetails.dateOfBirthPlaceholder}
+                  </Text>
+                </TouchableOpacity>
+                
+                {/* Date Picker Container - Always present to prevent layout shift */}
+                <View style={styles.datePickerContainer}>
+                  <Animated.View 
+                    style={[
+                      styles.inlineDatePicker,
+                      {
+                        opacity: datePickerAnimation,
+                        transform: [{
+                          translateY: datePickerAnimation.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [-20, 0],
+                          })
+                        }]
+                      }
+                    ]}
+                  >
+                    <DateTimePicker
+                      value={formData.dateOfBirth || new Date()}
+                      mode="date"
+                      display="spinner"
+                      onChange={(event, selectedDate) => {
+                        // Don't auto-select, just update the picker value
+                        if (selectedDate) {
+                          setFormData(prev => ({ ...prev, dateOfBirth: selectedDate }));
+                        }
+                      }}
+                      maximumDate={new Date()}
+                      style={styles.datePicker}
+                    />
+                    <TouchableOpacity
+                      onPress={() => setShowDatePicker(false)}
+                    >
+                      <Text style={styles.doneText}>Done</Text>
+                    </TouchableOpacity>
+                  </Animated.View>
+                </View>
+              </View>
+
+            </View>
+          </View>
+        </ScrollView>
+
+        {/* Footer */}
+        <View style={styles.footer}>
+          <GradientButton
+            title={authTexts.personalDetails.continueButton}
+            onPress={handleContinue}
+            disabled={isLoading}
+            style={styles.continueButton}
+          />
+          
+          {/* Already have account - below continue button */}
+          <View style={styles.signInContainer}>
+            <Text style={styles.footerText}>{authTexts.personalDetails.alreadyHaveAccount} </Text>
+            <TouchableOpacity onPress={() => (navigation as any).navigate(ROUTES.LOGIN)} activeOpacity={0.7}>
+              <GradientText
+                gradient="peacock"
+                fontSize="md"
+                fontWeight="bold"
+              >
+                {authTexts.personalDetails.signIn}
+              </GradientText>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+      </SafeAreaView>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.neutral[50],
+  },
+  safeArea: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
+    flexGrow: 1,
+  },
+  backButton: {
+    position: 'absolute',
+    top: spacing.xl + spacing.sm,
+    left: spacing.lg,
+    zIndex: 10,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+  title: {
+    fontSize: typography.sizes.xxl,
+    fontWeight: typography.weights.bold,
+    color: colors.neutral[900],
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: typography.sizes.md,
+    color: colors.neutral[600],
+    textAlign: 'center',
+    marginTop: spacing.sm,
+  },
+  description: {
+    fontSize: typography.sizes.md,
+    color: colors.neutral[600],
+    textAlign: 'center',
+    marginTop: spacing.xs,
+  },
+  formContainer: {
+    marginBottom: spacing.lg,
+  },
+  form: {
+    width: '100%',
+  },
+  inputContainer: {
+    marginBottom: spacing.lg,
+  },
+  inputLabel: {
+    fontSize: typography.sizes.md,
+    fontWeight: typography.weights.medium,
+    color: colors.neutral[700],
+    marginBottom: spacing.sm,
+  },
+  dateInput: {
+    borderWidth: 1,
+    borderColor: colors.neutral[400],
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: spacing.md,
+    backgroundColor: colors.neutral[50],
+  },
+  dateInputText: {
+    fontSize: typography.sizes.md,
+    color: colors.neutral[900],
+  },
+  placeholderText: {
+    color: colors.neutral[500],
+  },
+  genderContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  genderOption: {
+    flex: 1,
+    minWidth: '45%',
+    height: 48, // Fixed height to match selected options
+    borderWidth: 1,
+    borderColor: colors.neutral[300],
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.neutral[50],
+  },
+  genderOptionGradientWrapper: {
+    flex: 1,
+    minWidth: '45%',
+    borderRadius: 12,
+    padding: 2, // This creates the border width
+    height: 48, // Match the height of unselected options
+  },
+  genderOptionGradientInner: {
+    flex: 1,
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.neutral[50], // Light background inside the gradient border
+  },
+  genderOptionText: {
+    fontSize: typography.sizes.md,
+    color: colors.neutral[700],
+    fontWeight: typography.weights.medium,
+  },
+  genderOptionTextSelected: {
+    fontSize: typography.sizes.md,
+    color: gradients.peacock[0], // Gradient color for selected text
+    fontWeight: typography.weights.semibold,
+  },
+  inputError: {
+    borderColor: colors.error[500],
+  },
+  footer: {
+    alignItems: 'center',
+    marginTop: spacing.md,
+    marginBottom: spacing.xl,
+    paddingHorizontal: spacing.lg,
+  },
+  continueButton: {
+    height: 48,
+    borderRadius: 8,
+    width: '100%',
+  },
+  signInContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: spacing.lg,
+  },
+  footerText: {
+    fontSize: typography.sizes.md,
+    color: colors.neutral[600],
+    textAlign: 'center',
+  },
+  datePickerContainer: {
+    height: 320, // Increased height to accommodate button fully (200px picker + 120px for button and padding)
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  inlineDatePicker: {
+    backgroundColor: 'transparent',
+    borderRadius: 12,
+    padding: spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  datePicker: {
+    height: 200,
+  },
+  doneText: {
+    fontSize: typography.sizes.lg,
+    fontWeight: typography.weights.medium,
+    color: colors.neutral[600],
+    textAlign: 'center',
+    marginTop: spacing.md,
+  },
+});
+
+export default PersonalDetailsScreen;

@@ -128,8 +128,8 @@ const ForgotPasswordScreen: React.FC<Props> = () => {
         >
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.title}>{authTexts.forgotPassword.appTitle}</Text>
-            <Text style={styles.subtitle}>{authTexts.forgotPassword.title}</Text>
+            <Text style={styles.title}>{authTexts.forgotPassword.title}</Text>
+            <Text style={styles.subtitle}>{authTexts.forgotPassword.subtitle}</Text>
           </View>
 
           {/* Form */}

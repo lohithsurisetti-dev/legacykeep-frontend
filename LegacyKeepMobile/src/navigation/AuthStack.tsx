@@ -12,6 +12,9 @@ import { AuthStackParamList, ROUTES } from './types';
 import WelcomeScreen from '../screens/auth/WelcomeScreen';
 import RegistrationMethodScreen from '../screens/auth/RegistrationMethodScreen';
 import RegistrationScreen from '../screens/auth/RegistrationScreen';
+import PersonalDetailsScreen from '../screens/auth/PersonalDetailsScreen';
+import LocationScreen from '../screens/auth/LocationScreen';
+import OtpVerificationScreen from '../screens/auth/OtpVerificationScreen';
 import PhoneRegistrationScreen from '../screens/auth/PhoneRegistrationScreen';
 import RegistrationSuccessScreen from '../screens/auth/RegistrationSuccessScreen';
 import SocialLoginScreen from '../screens/auth/SocialLoginScreen';
@@ -54,6 +57,30 @@ const AuthStack: React.FC = () => {
         component={RegistrationScreen}
         options={{
           title: 'Create Account',
+        }}
+      />
+      
+      <Stack.Screen
+        name={ROUTES.PERSONAL_DETAILS}
+        component={PersonalDetailsScreen}
+        options={{
+          title: 'Personal Details',
+        }}
+      />
+      
+      <Stack.Screen
+        name={ROUTES.LOCATION}
+        component={LocationScreen}
+        options={{
+          title: 'Location',
+        }}
+      />
+      
+      <Stack.Screen
+        name={ROUTES.OTP_VERIFICATION}
+        component={OtpVerificationScreen}
+        options={{
+          title: 'Verify Account',
         }}
       />
       

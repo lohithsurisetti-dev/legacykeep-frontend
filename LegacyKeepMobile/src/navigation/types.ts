@@ -25,6 +25,9 @@ export type AuthStackParamList = {
   Welcome: undefined;
   RegistrationMethod: undefined;
   Registration: undefined;
+  PersonalDetails: undefined;
+  Location: undefined;
+  OtpVerification: undefined;
   PhoneRegistration: undefined;
   RegistrationSuccess: undefined;
   SocialLogin: undefined;
@@ -118,6 +121,9 @@ export const ROUTES = {
   WELCOME: 'Welcome',
   REGISTRATION_METHOD: 'RegistrationMethod',
   REGISTRATION: 'Registration',
+  PERSONAL_DETAILS: 'PersonalDetails',
+  LOCATION: 'Location',
+  OTP_VERIFICATION: 'OtpVerification',
   PHONE_REGISTRATION: 'PhoneRegistration',
   REGISTRATION_SUCCESS: 'RegistrationSuccess',
   SOCIAL_LOGIN: 'SocialLogin',

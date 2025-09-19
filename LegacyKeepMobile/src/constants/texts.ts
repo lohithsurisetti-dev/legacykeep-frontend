@@ -21,8 +21,8 @@ export const authTexts = {
   login: {
     title: 'LegacyKeep',
     subtitle: 'Preserving Family Stories',
-    emailLabel: 'Email',
-    emailPlaceholder: 'you@example.com',
+    credentialsLabel: 'Email, Phone, or Username',
+    credentialsPlaceholder: 'Enter your credentials',
     passwordLabel: 'Password',
     passwordPlaceholder: '••••••••',
     loginButton: 'Log In',
@@ -97,15 +97,15 @@ export const authTexts = {
   
   // Registration Screen
   registration: {
-    appTitle: 'LegacyKeep',
-    title: 'Create Account',
-    subtitle: 'Create your account to start preserving your family\'s stories.',
+    title: 'LegacyKeep',
+    subtitle: 'Create Account',
+    description: 'Create your account to start preserving your family\'s stories.',
     firstNamePlaceholder: 'First Name',
     lastNamePlaceholder: 'Last Name',
     usernamePlaceholder: 'Username',
     emailOrPhonePlaceholder: 'Email/Phone',
     passwordPlaceholder: 'Password',
-    createAccountButton: 'Create Account',
+    createAccountButton: 'Continue',
     termsText: 'I agree to the',
     termsLink: 'Terms and Conditions',
     alreadyHaveAccount: 'Already have an account?',
@@ -138,8 +138,8 @@ export const authTexts = {
   
   // Forgot Password Screen
   forgotPassword: {
-    appTitle: 'LegacyKeep',
-    title: 'Set your new password',
+    title: 'LegacyKeep',
+    subtitle: 'Set your new password',
     newPasswordLabel: 'New Password',
     newPasswordPlaceholder: 'Enter new password',
     confirmPasswordLabel: 'Confirm New Password',
@@ -161,6 +161,53 @@ export const authTexts = {
     phoneInvalid: 'Please enter a valid phone number',
     codeRequired: 'Verification code is required',
     codeInvalid: 'Please enter a valid 6-digit code',
+  },
+
+  // Personal Details Screen (Screen 2)
+  personalDetails: {
+    title: 'LegacyKeep',
+    subtitle: 'Personal Details',
+    description: '',
+    dateOfBirthLabel: 'Date of Birth',
+    dateOfBirthPlaceholder: 'Select your date of birth',
+    genderLabel: 'Gender',
+    genderOptions: {
+      male: 'Male',
+      female: 'Female',
+      other: 'Other',
+      preferNotToSay: 'Prefer not to say',
+    },
+    continueButton: 'Continue',
+    alreadyHaveAccount: 'Already have an account?',
+    signIn: 'Sign In',
+  },
+
+  // Location Screen (Screen 3)
+  location: {
+    title: 'LegacyKeep',
+    subtitle: 'Location',
+    description: 'Where are you located?',
+    cityLabel: 'City',
+    cityPlaceholder: 'Enter your city',
+    stateLabel: 'State/Province',
+    statePlaceholder: 'Enter your state or province',
+    countryLabel: 'Country',
+    countryPlaceholder: 'Select your country',
+    generateOtpButton: 'Generate OTP',
+    alreadyHaveAccount: 'Already have an account?',
+    signIn: 'Sign In',
+  },
+
+  // OTP Verification Screen (Screen 4)
+  otpVerification: {
+    title: 'LegacyKeep',
+    subtitle: 'Verify Your Account',
+    description: 'Enter the 6-digit code sent to',
+    otpLabel: 'Verification Code',
+    otpPlaceholder: 'Enter 6-digit code',
+    resendCode: 'Resend Code',
+    verifyButton: 'Verify & Complete',
+    didntReceiveCode: "Didn't receive the code?",
   },
 } as const;
 

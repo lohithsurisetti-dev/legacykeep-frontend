@@ -13,11 +13,12 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { AuthStackScreenProps } from '../../navigation/types';
 import { ROUTES } from '../../navigation/types';
-import { colors, typography, spacing } from '../../constants';
+import { colors, typography, spacing, gradients } from '../../constants';
 import { authTexts } from '../../constants/texts';
 import { validateEmail, validatePassword, validateUsername, validateEmailOrPhone } from '../../utils/validation';
 import GradientButton from '../../components/ui/GradientButton';
 import GradientText from '../../components/ui/GradientText';
+import ProgressTracker from '../../components/ui/ProgressTracker';
 import { LinearGradient } from 'expo-linear-gradient';
 
 type Props = AuthStackScreenProps<typeof ROUTES.REGISTRATION>;
@@ -109,21 +110,10 @@ const RegistrationScreen: React.FC<Props> = () => {
     setIsLoading(true);
     try {
       // TODO: Implement actual registration API call
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
+      // await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
 
-      Alert.alert(
-        'Success!',
-        'Your account has been created successfully.',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              // Navigate to success screen or main app
-              (navigation as any).navigate(ROUTES.REGISTRATION_SUCCESS);
-            },
-          },
-        ]
-      );
+      // Navigate directly to personal details screen
+      (navigation as any).navigate(ROUTES.PERSONAL_DETAILS);
     } catch (error) {
       Alert.alert('Error', 'Failed to create account. Please try again.');
     } finally {
@@ -146,33 +136,14 @@ const RegistrationScreen: React.FC<Props> = () => {
         >
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.title}>{authTexts.registration.appTitle}</Text>
+            <Text style={styles.title}>{authTexts.registration.title}</Text>
             <Text style={styles.subtitle}>
               {authTexts.registration.subtitle}
             </Text>
           </View>
 
               {/* Progress Indicator */}
-              <View style={styles.progressContainer}>
-                <LinearGradient
-                  colors={['#667eea', '#764ba2']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={styles.progressBar}
-                />
-                <LinearGradient
-                  colors={['#667eea', '#764ba2']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={styles.progressDot}
-                />
-                <LinearGradient
-                  colors={['#667eea', '#764ba2']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={styles.progressDot}
-                />
-              </View>
+              <ProgressTracker currentStep={1} totalSteps={4} />
 
           {/* Registration Form */}
           <View style={styles.formContainer}>
@@ -242,7 +213,7 @@ const RegistrationScreen: React.FC<Props> = () => {
                 >
                   {formData.agreeToTerms ? (
                     <LinearGradient
-                      colors={['#667eea', '#764ba2']}
+                      colors={gradients.peacock}
                       start={{ x: 0, y: 0 }}
                       end={{ x: 1, y: 0 }}
                       style={styles.checkbox}
@@ -250,7 +221,10 @@ const RegistrationScreen: React.FC<Props> = () => {
                       <Text style={styles.checkmark}>✓</Text>
                     </LinearGradient>
                   ) : (
-                    <View style={styles.checkbox}>
+                    <View style={[
+                      styles.checkbox,
+                      errors.agreeToTerms && styles.checkboxError
+                    ]}>
                     </View>
                   )}
                   <Text style={styles.termsText}>
@@ -266,32 +240,33 @@ const RegistrationScreen: React.FC<Props> = () => {
                 </TouchableOpacity>
               </View>
 
-              {/* Create Account Button */}
-              <GradientButton
-                title={authTexts.registration.createAccountButton}
-                onPress={handleCreateAccount}
-                disabled={isLoading}
-                style={styles.createButton}
-              />
-            </View>
-          </View>
-
-          {/* Footer */}
-          <View style={styles.footer}>
-            <View style={styles.footerTextContainer}>
-              <Text style={styles.footerText}>{authTexts.registration.alreadyHaveAccount} </Text>
-              <TouchableOpacity onPress={handleSignIn} activeOpacity={0.7}>
-                <GradientText
-                  gradient="peacock"
-                  fontSize="md"
-                  fontWeight="bold"
-                >
-                  {authTexts.registration.signInLink}
-                </GradientText>
-              </TouchableOpacity>
             </View>
           </View>
         </ScrollView>
+
+        {/* Footer */}
+        <View style={styles.footer}>
+          <GradientButton
+            title={authTexts.registration.createAccountButton}
+            onPress={handleCreateAccount}
+            disabled={isLoading}
+            style={styles.createButton}
+          />
+          
+          {/* Already have account - below continue button */}
+          <View style={styles.signInContainer}>
+            <Text style={styles.footerText}>{authTexts.registration.alreadyHaveAccount} </Text>
+            <TouchableOpacity onPress={handleSignIn} activeOpacity={0.7}>
+              <GradientText
+                gradient="peacock"
+                fontSize="md"
+                fontWeight="bold"
+              >
+                {authTexts.registration.signInLink}
+              </GradientText>
+            </TouchableOpacity>
+          </View>
+        </View>
       </SafeAreaView>
     </View>
   );
@@ -311,7 +286,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.lg,
-    minHeight: '100%',
+    flexGrow: 1,
   },
   header: {
     alignItems: 'center',
@@ -328,23 +303,6 @@ const styles = StyleSheet.create({
     color: colors.neutral[600], // text-gray-600
     textAlign: 'center',
     marginTop: spacing.sm, // mt-2
-  },
-  progressContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.md,
-  },
-  progressBar: {
-    height: 10, // h-2.5
-    width: 32, // w-8
-    borderRadius: 5, // rounded-full
-  },
-  progressDot: {
-    height: 10, // h-2.5
-    width: 10, // w-2.5
-    borderRadius: 5, // rounded-full
-    marginLeft: spacing.sm, // space-x-2
   },
   formContainer: {
     marginBottom: spacing.xl,
@@ -404,6 +362,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  checkboxError: {
+    borderColor: colors.error[500], // Red border for error state
+  },
   checkmark: {
     color: colors.neutral[50], // text-white
     fontSize: 12,
@@ -415,10 +376,16 @@ const styles = StyleSheet.create({
     flex: 1,
     lineHeight: 20,
   },
+  footer: {
+    alignItems: 'center',
+    marginTop: spacing.lg,
+    marginBottom: spacing.xl,
+    paddingHorizontal: spacing.lg,
+  },
   createButton: {
-    marginTop: spacing.md,
     height: 48, // Match login button height
     borderRadius: 8, // Match login button border radius
+    width: '100%',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -428,15 +395,11 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 4, // Match login button elevation
   },
-  footer: {
-    alignItems: 'center',
-    marginTop: spacing.lg,
-    marginBottom: spacing.xl,
-  },
-  footerTextContainer: {
+  signInContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: spacing.lg,
   },
   footerText: {
     color: colors.neutral[600],

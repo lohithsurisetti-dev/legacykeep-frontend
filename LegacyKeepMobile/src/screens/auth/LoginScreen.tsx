@@ -144,16 +144,16 @@ const LoginScreen: React.FC<Props> = () => {
               </View>
             )}
 
-            {/* Email/Username Input */}
+            {/* Email/Phone/Username Input */}
             <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>{authTexts.login.emailLabel}</Text>
+              <Text style={styles.inputLabel}>{authTexts.login.credentialsLabel}</Text>
               <TextInput
                 style={styles.input}
-                placeholder={authTexts.login.emailPlaceholder}
+                placeholder={authTexts.login.credentialsPlaceholder}
                 placeholderTextColor="rgba(255, 255, 255, 0.7)"
                 value={formData.emailOrUsername}
                 onChangeText={(value) => handleInputChange('emailOrUsername', value)}
-                keyboardType="email-address"
+                keyboardType="default"
                 autoCapitalize="none"
                 autoCorrect={false}
               />
@@ -297,6 +297,7 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 400,
     padding: spacing.xl,
+    marginTop: spacing.xl,
     marginBottom: spacing.xl,
   },
   inputContainer: {
