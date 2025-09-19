@@ -17,6 +17,7 @@ import {
   Alert,
   TextInput,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { GradientBackground, GlassmorphismContainer, LoginButton } from '../../components/ui';
 import { useNavigation } from '@react-navigation/native';
 import { AuthStackScreenProps } from '../../navigation/types';
@@ -52,23 +53,29 @@ const LoginScreen: React.FC<Props> = () => {
   });
   
   const [errors, setErrors] = useState<LoginFormErrors>({});
+  const [touchedFields, setTouchedFields] = useState<Set<keyof LoginFormData>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
   const [isFormValid, setIsFormValid] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  // Validate form on every change
-  const validateForm = (data: LoginFormData) => {
+  // Validate form - only show errors for touched fields or when validating all
+  const validateForm = (data: LoginFormData, validateAll: boolean = false) => {
     const newErrors: LoginFormErrors = {};
     
-    // Validate email/username
-    const emailOrUsernameValidation = validateEmailOrUsername(data.emailOrUsername);
-    if (!emailOrUsernameValidation.isValid) {
-      newErrors.emailOrUsername = emailOrUsernameValidation.error;
+    // Validate email/username (only if touched or validateAll)
+    if (validateAll || touchedFields.has('emailOrUsername')) {
+      const emailOrUsernameValidation = validateEmailOrUsername(data.emailOrUsername);
+      if (!emailOrUsernameValidation.isValid) {
+        newErrors.emailOrUsername = emailOrUsernameValidation.error;
+      }
     }
     
-    // Validate password
-    const passwordValidation = validatePassword(data.password);
-    if (!passwordValidation.isValid) {
-      newErrors.password = passwordValidation.error;
+    // Validate password (only if touched or validateAll)
+    if (validateAll || touchedFields.has('password')) {
+      const passwordValidation = validatePassword(data.password);
+      if (!passwordValidation.isValid) {
+        newErrors.password = passwordValidation.error;
+      }
     }
     
     setErrors(newErrors);
@@ -83,12 +90,19 @@ const LoginScreen: React.FC<Props> = () => {
   const handleInputChange = (field: keyof LoginFormData, value: string) => {
     const newData = { ...formData, [field]: value };
     setFormData(newData);
-    validateForm(newData);
+    
+    // Mark field as touched
+    setTouchedFields(prev => new Set([...prev, field]));
+    
+    // Validate only the touched field
+    validateForm(newData, false);
   };
 
   const handleLogin = async () => {
-    if (!isFormValid) {
-      Alert.alert('Invalid Form', authTexts.validation.generalError);
+    // Mark all fields as touched and validate
+    setTouchedFields(new Set(['emailOrUsername', 'password']));
+    
+    if (!validateForm(formData, true)) {
       return;
     }
 
@@ -129,73 +143,115 @@ const LoginScreen: React.FC<Props> = () => {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-              {/* Header */}
-              <View style={styles.header}>
-                <Text style={styles.title}>{authTexts.login.title}</Text>
-                <Text style={styles.subtitle}>{authTexts.login.subtitle}</Text>
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.title}>{authTexts.login.title}</Text>
+            <Text style={styles.subtitle}>{authTexts.login.subtitle}</Text>
+          </View>
+
+          {/* Form Container with Glassmorphism - Centered */}
+          <View style={styles.formWrapper}>
+            <GlassmorphismContainer style={styles.formContainer}>
+              {/* General Error */}
+              {errors.general && (
+                <View style={styles.errorContainer}>
+                  <Text style={styles.errorText}>{errors.general}</Text>
+                </View>
+              )}
+
+              {/* Email/Phone/Username Input */}
+              <View style={styles.inputContainer}>
+                <View style={styles.floatingLabelContainer}>
+                  <Text 
+                    style={[
+                      styles.floatingLabel,
+                      formData.emailOrUsername ? styles.floatingLabelActive : styles.floatingLabelInactive
+                    ]}
+                    pointerEvents="none"
+                  >
+                    {authTexts.login.credentialsLabel}
+                  </Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder=""
+                    placeholderTextColor="rgba(255, 255, 255, 0.7)"
+                    value={formData.emailOrUsername}
+                    onChangeText={(value) => handleInputChange('emailOrUsername', value)}
+                    keyboardType="default"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    pointerEvents="auto"
+                    editable={true}
+                  />
+                </View>
+                {errors.emailOrUsername && (
+                  <Text style={styles.inputError}>{errors.emailOrUsername}</Text>
+                )}
               </View>
 
-          {/* Form Container with Glassmorphism */}
-          <GlassmorphismContainer style={styles.formContainer}>
-            {/* General Error */}
-            {errors.general && (
-              <View style={styles.errorContainer}>
-                <Text style={styles.errorText}>{errors.general}</Text>
+              {/* Password Input */}
+              <View style={styles.inputContainer}>
+                <View style={styles.floatingLabelContainer}>
+                  <Text 
+                    style={[
+                      styles.floatingLabel,
+                      formData.password ? styles.floatingLabelActive : styles.floatingLabelInactive
+                    ]}
+                    pointerEvents="none"
+                  >
+                    {authTexts.login.passwordLabel}
+                  </Text>
+                  <View style={styles.passwordInputWrapper}>
+                    <TextInput
+                      style={styles.passwordInput}
+                      placeholder=""
+                      placeholderTextColor="rgba(255, 255, 255, 0.7)"
+                      value={formData.password}
+                      onChangeText={(value) => handleInputChange('password', value)}
+                      secureTextEntry={!showPassword}
+                      pointerEvents="auto"
+                      editable={true}
+                    />
+                    <TouchableOpacity
+                      style={styles.eyeIcon}
+                      onPress={() => setShowPassword(!showPassword)}
+                      activeOpacity={0.7}
+                    >
+                      <Ionicons
+                        name={showPassword ? 'eye-off' : 'eye'}
+                        size={20}
+                        color="rgba(255, 255, 255, 0.7)"
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                {errors.password && (
+                  <Text style={styles.inputError}>{errors.password}</Text>
+                )}
               </View>
-            )}
 
-            {/* Email/Phone/Username Input */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>{authTexts.login.credentialsLabel}</Text>
-              <TextInput
-                style={styles.input}
-                placeholder={authTexts.login.credentialsPlaceholder}
-                placeholderTextColor="rgba(255, 255, 255, 0.7)"
-                value={formData.emailOrUsername}
-                onChangeText={(value) => handleInputChange('emailOrUsername', value)}
-                keyboardType="default"
-                autoCapitalize="none"
-                autoCorrect={false}
+              {/* Login Button */}
+              <LoginButton
+                title={authTexts.login.loginButton}
+                onPress={handleLogin}
+                disabled={!isFormValid || isLoading}
+                style={styles.loginButton}
               />
-              {errors.emailOrUsername && (
-                <Text style={styles.inputError}>{errors.emailOrUsername}</Text>
-              )}
-            </View>
 
-            {/* Password Input */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>{authTexts.login.passwordLabel}</Text>
-              <TextInput
-                style={styles.input}
-                placeholder={authTexts.login.passwordPlaceholder}
-                placeholderTextColor="rgba(255, 255, 255, 0.7)"
-                value={formData.password}
-                onChangeText={(value) => handleInputChange('password', value)}
-                secureTextEntry
-              />
-              {errors.password && (
-                <Text style={styles.inputError}>{errors.password}</Text>
-              )}
-            </View>
+              {/* Forgot Password Link */}
+              <TouchableOpacity
+                style={styles.forgotPasswordContainer}
+                onPress={handleForgotPassword}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.forgotPasswordText}>{authTexts.login.forgotPassword}</Text>
+              </TouchableOpacity>
+            </GlassmorphismContainer>
+          </View>
+        </ScrollView>
 
-                {/* Login Button */}
-                <LoginButton
-                  title={authTexts.login.loginButton}
-                  onPress={handleLogin}
-                  disabled={!isFormValid || isLoading}
-                  style={styles.loginButton}
-                />
-
-            {/* Forgot Password Link */}
-            <TouchableOpacity
-              style={styles.forgotPasswordContainer}
-              onPress={handleForgotPassword}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.forgotPasswordText}>{authTexts.login.forgotPassword}</Text>
-            </TouchableOpacity>
-          </GlassmorphismContainer>
-
+        {/* Footer - Fixed at bottom */}
+        <View style={styles.footer}>
           {/* Social Login Section */}
           <View style={styles.socialSection}>
             <View style={styles.divider}>
@@ -240,18 +296,16 @@ const LoginScreen: React.FC<Props> = () => {
             </View>
           </View>
 
-          {/* Footer */}
-          <View style={styles.footer}>
-            <View style={styles.footerTextContainer}>
-              <Text style={styles.footerText}>{authTexts.login.noAccount} </Text>
-              <TouchableOpacity onPress={handleSignUp} activeOpacity={0.7}>
-                <Text style={styles.signUpLink}>{authTexts.login.signUpLink}</Text>
-              </TouchableOpacity>
-            </View>
+          {/* Sign Up Link */}
+          <View style={styles.footerTextContainer}>
+            <Text style={styles.footerText}>{authTexts.login.noAccount} </Text>
+            <TouchableOpacity onPress={handleSignUp} activeOpacity={0.7}>
+              <Text style={styles.signUpLink}>{authTexts.login.signUpLink}</Text>
+            </TouchableOpacity>
           </View>
-        </ScrollView>
+      </View>
         </KeyboardAvoidingView>
-      </SafeAreaView>
+    </SafeAreaView>
     </GradientBackground>
   );
 };
@@ -273,7 +327,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.xl,
     alignItems: 'center',
-    minHeight: '100%',
+    flexGrow: 1,
   },
   header: {
     alignItems: 'center',
@@ -293,12 +347,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 22,
   },
+  formWrapper: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+  },
   formContainer: {
     width: '100%',
     maxWidth: 400,
     padding: spacing.xl,
-    marginTop: spacing.xl,
-    marginBottom: spacing.xl,
   },
   inputContainer: {
     marginBottom: spacing.lg,
@@ -308,6 +366,29 @@ const styles = StyleSheet.create({
     fontWeight: typography.weights.medium,
     color: colors.neutral[50],
     marginBottom: spacing.sm,
+  },
+  floatingLabelContainer: {
+    position: 'relative',
+    width: '100%',
+  },
+  floatingLabel: {
+    position: 'absolute',
+    left: spacing.xs,
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.weights.medium,
+    color: colors.neutral[50],
+    zIndex: 1,
+  },
+  floatingLabelActive: {
+    top: -15,
+    fontSize: typography.sizes.xs,
+    color: 'rgba(255, 255, 255, 0.8)',
+  },
+  floatingLabelInactive: {
+    top: 14,
+    left: spacing.md,
+    fontSize: typography.sizes.md,
+    color: 'rgba(255, 255, 255, 0.7)',
   },
   input: {
     width: '100%',
@@ -319,6 +400,30 @@ const styles = StyleSheet.create({
     fontSize: typography.sizes.md,
     color: colors.neutral[50],
     backgroundColor: componentColors.glassmorphism.background,
+  },
+  passwordInputWrapper: {
+    position: 'relative',
+    width: '100%',
+  },
+  passwordInput: {
+    width: '100%',
+    height: 48,
+    borderWidth: 1,
+    borderColor: componentColors.glassmorphism.border,
+    borderRadius: 8,
+    paddingHorizontal: spacing.md,
+    paddingRight: 48, // Space for eye icon
+    fontSize: typography.sizes.md,
+    color: colors.neutral[50],
+    backgroundColor: componentColors.glassmorphism.background,
+  },
+  eyeIcon: {
+    position: 'absolute',
+    right: spacing.md,
+    top: 12,
+    padding: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   inputError: {
     fontSize: typography.sizes.xs,
@@ -354,12 +459,12 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 400,
     alignItems: 'center',
-    marginTop: spacing.lg,
+    marginBottom: spacing.lg,
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: spacing.xl,
+    marginBottom: spacing.lg,
     width: '100%',
   },
   dividerLine: {
@@ -402,8 +507,9 @@ const styles = StyleSheet.create({
   },
   footer: {
     alignItems: 'center',
-    marginTop: spacing.lg,
-    marginBottom: spacing.xl,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.xl,
+    backgroundColor: 'transparent',
   },
   footerTextContainer: {
     flexDirection: 'row',
