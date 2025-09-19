@@ -449,6 +449,8 @@ const styles = StyleSheet.create({
   },
   forgotPasswordContainer: {
     alignItems: 'center',
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
   },
   forgotPasswordText: {
     color: componentColors.glassmorphism.text,

@@ -34,7 +34,7 @@ const ProgressTracker: React.FC<ProgressTrackerProps> = ({
                 <LinearGradient
                   colors={['#247B7B', '#667eea']}
                   start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
+                  end={{ x: 1, y: 1 }}
                   style={styles.progressDot}
                 />
               ) : (
@@ -49,7 +49,7 @@ const ProgressTracker: React.FC<ProgressTrackerProps> = ({
                   <LinearGradient
                     colors={['#247B7B', '#667eea']}
                     start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
+                    end={{ x: 1, y: 1 }}
                     style={styles.progressLine}
                   />
                 ) : (

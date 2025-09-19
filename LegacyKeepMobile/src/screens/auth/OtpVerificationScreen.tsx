@@ -214,7 +214,7 @@ const OtpVerificationScreen: React.FC<Props> = () => {
                         <LinearGradient
                           colors={gradients.peacock}
                           start={{ x: 0, y: 0 }}
-                          end={{ x: 1, y: 0 }}
+                          end={{ x: 1, y: 1 }}
                           style={styles.otpGradientWrapper}
                         >
                           <TextInput
@@ -288,6 +288,7 @@ const OtpVerificationScreen: React.FC<Props> = () => {
             title={authTexts.otpVerification.verifyButton}
             onPress={handleVerify}
             disabled={isLoading}
+            gradient="horizontal"
             style={styles.verifyButton}
           />
         </View>

@@ -186,6 +186,7 @@ const LocationScreen: React.FC<Props> = () => {
             title={authTexts.location.generateOtpButton}
             onPress={handleGenerateOtp}
             disabled={isLoading}
+            gradient="horizontal"
             style={styles.generateOtpButton}
           />
           

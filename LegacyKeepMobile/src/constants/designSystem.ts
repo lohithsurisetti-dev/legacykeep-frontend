@@ -85,12 +85,12 @@ export const gradientConfigs = {
   horizontal: {
     colors: gradients.peacock,
     start: { x: 0, y: 0 },
-    end: { x: 1, y: 0 },
+    end: { x: 1, y: 1 },
   },
   instagramHorizontal: {
     colors: gradients.instagram,
     start: { x: 0, y: 0 },
-    end: { x: 1, y: 0 },
+    end: { x: 1, y: 1 },
   },
 } as const;
 

@@ -192,6 +192,7 @@ const ForgotPasswordScreen: React.FC<Props> = () => {
                 title={authTexts.forgotPassword.resetPasswordButton}
                 onPress={handleResetPassword}
                 disabled={isLoading}
+                gradient="horizontal"
                 style={styles.resetButton}
               />
             </View>

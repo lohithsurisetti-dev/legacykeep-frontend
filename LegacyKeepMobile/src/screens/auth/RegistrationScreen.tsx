@@ -215,7 +215,7 @@ const RegistrationScreen: React.FC<Props> = () => {
                     <LinearGradient
                       colors={gradients.peacock}
                       start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 0 }}
+                      end={{ x: 1, y: 1 }}
                       style={styles.checkbox}
                     >
                       <Text style={styles.checkmark}>✓</Text>
@@ -250,6 +250,7 @@ const RegistrationScreen: React.FC<Props> = () => {
             title={authTexts.registration.createAccountButton}
             onPress={handleCreateAccount}
             disabled={isLoading}
+            gradient="horizontal"
             style={styles.createButton}
           />
           

@@ -180,7 +180,7 @@ const PersonalDetailsScreen: React.FC<Props> = () => {
                         key={option.value}
                         colors={gradients.peacock}
                         start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
+                        end={{ x: 1, y: 1 }}
                         style={styles.genderOptionGradientWrapper}
                       >
                         <TouchableOpacity
@@ -270,6 +270,7 @@ const PersonalDetailsScreen: React.FC<Props> = () => {
             title={authTexts.personalDetails.continueButton}
             onPress={handleContinue}
             disabled={isLoading}
+            gradient="horizontal"
             style={styles.continueButton}
           />
           
