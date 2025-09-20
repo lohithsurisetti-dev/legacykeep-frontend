@@ -12,11 +12,13 @@ import React from 'react';
 import { TouchableOpacity, ViewStyle, TextStyle } from 'react-native';
 import { colors, typography, spacing } from '../../constants';
 import GradientText from './GradientText';
+import GlassmorphismSpinner from './GlassmorphismSpinner';
 
 interface LoginButtonProps {
   title: string;
   onPress: () => void;
   disabled?: boolean;
+  loading?: boolean;
   style?: ViewStyle;
   textStyle?: TextStyle;
   activeOpacity?: number;
@@ -36,6 +38,7 @@ const LoginButton: React.FC<LoginButtonProps> = ({
   title,
   onPress,
   disabled = false,
+  loading = false,
   style,
   textStyle,
   activeOpacity = 0.8,
@@ -53,7 +56,7 @@ const LoginButton: React.FC<LoginButtonProps> = ({
   return (
     <TouchableOpacity
       onPress={onPress}
-      disabled={disabled}
+      disabled={disabled || loading}
       activeOpacity={activeOpacity}
       style={[
         {
@@ -75,15 +78,22 @@ const LoginButton: React.FC<LoginButtonProps> = ({
         style,
       ]}
     >
-      {/* Gradient Text */}
-      <GradientText
-        gradient={gradient}
-        fontSize={fontSize}
-        fontWeight={fontWeight}
-        style={textStyle}
-      >
-        {title}
-      </GradientText>
+      {/* Loading Spinner or Gradient Text */}
+      {loading ? (
+        <GlassmorphismSpinner 
+          size={20} 
+          color={gradient === 'peacock' ? colors.primary[500] : colors.secondary.teal[500]} 
+        />
+      ) : (
+        <GradientText
+          gradient={gradient}
+          fontSize={fontSize}
+          fontWeight={fontWeight}
+          style={textStyle}
+        >
+          {title}
+        </GradientText>
+      )}
     </TouchableOpacity>
   );
 };

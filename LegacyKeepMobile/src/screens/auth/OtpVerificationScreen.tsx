@@ -13,7 +13,6 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AuthStackScreenProps } from '../../navigation/types';
@@ -33,8 +32,37 @@ interface OtpFormErrors {
   otp?: string;
 }
 
-const OtpVerificationScreen: React.FC<Props> = () => {
+const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
   const navigation = useNavigation();
+  
+  // Get params for dynamic behavior
+  const purpose = route?.params?.purpose || 'registration';
+  const emailOrPhone = route?.params?.emailOrPhone || '';
+  
+  // Dynamic content based on purpose
+  const getSubtitle = () => {
+    return purpose === 'password-reset' 
+      ? authTexts.otpVerification.passwordReset.subtitle
+      : authTexts.otpVerification.subtitle;
+  };
+
+  const getButtonText = () => {
+    return purpose === 'password-reset' 
+      ? authTexts.otpVerification.passwordReset.verifyButton
+      : authTexts.otpVerification.verifyButton;
+  };
+
+  const getDescription = () => {
+    if (purpose === 'password-reset') {
+      return emailOrPhone 
+        ? `${authTexts.otpVerification.passwordReset.description} ${emailOrPhone}`
+        : 'Enter the 6-digit code sent to your email/phone';
+    } else {
+      return emailOrPhone 
+        ? `${authTexts.otpVerification.description} ${emailOrPhone}`
+        : 'Enter the 6-digit code sent to your email/phone';
+    }
+  };
   
   const [formData, setFormData] = useState<OtpFormData>({
     otp: ['', '', '', '', '', ''],
@@ -126,26 +154,27 @@ const OtpVerificationScreen: React.FC<Props> = () => {
     try {
       // TODO: Verify OTP with backend
       console.log('Verifying OTP:', formData.otp.join(''));
+      console.log('Purpose:', purpose);
+      console.log('Email/Phone:', emailOrPhone);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Add delay to demonstrate spinner
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Navigate to success or main app
-      Alert.alert(
-        'Success!',
-        'Your account has been created successfully!',
-        [
-          {
-            text: 'Continue',
-            onPress: () => {
-              // TODO: Navigate to main app
-              console.log('Account created successfully');
-            }
-          }
-        ]
-      );
+      // TODO: Verify OTP with backend
+      
+      if (purpose === 'password-reset') {
+        // Navigate to password reset screen
+        (navigation as any).navigate(ROUTES.FORGOT_PASSWORD, {
+          step: 'reset',
+          emailOrPhone: emailOrPhone,
+        });
+      } else {
+        // Registration flow - navigate to success or main app
+        // TODO: Navigate to main app
+        console.log('Account created successfully');
+      }
     } catch (error) {
-      Alert.alert('Error', 'Invalid verification code. Please try again.');
+      console.error('OTP verification failed:', error);
     } finally {
       setIsLoading(false);
     }
@@ -170,14 +199,20 @@ const OtpVerificationScreen: React.FC<Props> = () => {
         });
       }, 1000);
       
-      Alert.alert('Code Sent', 'A new verification code has been sent to your email/phone.');
+      console.log('New verification code sent');
     } catch (error) {
-      Alert.alert('Error', 'Failed to resend code. Please try again.');
+      console.error('Failed to resend code:', error);
     }
   };
 
   const handleBack = () => {
-    (navigation as any).goBack();
+    if (purpose === 'password-reset') {
+      // For password reset, go back to login screen
+      (navigation as any).navigate(ROUTES.LOGIN);
+    } else {
+      // For registration flow, go back to previous screen
+      (navigation as any).goBack();
+    }
   };
 
   return (
@@ -194,11 +229,13 @@ const OtpVerificationScreen: React.FC<Props> = () => {
           {/* Header */}
           <View style={styles.header}>
             <Text style={styles.title}>{authTexts.otpVerification.title}</Text>
-            <Text style={styles.subtitle}>{authTexts.otpVerification.subtitle}</Text>
+            <Text style={styles.subtitle}>{getSubtitle()}</Text>
           </View>
 
-          {/* Progress Indicator */}
-          <ProgressTracker currentStep={4} totalSteps={4} />
+          {/* Progress Indicator - Only show for registration flow */}
+          {purpose === 'registration' && (
+            <ProgressTracker currentStep={4} totalSteps={4} />
+          )}
 
           {/* Form */}
           <View style={styles.formContainer}>
@@ -206,7 +243,7 @@ const OtpVerificationScreen: React.FC<Props> = () => {
               {/* OTP Input Fields */}
               <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>{authTexts.otpVerification.otpLabel}</Text>
-                <Text style={styles.helperText}>Enter the 6-digit number sent to your email/phone</Text>
+                <Text style={styles.helperText}>{getDescription()}</Text>
                 <View style={styles.otpContainer}>
                   {formData.otp.map((digit, index) => (
                     <View key={index} style={styles.otpInputWrapper}>
@@ -285,9 +322,10 @@ const OtpVerificationScreen: React.FC<Props> = () => {
         {/* Footer */}
         <View style={styles.footer}>
           <GradientButton
-            title={authTexts.otpVerification.verifyButton}
+            title={getButtonText()}
             onPress={handleVerify}
             disabled={isLoading}
+            loading={isLoading}
             gradient="horizontal"
             style={styles.verifyButton}
           />
@@ -325,16 +363,17 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   title: {
-    fontSize: typography.sizes.xxl,
+    fontSize: typography.sizes['5xl'],
     fontWeight: typography.weights.bold,
     color: colors.neutral[900],
     textAlign: 'center',
+    marginBottom: spacing.sm,
   },
   subtitle: {
-    fontSize: typography.sizes.md,
+    fontSize: typography.sizes.lg,
     color: colors.neutral[600],
     textAlign: 'center',
-    marginTop: spacing.sm,
+    lineHeight: 22,
   },
   formContainer: {
     flex: 1,

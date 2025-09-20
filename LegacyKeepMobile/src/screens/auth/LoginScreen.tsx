@@ -14,7 +14,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
-  Alert,
   TextInput,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -113,6 +112,8 @@ const LoginScreen: React.FC<Props> = () => {
     setErrors({});
 
     try {
+      // Add a small delay to demonstrate the spinner
+      await new Promise(resolve => setTimeout(resolve, 1500));
       await login(formData.emailOrUsername, formData.password);
       // Navigation will be handled by the auth context
     } catch (error) {
@@ -126,7 +127,39 @@ const LoginScreen: React.FC<Props> = () => {
   };
 
   const handleForgotPassword = () => {
-    (navigation as any).navigate(ROUTES.FORGOT_PASSWORD);
+    // Check if email/phone is entered
+    if (!formData.emailOrUsername.trim()) {
+      // Mark only email field as touched and validate only that field
+      setTouchedFields(prev => new Set([...prev, 'emailOrUsername' as keyof LoginFormData]));
+      
+      // Validate only the email/username field
+      const emailOrUsernameValidation = validateEmailOrUsername(formData.emailOrUsername);
+      setErrors(prev => ({
+        ...prev,
+        emailOrUsername: emailOrUsernameValidation.error,
+        password: undefined // Clear password error
+      }));
+      return;
+    }
+
+    // Validate the email/phone format
+    const emailOrUsernameValidation = validateEmailOrUsername(formData.emailOrUsername);
+    if (!emailOrUsernameValidation.isValid) {
+      // Mark only email field as touched and show only email error
+      setTouchedFields(prev => new Set([...prev, 'emailOrUsername' as keyof LoginFormData]));
+      setErrors(prev => ({
+        ...prev,
+        emailOrUsername: emailOrUsernameValidation.error,
+        password: undefined // Clear password error
+      }));
+      return;
+    }
+
+    // Navigate to OTP verification with password reset context
+    (navigation as any).navigate(ROUTES.OTP_VERIFICATION, {
+      purpose: 'password-reset',
+      emailOrPhone: formData.emailOrUsername,
+    });
   };
 
   const handleSignUp = () => {
@@ -238,6 +271,7 @@ const LoginScreen: React.FC<Props> = () => {
                 title={authTexts.login.loginButton}
                 onPress={handleLogin}
                 disabled={!isFormValid || isLoading}
+                loading={isLoading}
                 style={styles.loginButton}
               />
 
@@ -268,7 +302,7 @@ const LoginScreen: React.FC<Props> = () => {
                 style={styles.socialButton}
                 onPress={() => {
                   // TODO: Implement Google login
-                  Alert.alert(authTexts.social.comingSoon, authTexts.social.googleComingSoon);
+                  console.log('Google login clicked');
                 }}
                 activeOpacity={0.7}
               >
@@ -279,7 +313,7 @@ const LoginScreen: React.FC<Props> = () => {
                 style={styles.socialButton}
                 onPress={() => {
                   // TODO: Implement Facebook login
-                  Alert.alert(authTexts.social.comingSoon, authTexts.social.facebookComingSoon);
+                  console.log('Facebook login clicked');
                 }}
                 activeOpacity={0.7}
               >
@@ -290,7 +324,7 @@ const LoginScreen: React.FC<Props> = () => {
                 style={styles.socialButton}
                 onPress={() => {
                   // TODO: Implement Instagram login
-                  Alert.alert(authTexts.social.comingSoon, authTexts.social.instagramComingSoon);
+                  console.log('Instagram login clicked');
                 }}
                 activeOpacity={0.7}
               >

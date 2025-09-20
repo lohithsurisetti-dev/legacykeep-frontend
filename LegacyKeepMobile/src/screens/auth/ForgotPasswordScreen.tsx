@@ -7,7 +7,6 @@ import {
   ScrollView,
   TouchableOpacity,
   StatusBar,
-  Alert,
   TextInput,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -85,22 +84,12 @@ const ForgotPasswordScreen: React.FC<Props> = () => {
 
     setIsLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // TODO: Reset password with backend
 
-      Alert.alert(
-        'Success!',
-        'Your password has been reset successfully.',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              (navigation as any).navigate(ROUTES.LOGIN);
-            },
-          },
-        ]
-      );
+      console.log('Password reset successful');
+      (navigation as any).navigate(ROUTES.LOGIN);
     } catch (error) {
-      Alert.alert('Error', 'Failed to reset password. Please try again.');
+      console.error('Reset password error:', error);
     } finally {
       setIsLoading(false);
     }
@@ -186,20 +175,20 @@ const ForgotPasswordScreen: React.FC<Props> = () => {
                   </TouchableOpacity>
                 </View>
               </View>
-
-              {/* Reset Password Button */}
-              <GradientButton
-                title={authTexts.forgotPassword.resetPasswordButton}
-                onPress={handleResetPassword}
-                disabled={isLoading}
-                gradient="horizontal"
-                style={styles.resetButton}
-              />
             </View>
           </View>
-
-
         </ScrollView>
+
+        {/* Footer */}
+        <View style={styles.footer}>
+          <GradientButton
+            title={authTexts.forgotPassword.resetPasswordButton}
+            onPress={handleResetPassword}
+            disabled={isLoading}
+            gradient="horizontal"
+            style={styles.resetButton}
+          />
+        </View>
       </SafeAreaView>
     </View>
   );
@@ -224,34 +213,38 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
-    minHeight: '100%',
+    paddingVertical: spacing.xl,
+    flexGrow: 1,
+    alignItems: 'center',
   },
   header: {
     alignItems: 'center',
-    marginBottom: spacing.md,
+    marginBottom: spacing.xl,
+    marginTop: spacing.lg,
   },
   title: {
-    fontSize: typography.sizes.xxl,
+    fontSize: typography.sizes['5xl'],
     fontWeight: typography.weights.bold,
     color: colors.neutral[900],
     textAlign: 'center',
+    marginBottom: spacing.sm,
   },
   subtitle: {
-    fontSize: typography.sizes.md,
+    fontSize: typography.sizes.lg,
     color: colors.neutral[600],
     textAlign: 'center',
-    marginTop: spacing.sm,
+    lineHeight: 22,
   },
   formContainer: {
-    marginTop: spacing.xl,
-    marginBottom: spacing.xl,
+    width: '100%',
+    maxWidth: 400,
+    alignItems: 'center',
   },
   form: {
     width: '100%',
-    maxWidth: 384, // max-w-sm
   },
   fieldContainer: {
+    width: '100%',
     marginBottom: spacing.lg, // mb-6 for confirm password, mb-4 for new password
   },
   inputContainer: {
@@ -281,18 +274,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: spacing.sm,
   },
+  footer: {
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.xl,
+    backgroundColor: 'transparent',
+  },
   resetButton: {
-    marginTop: spacing.md, // mb-4
-    height: 48, // Match login button height
-    borderRadius: 8, // Match login button border radius
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25, // Match login button shadow
-    shadowRadius: 4,
-    elevation: 4, // Match login button elevation
+    width: '100%',
+    marginTop: spacing.md,
   },
 });
 

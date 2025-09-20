@@ -27,7 +27,10 @@ export type AuthStackParamList = {
   Registration: undefined;
   PersonalDetails: undefined;
   Location: undefined;
-  OtpVerification: undefined;
+  OtpVerification: {
+    purpose?: 'registration' | 'password-reset';
+    emailOrPhone?: string;
+  } | undefined;
   PhoneRegistration: undefined;
   RegistrationSuccess: undefined;
   SocialLogin: undefined;

@@ -13,7 +13,6 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AuthStackScreenProps } from '../../navigation/types';
@@ -104,7 +103,7 @@ const LocationScreen: React.FC<Props> = () => {
       // Navigate to OTP verification screen
       (navigation as any).navigate(ROUTES.OTP_VERIFICATION);
     } catch (error) {
-      Alert.alert('Error', 'Failed to generate OTP. Please try again.');
+      console.error('Generate OTP error:', error);
     } finally {
       setIsLoading(false);
     }
@@ -236,16 +235,17 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   title: {
-    fontSize: typography.sizes.xxl,
+    fontSize: typography.sizes['5xl'],
     fontWeight: typography.weights.bold,
     color: colors.neutral[900],
     textAlign: 'center',
+    marginBottom: spacing.sm,
   },
   subtitle: {
-    fontSize: typography.sizes.md,
+    fontSize: typography.sizes.lg,
     color: colors.neutral[600],
     textAlign: 'center',
-    marginTop: spacing.sm,
+    lineHeight: 22,
   },
   formContainer: {
     marginBottom: spacing.lg,

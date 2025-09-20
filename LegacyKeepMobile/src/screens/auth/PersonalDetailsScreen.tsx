@@ -12,7 +12,6 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
-  Alert,
   Animated,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -90,6 +89,7 @@ const PersonalDetailsScreen: React.FC<Props> = () => {
   };
 
   const handleInputChange = (field: keyof PersonalDetailsFormData, value: any) => {
+    console.log('handleInputChange called:', field, value);
     const newData = { ...formData, [field]: value };
     setFormData(newData);
     
@@ -109,7 +109,6 @@ const PersonalDetailsScreen: React.FC<Props> = () => {
 
   const handleContinue = async () => {
     if (!validateForm(formData, true)) {
-      Alert.alert('Invalid Form', 'Please correct the errors in the form.');
       return;
     }
 
@@ -121,7 +120,7 @@ const PersonalDetailsScreen: React.FC<Props> = () => {
       // Navigate to next screen
       (navigation as any).navigate(ROUTES.LOCATION);
     } catch (error) {
-      Alert.alert('Error', 'Failed to save personal details. Please try again.');
+      console.error('Save personal details error:', error);
     } finally {
       setIsLoading(false);
     }
@@ -186,6 +185,8 @@ const PersonalDetailsScreen: React.FC<Props> = () => {
                         <TouchableOpacity
                           style={styles.genderOptionGradientInner}
                           onPress={() => handleInputChange('gender', option.value)}
+                          activeOpacity={0.7}
+                          hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
                         >
                           <Text style={styles.genderOptionTextSelected}>
                             {option.label}
@@ -197,6 +198,8 @@ const PersonalDetailsScreen: React.FC<Props> = () => {
                         key={option.value}
                         style={styles.genderOption}
                         onPress={() => handleInputChange('gender', option.value)}
+                        activeOpacity={0.7}
+                        hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
                       >
                         <Text style={styles.genderOptionText}>
                           {option.label}
@@ -321,16 +324,17 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   title: {
-    fontSize: typography.sizes.xxl,
+    fontSize: typography.sizes['5xl'],
     fontWeight: typography.weights.bold,
     color: colors.neutral[900],
     textAlign: 'center',
+    marginBottom: spacing.sm,
   },
   subtitle: {
-    fontSize: typography.sizes.md,
+    fontSize: typography.sizes.lg,
     color: colors.neutral[600],
     textAlign: 'center',
-    marginTop: spacing.sm,
+    lineHeight: 22,
   },
   description: {
     fontSize: typography.sizes.md,

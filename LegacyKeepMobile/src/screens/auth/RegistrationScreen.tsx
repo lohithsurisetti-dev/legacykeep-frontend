@@ -7,7 +7,6 @@ import {
   ScrollView,
   TouchableOpacity,
   StatusBar,
-  Alert,
   TextInput,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -115,7 +114,7 @@ const RegistrationScreen: React.FC<Props> = () => {
       // Navigate directly to personal details screen
       (navigation as any).navigate(ROUTES.PERSONAL_DETAILS);
     } catch (error) {
-      Alert.alert('Error', 'Failed to create account. Please try again.');
+      console.error('Create account error:', error);
     } finally {
       setIsLoading(false);
     }
@@ -250,6 +249,7 @@ const RegistrationScreen: React.FC<Props> = () => {
             title={authTexts.registration.createAccountButton}
             onPress={handleCreateAccount}
             disabled={isLoading}
+            loading={isLoading}
             gradient="horizontal"
             style={styles.createButton}
           />
@@ -294,16 +294,17 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   title: {
-    fontSize: typography.sizes.xxl, // text-3xl
-    fontWeight: typography.weights.bold, // font-bold
-    color: colors.neutral[900], // text-gray-900
+    fontSize: typography.sizes['5xl'],
+    fontWeight: typography.weights.bold,
+    color: colors.neutral[900],
     textAlign: 'center',
+    marginBottom: spacing.sm,
   },
   subtitle: {
-    fontSize: typography.sizes.md, // text-base
-    color: colors.neutral[600], // text-gray-600
+    fontSize: typography.sizes.lg,
+    color: colors.neutral[600],
     textAlign: 'center',
-    marginTop: spacing.sm, // mt-2
+    lineHeight: 22,
   },
   formContainer: {
     marginBottom: spacing.xl,

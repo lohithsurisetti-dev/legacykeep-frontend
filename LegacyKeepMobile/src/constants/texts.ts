@@ -208,6 +208,12 @@ export const authTexts = {
     resendCode: 'Resend Code',
     verifyButton: 'Verify & Complete',
     didntReceiveCode: "Didn't receive the code?",
+    // Password reset context
+    passwordReset: {
+      subtitle: 'Reset Password',
+      description: 'Enter the 6-digit code sent to',
+      verifyButton: 'Continue',
+    },
   },
 } as const;
 

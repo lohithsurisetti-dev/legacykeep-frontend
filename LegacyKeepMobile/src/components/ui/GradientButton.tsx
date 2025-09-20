@@ -9,12 +9,14 @@ import { TouchableOpacity, Text, ViewStyle, TextStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { gradientConfigs, componentColors, brandColors } from '../../constants/designSystem';
 import { colors, typography, spacing } from '../../constants';
+import GlassmorphismSpinner from './GlassmorphismSpinner';
 
 interface GradientButtonProps {
   title: string;
   onPress: () => void;
   gradient?: keyof typeof gradientConfigs;
   disabled?: boolean;
+  loading?: boolean;
   style?: ViewStyle;
   textStyle?: TextStyle;
   activeOpacity?: number;
@@ -25,6 +27,7 @@ const GradientButton: React.FC<GradientButtonProps> = ({
   onPress,
   gradient = 'horizontal',
   disabled = false,
+  loading = false,
   style,
   textStyle,
   activeOpacity = 0.8,
@@ -34,7 +37,7 @@ const GradientButton: React.FC<GradientButtonProps> = ({
   return (
     <TouchableOpacity
       onPress={onPress}
-      disabled={disabled}
+      disabled={disabled || loading}
       activeOpacity={activeOpacity}
       style={[
         {
@@ -64,18 +67,25 @@ const GradientButton: React.FC<GradientButtonProps> = ({
           opacity: disabled ? 0.6 : 1,
         }}
       >
-        <Text
-          style={[
-            {
-              fontSize: typography.sizes.md,
-              fontWeight: typography.weights.bold,
-              color: colors.neutral[50],
-            },
-            textStyle,
-          ]}
-        >
-          {title}
-        </Text>
+        {loading ? (
+          <GlassmorphismSpinner 
+            size={20} 
+            color={colors.neutral[50]} 
+          />
+        ) : (
+          <Text
+            style={[
+              {
+                fontSize: typography.sizes.md,
+                fontWeight: typography.weights.bold,
+                color: colors.neutral[50],
+              },
+              textStyle,
+            ]}
+          >
+            {title}
+          </Text>
+        )}
       </LinearGradient>
     </TouchableOpacity>
   );

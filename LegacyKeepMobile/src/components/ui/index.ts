@@ -11,3 +11,4 @@ export { default as GradientText } from './GradientText';
 export { default as GlassmorphismContainer } from './GlassmorphismContainer';
 export { default as BackButton } from './BackButton';
 export { default as ProgressTracker } from './ProgressTracker';
+export { default as GlassmorphismSpinner } from './GlassmorphismSpinner';
