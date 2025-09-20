@@ -275,6 +275,7 @@ const LoginScreen: React.FC<Props> = () => {
                 disabled={isLoading}
                 loading={isLoading}
                 style={styles.loginButton}
+                fontSize="lg"
               />
 
               {/* Forgot Password Link */}
@@ -493,7 +494,7 @@ const styles = StyleSheet.create({
   },
   forgotPasswordText: {
     color: componentColors.glassmorphism.text,
-    fontSize: typography.sizes.sm,
+    fontSize: typography.sizes.md,
     fontWeight: typography.weights.medium,
   },
   socialSection: {

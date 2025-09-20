@@ -13,11 +13,13 @@ import {
   SafeAreaView,
   StatusBar,
 } from 'react-native';
-import { GradientBackground, GlassmorphismContainer } from '../../components/ui';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { GradientBackground, GlassmorphismContainer, GradientButton } from '../../components/ui';
 import { useNavigation } from '@react-navigation/native';
 import { AuthStackScreenProps } from '../../navigation/types';
 import { ROUTES } from '../../navigation/types';
-import { colors, typography, spacing } from '../../constants';
+import { colors, typography, spacing, gradients } from '../../constants';
 import { componentColors, brandColors } from '../../constants/designSystem';
 import { authTexts } from '../../constants/texts';
 
@@ -40,70 +42,66 @@ const WelcomeScreen: React.FC<Props> = () => {
         <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
         
         <View style={styles.content}>
-        {/* Logo and Title */}
-        <View style={styles.header}>
-          <Text style={styles.logo}>{authTexts.welcome.title}</Text>
-          <Text style={styles.tagline}>
-            {authTexts.welcome.description}
-          </Text>
-        </View>
+          {/* Hero Section */}
+          <View style={styles.hero}>
+            <Text style={styles.logo}>{authTexts.welcome.title}</Text>
+            <Text style={styles.subtitle}>
+              {authTexts.welcome.subtitle}
+            </Text>
+          </View>
 
-        {/* Premium Features */}
-        <View style={styles.features}>
-          <Text style={styles.featuresTitle}>{authTexts.welcome.features.title}</Text>
-          
-          {/* Feature Card 1 */}
-          <GlassmorphismContainer style={styles.featureCard}>
-            <View style={styles.featureIconContainer}>
-              <Text style={styles.featureIcon}>🌳</Text>
-            </View>
-            <View style={styles.featureContent}>
-              <Text style={styles.featureTitle}>{authTexts.welcome.features.familyTree.title}</Text>
-              <Text style={styles.featureDescription}>{authTexts.welcome.features.familyTree.description}</Text>
+          {/* Single Premium Feature Card */}
+          <GlassmorphismContainer style={styles.mainCard}>
+            <View style={styles.featuresGrid}>
+              {/* Connect Feature */}
+              <View style={styles.featureItem}>
+                <View style={styles.featureIconContainer}>
+                  <Ionicons name="people" size={24} color={colors.neutral[50]} />
+                </View>
+                <Text style={styles.featureTitle}>{authTexts.welcome.features.connect.title}</Text>
+                <Text style={styles.featureDescription}>{authTexts.welcome.features.connect.description}</Text>
+              </View>
+
+              {/* Preserve Feature */}
+              <View style={styles.featureItem}>
+                <View style={styles.featureIconContainer}>
+                  <Ionicons name="shield-checkmark" size={24} color={colors.neutral[50]} />
+                </View>
+                <Text style={styles.featureTitle}>{authTexts.welcome.features.preserve.title}</Text>
+                <Text style={styles.featureDescription}>{authTexts.welcome.features.preserve.description}</Text>
+              </View>
+
+              {/* Discover Feature */}
+              <View style={styles.featureItem}>
+                <View style={styles.featureIconContainer}>
+                  <Ionicons name="compass" size={24} color={colors.neutral[50]} />
+                </View>
+                <Text style={styles.featureTitle}>{authTexts.welcome.features.discover.title}</Text>
+                <Text style={styles.featureDescription}>{authTexts.welcome.features.discover.description}</Text>
+              </View>
             </View>
           </GlassmorphismContainer>
 
-          {/* Feature Card 2 */}
-          <GlassmorphismContainer style={styles.featureCard}>
-            <View style={styles.featureIconContainer}>
-              <Text style={styles.featureIcon}>📖</Text>
-            </View>
-            <View style={styles.featureContent}>
-              <Text style={styles.featureTitle}>{authTexts.welcome.features.shareStories.title}</Text>
-              <Text style={styles.featureDescription}>{authTexts.welcome.features.shareStories.description}</Text>
-            </View>
-          </GlassmorphismContainer>
-
-          {/* Feature Card 3 */}
-          <GlassmorphismContainer style={styles.featureCard}>
-            <View style={styles.featureIconContainer}>
-              <Text style={styles.featureIcon}>💎</Text>
-            </View>
-            <View style={styles.featureContent}>
-              <Text style={styles.featureTitle}>{authTexts.welcome.features.preserveMemories.title}</Text>
-              <Text style={styles.featureDescription}>{authTexts.welcome.features.preserveMemories.description}</Text>
-            </View>
-          </GlassmorphismContainer>
-        </View>
-
-        {/* Action Buttons */}
-        <View style={styles.actions}>
-          <TouchableOpacity
-            style={styles.primaryButton}
-            onPress={handleGetStarted}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.primaryButtonText}>{authTexts.welcome.getStartedButton}</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity
-            style={styles.secondaryButton}
-            onPress={handleSignIn}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.secondaryButtonText}>{authTexts.welcome.signInButton}</Text>
-          </TouchableOpacity>
-        </View>
+          {/* Action Buttons */}
+          <View style={styles.actions}>
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={handleGetStarted}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.primaryButtonText}>{authTexts.welcome.getStartedButton}</Text>
+            </TouchableOpacity>
+            
+            <GlassmorphismContainer style={styles.secondaryButton}>
+              <TouchableOpacity
+                onPress={handleSignIn}
+                activeOpacity={0.7}
+                style={styles.secondaryButtonInner}
+              >
+                <Text style={styles.secondaryButtonText}>{authTexts.welcome.signInButton}</Text>
+              </TouchableOpacity>
+            </GlassmorphismContainer>
+          </View>
         </View>
       </SafeAreaView>
     </GradientBackground>
@@ -122,47 +120,114 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     justifyContent: 'space-between',
   },
-  header: {
+  // Hero Section
+  hero: {
     alignItems: 'center',
     marginTop: spacing.xxl,
-  },
-  logo: {
-    fontSize: typography.sizes['5xl'],
-    fontWeight: typography.weights.bold,
-    color: colors.neutral[50],
-    marginBottom: spacing.md,
-    textShadowColor: 'rgba(255, 255, 255, 0.3)',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 10,
-  },
-  tagline: {
-    fontSize: typography.sizes.lg,
-    color: componentColors.glassmorphism.text,
-    textAlign: 'center',
-    lineHeight: 24,
     paddingHorizontal: spacing.md,
   },
-  features: {
-    alignItems: 'center',
-    marginVertical: spacing.lg,
-    paddingHorizontal: spacing.lg,
-  },
-  featuresTitle: {
-    fontSize: typography.sizes.lg,
+  logo: {
+    fontSize: typography.sizes['4xl'],
     fontWeight: typography.weights.bold,
     color: colors.neutral[50],
-    textAlign: 'center',
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
     textShadowColor: 'rgba(255, 255, 255, 0.3)',
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 10,
+    letterSpacing: 1,
   },
-  featureCard: {
-    width: '100%',
+  subtitle: {
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.semibold,
+    color: colors.neutral[100],
+    textAlign: 'center',
     marginBottom: spacing.sm,
-    padding: spacing.md,
-    flexDirection: 'row',
+    textShadowColor: 'rgba(255, 255, 255, 0.2)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
+  },
+  // Main Feature Card
+  mainCard: {
+    marginVertical: spacing.lg,
+    padding: spacing.xl,
+    shadowColor: colors.shadow.dark,
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  featuresGrid: {
     alignItems: 'center',
+  },
+  featureItem: {
+    alignItems: 'center',
+    marginBottom: spacing.xl, // More space between features
+    maxWidth: 280,
+  },
+  featureIconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing.xs, // Close to title
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
+    shadowColor: colors.neutral[50],
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  featureTitle: {
+    fontSize: typography.sizes.lg,
+    fontWeight: typography.weights.bold,
+    color: colors.neutral[50],
+    marginBottom: spacing.sm, // Space before description
+    textAlign: 'center',
+  },
+  featureDescription: {
+    fontSize: typography.sizes.sm,
+    color: componentColors.glassmorphism.text,
+    textAlign: 'center',
+    lineHeight: 20,
+    opacity: 0.8,
+  },
+  // Action Buttons
+  actions: {
+    marginBottom: spacing.xl,
+    paddingHorizontal: spacing.md,
+  },
+  primaryButton: {
+    backgroundColor: colors.neutral[50],
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    borderRadius: 16,
+    marginBottom: spacing.lg,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  primaryButtonText: {
+    color: colors.secondary.teal[600],
+    fontSize: typography.sizes.lg,
+    fontWeight: typography.weights.bold,
+  },
+  secondaryButton: {
+    borderRadius: 16,
     shadowColor: colors.shadow.dark,
     shadowOffset: {
       width: 0,
@@ -172,65 +237,9 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 4,
   },
-  featureIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: spacing.md,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  featureIcon: {
-    fontSize: 20,
-  },
-  featureContent: {
-    flex: 1,
-  },
-  featureTitle: {
-    fontSize: typography.sizes.md,
-    fontWeight: typography.weights.bold,
-    color: colors.neutral[50],
-    marginBottom: 2,
-  },
-  featureDescription: {
-    fontSize: typography.sizes.xs,
-    color: componentColors.glassmorphism.text,
-    lineHeight: 16,
-  },
-  actions: {
-    marginBottom: spacing.xxl,
-  },
-  primaryButton: {
-    backgroundColor: colors.neutral[50],
+  secondaryButtonInner: {
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.lg,
-    borderRadius: 12,
-    marginBottom: spacing.md,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  primaryButtonText: {
-    color: componentColors.primaryButton.text,
-    fontSize: typography.sizes.lg,
-    fontWeight: typography.weights.bold,
-  },
-  secondaryButton: {
-    backgroundColor: componentColors.glassmorphism.background,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: componentColors.glassmorphism.border,
     alignItems: 'center',
   },
   secondaryButtonText: {

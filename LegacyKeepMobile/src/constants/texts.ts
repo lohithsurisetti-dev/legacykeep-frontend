@@ -35,23 +35,22 @@ export const authTexts = {
   // Welcome Screen
   welcome: {
     title: 'LegacyKeep',
-    subtitle: 'Preserving Family Stories',
-    description: 'Connect with your family, share stories, and preserve memories for generations to come.',
-    getStartedButton: 'Get Started',
+    subtitle: 'Where Family Stories Live Forever',
+    description: 'Connect generations through stories, memories, and moments that matter.',
+    getStartedButton: 'Begin Your Legacy',
     signInButton: 'Sign In',
     features: {
-      title: 'What you can do:',
-      familyTree: {
-        title: 'Family Tree',
-        description: 'Build your family tree',
+      connect: {
+        title: 'Connect',
+        description: 'Bring your family together across generations',
       },
-      shareStories: {
-        title: 'Share Stories',
-        description: 'Preserve family stories',
+      preserve: {
+        title: 'Preserve',
+        description: 'Safeguard precious memories and stories',
       },
-      preserveMemories: {
-        title: 'Preserve Memories',
-        description: 'Keep memories safe',
+      discover: {
+        title: 'Discover',
+        description: 'Uncover your family\'s unique heritage',
       },
     },
   },
