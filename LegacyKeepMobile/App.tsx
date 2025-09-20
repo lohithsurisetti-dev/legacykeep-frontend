@@ -2,8 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Animated } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { AuthProvider } from './src/contexts/AuthContext';
+import { LanguageProvider } from './src/contexts/LanguageContext';
+import { ThemeProvider } from './src/contexts/ThemeContext';
 import { RootNavigator } from './src/navigation';
 import SplashScreen from './src/components/SplashScreen';
+import './src/i18n'; // Initialize i18n
 
 export default function App() {
   const [isSplashVisible, setIsSplashVisible] = useState(true);
@@ -63,10 +66,14 @@ export default function App() {
           zIndex: 1,
         }}
       >
-        <AuthProvider>
-          <RootNavigator />
-          <StatusBar style='auto' />
-        </AuthProvider>
+        <ThemeProvider>
+          <LanguageProvider>
+            <AuthProvider>
+              <RootNavigator />
+              <StatusBar style='auto' />
+            </AuthProvider>
+          </LanguageProvider>
+        </ThemeProvider>
       </Animated.View>
     </View>
   );

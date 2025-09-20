@@ -15,3 +15,5 @@ export { default as GlassmorphismSpinner } from './GlassmorphismSpinner';
 export { default as HomeHeader } from './HomeHeader';
 export { default as BottomNavigation } from './BottomNavigation';
 export { default as QuickInsightsBar } from './QuickInsightsBar';
+export { default as LanguageSelector } from './LanguageSelector';
+export { default as ThemeSelector } from './ThemeSelector';

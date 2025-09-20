@@ -17,13 +17,14 @@ import { useNavigation } from '@react-navigation/native';
 import { AuthStackScreenProps } from '../../navigation/types';
 import { ROUTES } from '../../navigation/types';
 import { colors, typography, spacing } from '../../constants';
-import { authTexts } from '../../constants/texts';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { GradientButton } from '../../components/ui';
 
 type Props = AuthStackScreenProps<typeof ROUTES.PASSWORD_RESET_SUCCESS>;
 
 const PasswordResetSuccessScreen: React.FC<Props> = () => {
   const navigation = useNavigation();
+  const { t } = useLanguage();
 
   const handleBackToLogin = () => {
     (navigation as any).navigate(ROUTES.LOGIN);
@@ -46,10 +47,10 @@ const PasswordResetSuccessScreen: React.FC<Props> = () => {
           {/* Success Message */}
           <View style={styles.messageContainer}>
             <Text style={styles.title}>
-              {authTexts.passwordResetSuccess.title}
+              {t('auth.passwordResetSuccess.title')}
             </Text>
             <Text style={styles.subtitle}>
-              {authTexts.passwordResetSuccess.subtitle}
+              {t('auth.passwordResetSuccess.subtitle')}
             </Text>
           </View>
         </View>
@@ -57,7 +58,7 @@ const PasswordResetSuccessScreen: React.FC<Props> = () => {
         {/* Footer */}
         <View style={styles.footer}>
           <GradientButton
-            title={authTexts.passwordResetSuccess.backToLoginButton}
+            title={t('auth.passwordResetSuccess.backToLoginButton')}
             onPress={handleBackToLogin}
             gradient="horizontal"
             style={styles.backToLoginButton}

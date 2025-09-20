@@ -7,7 +7,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, typography, spacing, gradients } from '../../constants';
+import { typography, spacing, gradients } from '../../constants';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface TabItem {
   id: string;
@@ -49,8 +50,8 @@ const tabs: TabItem[] = [
 ];
 
 // Natural gradient flow across tabs
-const getTabColor = (tabIndex: number, isActive: boolean) => {
-  if (!isActive) return colors.neutral[400];
+const getTabColor = (tabIndex: number, isActive: boolean, themeColors: any) => {
+  if (!isActive) return themeColors.navigationInactive;
   
   // Create natural gradient flow: teal → teal-purple → purple-teal → purple
   const gradientColors = [
@@ -60,20 +61,24 @@ const getTabColor = (tabIndex: number, isActive: boolean) => {
     gradients.peacock[1],           // Chat: Pure purple
   ];
   
-  return gradientColors[tabIndex] || colors.secondary.teal[500];
+  return gradientColors[tabIndex] || themeColors.primary;
 };
 
 const BottomNavigation: React.FC<BottomNavigationProps> = ({
   activeTab,
   onTabPress,
 }) => {
+  const { colors } = useTheme();
+  
+  const styles = createStyles(colors);
+  
   return (
     <View style={styles.container}>
       <View style={styles.tabContainer}>
         {tabs.map((tab, index) => {
           const isActive = activeTab === tab.id;
           const iconName = isActive && tab.activeIcon ? tab.activeIcon : tab.icon;
-          const tabColor = getTabColor(index, isActive);
+          const tabColor = getTabColor(index, isActive, colors);
           
           return (
             <TouchableOpacity
@@ -103,30 +108,30 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: colors.neutral[50],
-    borderTopWidth: 1,
-    borderTopColor: colors.neutral[200],
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.md, // More generous bottom padding
-    paddingHorizontal: spacing.xs,
-  },
+const createStyles = (colors: any) => StyleSheet.create({
+    container: {
+      backgroundColor: colors.navigationBackground,
+      borderTopWidth: 1,
+      borderTopColor: colors.navigationBorder,
+      paddingTop: spacing.sm,
+      paddingBottom: spacing.md, // More generous bottom padding
+      paddingHorizontal: spacing.xs,
+    },
   tabContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
   },
-  tab: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: spacing.xs, // Better vertical padding
-  },
-  tabLabel: {
-    fontSize: typography.sizes.xs,
-    fontWeight: typography.weights.semibold,
-    marginTop: spacing.xs,
-  },
+    tab: {
+      flex: 1,
+      alignItems: 'center',
+      paddingVertical: spacing.xs, // Better vertical padding
+    },
+    tabLabel: {
+      fontSize: typography.sizes.xs,
+      fontWeight: typography.weights.semibold,
+      marginTop: spacing.xs,
+    },
 });
 
 export default BottomNavigation;

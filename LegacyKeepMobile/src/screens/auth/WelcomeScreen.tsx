@@ -21,12 +21,13 @@ import { AuthStackScreenProps } from '../../navigation/types';
 import { ROUTES } from '../../navigation/types';
 import { colors, typography, spacing, gradients } from '../../constants';
 import { componentColors, brandColors } from '../../constants/designSystem';
-import { authTexts } from '../../constants/texts';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 type Props = AuthStackScreenProps<typeof ROUTES.WELCOME>;
 
 const WelcomeScreen: React.FC<Props> = () => {
   const navigation = useNavigation();
+  const { t } = useLanguage();
 
   const handleGetStarted = () => {
     (navigation as any).navigate(ROUTES.REGISTRATION);
@@ -44,9 +45,9 @@ const WelcomeScreen: React.FC<Props> = () => {
         <View style={styles.content}>
           {/* Hero Section */}
           <View style={styles.hero}>
-            <Text style={styles.logo}>{authTexts.welcome.title}</Text>
+            <Text style={styles.logo}>{t('auth.welcome.title')}</Text>
             <Text style={styles.subtitle}>
-              {authTexts.welcome.subtitle}
+              {t('auth.welcome.subtitle')}
             </Text>
           </View>
 
@@ -58,8 +59,8 @@ const WelcomeScreen: React.FC<Props> = () => {
                 <View style={styles.featureIconContainer}>
                   <Ionicons name="people" size={24} color={colors.neutral[50]} />
                 </View>
-                <Text style={styles.featureTitle}>{authTexts.welcome.features.connect.title}</Text>
-                <Text style={styles.featureDescription}>{authTexts.welcome.features.connect.description}</Text>
+                <Text style={styles.featureTitle}>{t('auth.welcome.features.connect.title')}</Text>
+                <Text style={styles.featureDescription}>{t('auth.welcome.features.connect.description')}</Text>
               </View>
 
               {/* Preserve Feature */}
@@ -67,8 +68,8 @@ const WelcomeScreen: React.FC<Props> = () => {
                 <View style={styles.featureIconContainer}>
                   <Ionicons name="shield-checkmark" size={24} color={colors.neutral[50]} />
                 </View>
-                <Text style={styles.featureTitle}>{authTexts.welcome.features.preserve.title}</Text>
-                <Text style={styles.featureDescription}>{authTexts.welcome.features.preserve.description}</Text>
+                <Text style={styles.featureTitle}>{t('auth.welcome.features.preserve.title')}</Text>
+                <Text style={styles.featureDescription}>{t('auth.welcome.features.preserve.description')}</Text>
               </View>
 
               {/* Discover Feature */}
@@ -76,8 +77,8 @@ const WelcomeScreen: React.FC<Props> = () => {
                 <View style={styles.featureIconContainer}>
                   <Ionicons name="compass" size={24} color={colors.neutral[50]} />
                 </View>
-                <Text style={styles.featureTitle}>{authTexts.welcome.features.discover.title}</Text>
-                <Text style={styles.featureDescription}>{authTexts.welcome.features.discover.description}</Text>
+                <Text style={styles.featureTitle}>{t('auth.welcome.features.discover.title')}</Text>
+                <Text style={styles.featureDescription}>{t('auth.welcome.features.discover.description')}</Text>
               </View>
             </View>
           </GlassmorphismContainer>
@@ -89,7 +90,7 @@ const WelcomeScreen: React.FC<Props> = () => {
               onPress={handleGetStarted}
               activeOpacity={0.8}
             >
-              <Text style={styles.primaryButtonText}>{authTexts.welcome.getStartedButton}</Text>
+              <Text style={styles.primaryButtonText}>{t('auth.welcome.getStartedButton')}</Text>
             </TouchableOpacity>
             
             <GlassmorphismContainer style={styles.secondaryButton}>
@@ -98,7 +99,7 @@ const WelcomeScreen: React.FC<Props> = () => {
                 activeOpacity={0.7}
                 style={styles.secondaryButtonInner}
               >
-                <Text style={styles.secondaryButtonText}>{authTexts.welcome.signInButton}</Text>
+                <Text style={styles.secondaryButtonText}>{t('auth.welcome.signInButton')}</Text>
               </TouchableOpacity>
             </GlassmorphismContainer>
           </View>

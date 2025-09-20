@@ -18,7 +18,8 @@ import { useNavigation } from '@react-navigation/native';
 import { AuthStackScreenProps } from '../../navigation/types';
 import { ROUTES } from '../../navigation/types';
 import { colors, typography, spacing, gradients } from '../../constants';
-import { authTexts } from '../../constants/texts';
+import { useLanguage } from '../../contexts/LanguageContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { BackButton, GradientButton, ProgressTracker, GradientText } from '../../components/ui';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -34,6 +35,8 @@ interface OtpFormErrors {
 
 const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
   const navigation = useNavigation();
+  const { t } = useLanguage();
+  const { completeVerification } = useAuth();
   
   // Get params for dynamic behavior
   const purpose = route?.params?.purpose || 'registration';
@@ -42,24 +45,24 @@ const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
   // Dynamic content based on purpose
   const getSubtitle = () => {
     return purpose === 'password-reset' 
-      ? authTexts.otpVerification.passwordReset.subtitle
-      : authTexts.otpVerification.subtitle;
+      ? t('auth.otpVerification.passwordReset.subtitle')
+      : t('auth.otpVerification.subtitle');
   };
 
   const getButtonText = () => {
     return purpose === 'password-reset' 
-      ? authTexts.otpVerification.passwordReset.verifyButton
-      : authTexts.otpVerification.verifyButton;
+      ? t('auth.otpVerification.passwordReset.verifyButton')
+      : t('auth.otpVerification.verifyButton');
   };
 
   const getDescription = () => {
     if (purpose === 'password-reset') {
       return emailOrPhone 
-        ? `${authTexts.otpVerification.passwordReset.description} ${emailOrPhone}`
+        ? t('auth.otpVerification.passwordReset.description').replace('{emailOrPhone}', emailOrPhone || '')
         : 'Enter the 6-digit code sent to your email/phone';
     } else {
       return emailOrPhone 
-        ? `${authTexts.otpVerification.description} ${emailOrPhone}`
+        ? t('auth.otpVerification.description').replace('{emailOrPhone}', emailOrPhone || '')
         : 'Enter the 6-digit code sent to your email/phone';
     }
   };
@@ -169,10 +172,10 @@ const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
           emailOrPhone: emailOrPhone,
         });
       } else {
-        // Registration flow - navigate to main app
-        console.log('Account created successfully');
-        // TODO: Update auth context to set isAuthenticated = true
-        // This will automatically navigate to main app via RootNavigator
+        // Registration flow - complete verification and authenticate user
+        console.log('Account created and verified successfully');
+        completeVerification();
+        // The RootNavigator will automatically navigate to Main app when isAuthenticated becomes true
       }
     } catch (error) {
       console.error('OTP verification failed:', error);
@@ -229,7 +232,7 @@ const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
         >
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.title}>{authTexts.otpVerification.title}</Text>
+            <Text style={styles.title}>LegacyKeep</Text>
             <Text style={styles.subtitle}>{getSubtitle()}</Text>
           </View>
 
@@ -243,7 +246,7 @@ const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
             <View style={styles.form}>
               {/* OTP Input Fields */}
               <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>{authTexts.otpVerification.otpLabel}</Text>
+                <Text style={styles.inputLabel}>{t('auth.otpVerification.otpLabel')}</Text>
                 <Text style={styles.helperText}>{getDescription()}</Text>
                 <View style={styles.otpContainer}>
                   {formData.otp.map((digit, index) => (

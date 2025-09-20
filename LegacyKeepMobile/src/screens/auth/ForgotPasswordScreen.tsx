@@ -15,7 +15,7 @@ import { BackButton } from '../../components/ui';
 import { AuthStackScreenProps } from '../../navigation/types';
 import { ROUTES } from '../../navigation/types';
 import { colors, typography, spacing } from '../../constants';
-import { authTexts } from '../../constants/texts';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { validatePassword } from '../../utils/validation';
 import GradientButton from '../../components/ui/GradientButton';
 
@@ -33,6 +33,7 @@ interface FormErrors {
 
 const ForgotPasswordScreen: React.FC<Props> = () => {
   const navigation = useNavigation();
+  const { t } = useLanguage();
   const [formData, setFormData] = useState<FormData>({
     newPassword: '',
     confirmPassword: '',
@@ -116,8 +117,8 @@ const ForgotPasswordScreen: React.FC<Props> = () => {
         >
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.title}>{authTexts.forgotPassword.title}</Text>
-            <Text style={styles.subtitle}>{authTexts.forgotPassword.subtitle}</Text>
+            <Text style={styles.title}>LegacyKeep</Text>
+            <Text style={styles.subtitle}>{t('auth.forgotPassword.subtitle')}</Text>
           </View>
 
           {/* Form */}
@@ -128,12 +129,13 @@ const ForgotPasswordScreen: React.FC<Props> = () => {
                 <View style={styles.inputContainer}>
                   <TextInput
                     style={[styles.input, errors.newPassword && styles.inputError]}
-                    placeholder={authTexts.forgotPassword.newPasswordPlaceholder}
+                    placeholder={t('auth.forgotPassword.newPasswordPlaceholder')}
                     value={formData.newPassword}
                     onChangeText={(value) => handleInputChange('newPassword', value)}
                     secureTextEntry={!showNewPassword}
                     autoCapitalize="none"
                     autoCorrect={false}
+                    autoComplete="off"
                   />
                   <TouchableOpacity
                     style={styles.eyeButton}
@@ -154,12 +156,13 @@ const ForgotPasswordScreen: React.FC<Props> = () => {
                 <View style={styles.inputContainer}>
                   <TextInput
                     style={[styles.input, errors.confirmPassword && styles.inputError]}
-                    placeholder={authTexts.forgotPassword.confirmPasswordPlaceholder}
+                    placeholder={t('auth.forgotPassword.confirmPasswordPlaceholder')}
                     value={formData.confirmPassword}
                     onChangeText={(value) => handleInputChange('confirmPassword', value)}
                     secureTextEntry={!showConfirmPassword}
                     autoCapitalize="none"
                     autoCorrect={false}
+                    autoComplete="off"
                   />
                   <TouchableOpacity
                     style={styles.eyeButton}
@@ -181,7 +184,7 @@ const ForgotPasswordScreen: React.FC<Props> = () => {
         {/* Footer */}
         <View style={styles.footer}>
           <GradientButton
-            title={authTexts.forgotPassword.resetPasswordButton}
+            title={t('auth.forgotPassword.resetPasswordButton')}
             onPress={handleResetPassword}
             disabled={isLoading}
             gradient="horizontal"

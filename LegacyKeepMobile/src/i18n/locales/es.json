@@ -1,0 +1,183 @@
+{
+  "auth": {
+    "login": {
+      "title": "LegacyKeep",
+      "subtitle": "Preservando Historias Familiares",
+      "credentialsLabel": "Correo, Teléfono o Usuario",
+      "credentialsPlaceholder": "Ingresa tus credenciales",
+      "passwordLabel": "Contraseña",
+      "passwordPlaceholder": "••••••••",
+      "loginButton": "Iniciar Sesión",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "socialLoginDivider": "O continúa con",
+      "noAccount": "¿No tienes una cuenta?",
+      "signUpLink": "Regístrate"
+    },
+    "welcome": {
+      "title": "LegacyKeep",
+      "subtitle": "Donde las Historias Familiares Viven para Siempre",
+      "description": "Conecta generaciones a través de historias, recuerdos y momentos que importan.",
+      "getStartedButton": "Comienza tu Legado",
+      "signInButton": "Iniciar Sesión",
+      "features": {
+        "connect": {
+          "title": "Conectar",
+          "description": "Une a tu familia a través de las generaciones"
+        },
+        "preserve": {
+          "title": "Preservar",
+          "description": "Protege recuerdos e historias preciosas"
+        },
+        "discover": {
+          "title": "Descubrir",
+          "description": "Descubre el patrimonio único de tu familia"
+        }
+      }
+    },
+    "registration": {
+      "title": "Crear Cuenta",
+      "subtitle": "Únete a LegacyKeep",
+      "firstNamePlaceholder": "Nombre",
+      "lastNamePlaceholder": "Apellido",
+      "usernamePlaceholder": "Nombre de usuario",
+      "emailOrPhonePlaceholder": "Correo o teléfono",
+      "passwordPlaceholder": "Crear contraseña",
+      "termsText": "Acepto los",
+      "termsLink": "Términos y Condiciones",
+      "createAccountButton": "Crear Cuenta",
+      "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+      "signInLink": "Iniciar sesión"
+    },
+    "registrationValidation": {
+      "firstNameRequired": "El nombre es requerido",
+      "lastNameRequired": "El apellido es requerido"
+    },
+    "otpVerification": {
+      "title": "Verifica tu Cuenta",
+      "subtitle": "Crear Cuenta", 
+      "verifyButton": "Verificar y Completar",
+      "otpLabel": "Código de Verificación",
+      "description": "Ingresa el código de seis dígitos enviado a {emailOrPhone}",
+      "resendCode": "Reenviar código",
+      "didntReceive": "¿No lo recibiste?",
+      "resendIn": "Reenviar en {seconds}s",
+      "passwordReset": {
+        "subtitle": "Restablecer Contraseña",
+        "verifyButton": "Continuar",
+        "description": "Ingresa el código de seis dígitos enviado a {emailOrPhone}"
+      }
+    },
+    "personalDetails": {
+      "title": "Detalles Personales",
+      "subtitle": "Cuéntanos sobre ti",
+      "genderLabel": "Género",
+      "dateOfBirthLabel": "Fecha de Nacimiento",
+      "dateOfBirthPlaceholder": "Selecciona tu fecha de nacimiento",
+      "continueButton": "Continuar",
+      "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+      "signIn": "Iniciar Sesión",
+      "genderOptions": {
+        "male": "Masculino",
+        "female": "Femenino",
+        "other": "Otro",
+        "preferNotToSay": "Prefiero no decir"
+      }
+    },
+    "forgotPassword": {
+      "title": "Restablecer Contraseña", 
+      "subtitle": "Crea tu nueva contraseña",
+      "newPasswordPlaceholder": "Nueva contraseña",
+      "confirmPasswordPlaceholder": "Confirmar nueva contraseña",
+      "resetPasswordButton": "Restablecer Contraseña"
+    },
+    "passwordResetSuccess": {
+      "title": "¡Contraseña Restablecida Exitosamente!",
+      "subtitle": "Ahora puedes iniciar sesión con tu nueva contraseña.",
+      "backToLoginButton": "Volver al Inicio de Sesión"
+    },
+    "location": {
+      "title": "Ubicación",
+      "subtitle": "¿Dónde te encuentras?",
+      "cityLabel": "Ciudad",
+      "cityPlaceholder": "Ingresa tu ciudad",
+      "stateLabel": "Estado/Provincia",
+      "statePlaceholder": "Ingresa tu estado o provincia",
+      "countryLabel": "País", 
+      "countryPlaceholder": "Ingresa tu país",
+      "generateOtpButton": "Generar OTP",
+      "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+      "signIn": "Iniciar Sesión"
+    },
+    "registrationSuccess": {
+      "title": "¡Bienvenido a LegacyKeep!",
+      "subtitle": "Tu cuenta ha sido creada",
+      "description": "Comienza a construir tu legado familiar hoy",
+      "getStartedButton": "Comenzar"
+    },
+    "registrationMethod": {
+      "title": "Únete a LegacyKeep",
+      "subtitle": "Elige cómo te gustaría registrarte",
+      "emailOption": "Continuar con Correo",
+      "phoneOption": "Continuar con Teléfono",
+      "socialOption": "Continuar con Redes Sociales",
+      "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+      "signInLink": "Iniciar sesión"
+    },
+    "validation": {
+      "loginFailed": "Error en el inicio de sesión. Inténtalo de nuevo."
+    }
+  },
+  "main": {
+    "home": {
+      "welcome": "¡Bienvenido, {userName}!",
+      "familyName": "{familyName}",
+      "timelineTitle": "Explorar",
+      "quickInsights": {
+        "title": "Información Rápida",
+        "noBirthdays": "No hay cumpleaños próximos",
+        "noEvents": "No hay eventos próximos",
+        "birthdayToday": "¡Hoy es el cumpleaños de {name}! 🎂",
+        "birthdayTomorrow": "Mañana es el cumpleaños de {name}",
+        "birthdayDays": "Cumpleaños de {name} en {days} días",
+        "anniversaryToday": "¡Hoy es el aniversario de {name} y {partner}! 💝",
+        "anniversaryDays": "Aniversario de {name} y {partner} en {days} días",
+        "eventToday": "{event} es hoy",
+        "eventDays": "{event} en {days} días",
+        "sendMessage": "Enviar Mensaje",
+        "createStory": "Crear Historia",
+        "viewDetails": "Ver Detalles"
+      }
+    }
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "save": "Guardar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "done": "Hecho",
+    "retry": "Reintentar",
+    "ok": "OK"
+  },
+  "validation": {
+    "required": "Este campo es obligatorio",
+    "invalidEmail": "Por favor ingresa un correo válido",
+    "invalidPhone": "Por favor ingresa un teléfono válido",
+    "passwordTooShort": "La contraseña debe tener al menos 8 caracteres",
+    "passwordMismatch": "Las contraseñas no coinciden",
+    "invalidCredentials": "Correo, teléfono o usuario inválido"
+  },
+  "navigation": {
+    "home": "Inicio",
+    "family": "Familia",
+    "stories": "Historias",
+    "chat": "Chat",
+    "profile": "Perfil",
+    "settings": "Configuración"
+  }
+}

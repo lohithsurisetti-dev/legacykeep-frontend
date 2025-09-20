@@ -4,7 +4,7 @@
  * Collects user's date of birth and gender information
  */
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -18,7 +18,7 @@ import { useNavigation } from '@react-navigation/native';
 import { AuthStackScreenProps } from '../../navigation/types';
 import { ROUTES } from '../../navigation/types';
 import { colors, typography, spacing, gradients } from '../../constants';
-import { authTexts } from '../../constants/texts';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { BackButton, GradientButton, ProgressTracker, GradientText } from '../../components/ui';
 import { LinearGradient } from 'expo-linear-gradient';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -37,6 +37,7 @@ interface PersonalDetailsFormErrors {
 
 const PersonalDetailsScreen: React.FC<Props> = () => {
   const navigation = useNavigation();
+  const { t } = useLanguage();
   
   const [formData, setFormData] = useState<PersonalDetailsFormData>({
     dateOfBirth: null,
@@ -131,19 +132,27 @@ const PersonalDetailsScreen: React.FC<Props> = () => {
   };
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', {
+    // Get current language from i18n context
+    const { currentLanguage } = useLanguage();
+    const locale = currentLanguage === 'es' ? 'es-ES' : 
+                   currentLanguage === 'fr' ? 'fr-FR' :
+                   currentLanguage === 'de' ? 'de-DE' :
+                   currentLanguage === 'pt' ? 'pt-PT' :
+                   currentLanguage === 'hi' ? 'hi-IN' : 'en-US';
+    
+    return date.toLocaleDateString(locale, {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
     });
   };
 
-  const genderOptions = [
-    { value: 'male', label: authTexts.personalDetails.genderOptions.male },
-    { value: 'female', label: authTexts.personalDetails.genderOptions.female },
-    { value: 'other', label: authTexts.personalDetails.genderOptions.other },
-    { value: 'preferNotToSay', label: authTexts.personalDetails.genderOptions.preferNotToSay },
-  ];
+  const genderOptions = useMemo(() => [
+    { value: 'male', label: t('auth.personalDetails.genderOptions.male') },
+    { value: 'female', label: t('auth.personalDetails.genderOptions.female') },
+    { value: 'other', label: t('auth.personalDetails.genderOptions.other') },
+    { value: 'preferNotToSay', label: t('auth.personalDetails.genderOptions.preferNotToSay') },
+  ], [t]);
 
   return (
     <View style={styles.container}>
@@ -159,8 +168,8 @@ const PersonalDetailsScreen: React.FC<Props> = () => {
 
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.title}>{authTexts.personalDetails.title}</Text>
-            <Text style={styles.subtitle}>{authTexts.personalDetails.subtitle}</Text>
+            <Text style={styles.title}>LegacyKeep</Text>
+            <Text style={styles.subtitle}>{t('auth.personalDetails.subtitle')}</Text>
           </View>
 
           {/* Progress Indicator */}
@@ -171,7 +180,7 @@ const PersonalDetailsScreen: React.FC<Props> = () => {
             <View style={styles.form}>
               {/* Gender Field */}
               <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>{authTexts.personalDetails.genderLabel}</Text>
+                <Text style={styles.inputLabel}>{t('auth.personalDetails.genderLabel')}</Text>
                 <View style={styles.genderContainer}>
                   {genderOptions.map((option) => (
                     formData.gender === option.value ? (
@@ -212,7 +221,7 @@ const PersonalDetailsScreen: React.FC<Props> = () => {
 
               {/* Date of Birth Field */}
               <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>{authTexts.personalDetails.dateOfBirthLabel}</Text>
+                <Text style={styles.inputLabel}>{t('auth.personalDetails.dateOfBirthLabel')}</Text>
                 <TouchableOpacity
                   style={[styles.dateInput, errors.dateOfBirth && styles.inputError]}
                   onPress={() => setShowDatePicker(!showDatePicker)}
@@ -221,7 +230,7 @@ const PersonalDetailsScreen: React.FC<Props> = () => {
                     styles.dateInputText,
                     !formData.dateOfBirth && styles.placeholderText
                   ]}>
-                    {formData.dateOfBirth ? formatDate(formData.dateOfBirth) : authTexts.personalDetails.dateOfBirthPlaceholder}
+                    {formData.dateOfBirth ? formatDate(formData.dateOfBirth) : t('auth.personalDetails.dateOfBirthPlaceholder')}
                   </Text>
                 </TouchableOpacity>
                 
@@ -270,7 +279,7 @@ const PersonalDetailsScreen: React.FC<Props> = () => {
         {/* Footer */}
         <View style={styles.footer}>
           <GradientButton
-            title={authTexts.personalDetails.continueButton}
+            title={t('auth.personalDetails.continueButton')}
             onPress={handleContinue}
             disabled={isLoading}
             gradient="horizontal"
@@ -279,14 +288,14 @@ const PersonalDetailsScreen: React.FC<Props> = () => {
           
           {/* Already have account - below continue button */}
           <View style={styles.signInContainer}>
-            <Text style={styles.footerText}>{authTexts.personalDetails.alreadyHaveAccount} </Text>
+            <Text style={styles.footerText}>{t('auth.personalDetails.alreadyHaveAccount')} </Text>
             <TouchableOpacity onPress={() => (navigation as any).navigate(ROUTES.LOGIN)} activeOpacity={0.7}>
               <GradientText
                 gradient="peacock"
                 fontSize="md"
                 fontWeight="bold"
               >
-                {authTexts.personalDetails.signIn}
+                {t('auth.personalDetails.signIn')}
               </GradientText>
             </TouchableOpacity>
           </View>

@@ -1,0 +1,183 @@
+{
+  "auth": {
+    "login": {
+      "title": "LegacyKeep",
+      "subtitle": "Preserving Family Stories",
+      "credentialsLabel": "Email, Phone, or Username",
+      "credentialsPlaceholder": "Enter your credentials",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "loginButton": "Log In",
+      "forgotPassword": "Forgot password?",
+      "socialLoginDivider": "Or continue with",
+      "noAccount": "Don't have an account?",
+      "signUpLink": "Sign up"
+    },
+    "welcome": {
+      "title": "LegacyKeep",
+      "subtitle": "Where Family Stories Live Forever",
+      "description": "Connect generations through stories, memories, and moments that matter.",
+      "getStartedButton": "Begin Your Legacy",
+      "signInButton": "Sign In",
+      "features": {
+        "connect": {
+          "title": "Connect",
+          "description": "Bring your family together across generations"
+        },
+        "preserve": {
+          "title": "Preserve",
+          "description": "Safeguard precious memories and stories"
+        },
+        "discover": {
+          "title": "Discover",
+          "description": "Uncover your family's unique heritage"
+        }
+      }
+    },
+    "registration": {
+      "title": "Create Account",
+      "subtitle": "Join LegacyKeep",
+      "firstNamePlaceholder": "First name",
+      "lastNamePlaceholder": "Last name",
+      "usernamePlaceholder": "Username",
+      "emailOrPhonePlaceholder": "Email or phone number",
+      "passwordPlaceholder": "Create a password",
+      "termsText": "I agree to the",
+      "termsLink": "Terms and Conditions",
+      "createAccountButton": "Create Account",
+      "alreadyHaveAccount": "Already have an account?",
+      "signInLink": "Sign in"
+    },
+    "registrationValidation": {
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required"
+    },
+    "otpVerification": {
+      "title": "Verify Your Account",
+      "subtitle": "Create Account", 
+      "verifyButton": "Verify & Complete",
+      "otpLabel": "Verification Code",
+      "description": "Enter the six-digit code sent to {emailOrPhone}",
+      "resendCode": "Resend code",
+      "didntReceive": "Didn't receive it?",
+      "resendIn": "Resend in {seconds}s",
+      "passwordReset": {
+        "subtitle": "Reset Password",
+        "verifyButton": "Continue",
+        "description": "Enter the six-digit code sent to {emailOrPhone}"
+      }
+    },
+    "personalDetails": {
+      "title": "Personal Details",
+      "subtitle": "Tell us about yourself",
+      "genderLabel": "Gender",
+      "dateOfBirthLabel": "Date of Birth",
+      "dateOfBirthPlaceholder": "Select your date of birth",
+      "continueButton": "Continue",
+      "alreadyHaveAccount": "Already have an account?",
+      "signIn": "Sign In",
+      "genderOptions": {
+        "male": "Male",
+        "female": "Female",
+        "other": "Other",
+        "preferNotToSay": "Prefer not to say"
+      }
+    },
+    "forgotPassword": {
+      "title": "Reset Password", 
+      "subtitle": "Create your new password",
+      "newPasswordPlaceholder": "New password",
+      "confirmPasswordPlaceholder": "Confirm new password",
+      "resetPasswordButton": "Reset Password"
+    },
+    "passwordResetSuccess": {
+      "title": "Password Successfully Reset!",
+      "subtitle": "You can now log in with your new password.",
+      "backToLoginButton": "Back to Login"
+    },
+    "location": {
+      "title": "Location",
+      "subtitle": "Where are you located?",
+      "cityLabel": "City",
+      "cityPlaceholder": "Enter your city",
+      "stateLabel": "State/Province",
+      "statePlaceholder": "Enter your state or province",
+      "countryLabel": "Country", 
+      "countryPlaceholder": "Enter your country",
+      "generateOtpButton": "Generate OTP",
+      "alreadyHaveAccount": "Already have an account?",
+      "signIn": "Sign In"
+    },
+    "registrationSuccess": {
+      "title": "Welcome to LegacyKeep!",
+      "subtitle": "Your account has been created",
+      "description": "Start building your family legacy today",
+      "getStartedButton": "Get Started"
+    },
+    "registrationMethod": {
+      "title": "Join LegacyKeep",
+      "subtitle": "Choose how you'd like to sign up",
+      "emailOption": "Continue with Email",
+      "phoneOption": "Continue with Phone",
+      "socialOption": "Continue with Social",
+      "alreadyHaveAccount": "Already have an account?",
+      "signInLink": "Sign in"
+    },
+    "validation": {
+      "loginFailed": "Login failed. Please try again."
+    }
+  },
+  "main": {
+    "home": {
+      "welcome": "Welcome, {userName}!",
+      "familyName": "{familyName}",
+      "timelineTitle": "Explore",
+      "quickInsights": {
+        "title": "Quick Insights",
+        "noBirthdays": "No upcoming birthdays",
+        "noEvents": "No upcoming events",
+        "birthdayToday": "{name}'s birthday is today! 🎂",
+        "birthdayTomorrow": "{name}'s birthday is tomorrow",
+        "birthdayDays": "{name}'s birthday in {days} days",
+        "anniversaryToday": "{name} & {partner}'s anniversary today! 💝",
+        "anniversaryDays": "{name} & {partner}'s anniversary in {days} days",
+        "eventToday": "{event} is today",
+        "eventDays": "{event} in {days} days",
+        "sendMessage": "Send Message",
+        "createStory": "Create Story",
+        "viewDetails": "View Details"
+      }
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "back": "Back",
+    "next": "Next",
+    "done": "Done",
+    "retry": "Retry",
+    "ok": "OK"
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidEmail": "Please enter a valid email address",
+    "invalidPhone": "Please enter a valid phone number",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "passwordMismatch": "Passwords do not match",
+    "invalidCredentials": "Invalid email, phone, or username"
+  },
+  "navigation": {
+    "home": "Home",
+    "family": "Family",
+    "stories": "Stories",
+    "chat": "Chat",
+    "profile": "Profile",
+    "settings": "Settings"
+  }
+}

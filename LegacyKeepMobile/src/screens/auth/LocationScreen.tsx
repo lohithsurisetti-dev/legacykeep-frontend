@@ -18,7 +18,7 @@ import { useNavigation } from '@react-navigation/native';
 import { AuthStackScreenProps } from '../../navigation/types';
 import { ROUTES } from '../../navigation/types';
 import { colors, typography, spacing } from '../../constants';
-import { authTexts } from '../../constants/texts';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { BackButton, GradientButton, ProgressTracker, GradientText } from '../../components/ui';
 
 type Props = AuthStackScreenProps<typeof ROUTES.LOCATION>;
@@ -37,6 +37,7 @@ interface LocationFormErrors {
 
 const LocationScreen: React.FC<Props> = () => {
   const navigation = useNavigation();
+  const { t } = useLanguage();
   
   const [formData, setFormData] = useState<LocationFormData>({
     city: '',
@@ -126,8 +127,8 @@ const LocationScreen: React.FC<Props> = () => {
         >
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.title}>{authTexts.location.title}</Text>
-            <Text style={styles.subtitle}>{authTexts.location.subtitle}</Text>
+            <Text style={styles.title}>LegacyKeep</Text>
+            <Text style={styles.subtitle}>{t('auth.location.subtitle')}</Text>
           </View>
 
           {/* Progress Indicator */}
@@ -138,10 +139,10 @@ const LocationScreen: React.FC<Props> = () => {
             <View style={styles.form}>
               {/* City Field */}
               <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>{authTexts.location.cityLabel}</Text>
+                <Text style={styles.inputLabel}>{t('auth.location.cityLabel')}</Text>
                 <TextInput
                   style={[styles.input, errors.city && styles.inputError]}
-                  placeholder={authTexts.location.cityPlaceholder}
+                  placeholder={t('auth.location.cityPlaceholder')}
                   placeholderTextColor={colors.neutral[500]}
                   value={formData.city}
                   onChangeText={(value) => handleInputChange('city', value)}
@@ -151,10 +152,10 @@ const LocationScreen: React.FC<Props> = () => {
 
               {/* State Field */}
               <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>{authTexts.location.stateLabel}</Text>
+                <Text style={styles.inputLabel}>{t('auth.location.stateLabel')}</Text>
                 <TextInput
                   style={[styles.input, errors.state && styles.inputError]}
-                  placeholder={authTexts.location.statePlaceholder}
+                  placeholder={t('auth.location.statePlaceholder')}
                   placeholderTextColor={colors.neutral[500]}
                   value={formData.state}
                   onChangeText={(value) => handleInputChange('state', value)}
@@ -164,10 +165,10 @@ const LocationScreen: React.FC<Props> = () => {
 
               {/* Country Field */}
               <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>{authTexts.location.countryLabel}</Text>
+                <Text style={styles.inputLabel}>{t('auth.location.countryLabel')}</Text>
                 <TextInput
                   style={[styles.input, errors.country && styles.inputError]}
-                  placeholder={authTexts.location.countryPlaceholder}
+                  placeholder={t('auth.location.countryPlaceholder')}
                   placeholderTextColor={colors.neutral[500]}
                   value={formData.country}
                   onChangeText={(value) => handleInputChange('country', value)}
@@ -182,7 +183,7 @@ const LocationScreen: React.FC<Props> = () => {
         {/* Footer */}
         <View style={styles.footer}>
           <GradientButton
-            title={authTexts.location.generateOtpButton}
+            title={t('auth.location.generateOtpButton')}
             onPress={handleGenerateOtp}
             disabled={isLoading}
             gradient="horizontal"
@@ -191,14 +192,14 @@ const LocationScreen: React.FC<Props> = () => {
           
           {/* Already have account - below generate OTP button */}
           <View style={styles.signInContainer}>
-            <Text style={styles.footerText}>{authTexts.location.alreadyHaveAccount} </Text>
+            <Text style={styles.footerText}>{t('auth.location.alreadyHaveAccount')} </Text>
             <TouchableOpacity onPress={() => (navigation as any).navigate(ROUTES.LOGIN)} activeOpacity={0.7}>
               <GradientText
                 gradient="peacock"
                 fontSize="md"
                 fontWeight="bold"
               >
-                {authTexts.location.signIn}
+                {t('auth.location.signIn')}
               </GradientText>
             </TouchableOpacity>
           </View>

@@ -1,0 +1,20 @@
+{
+  "auth": {
+    "welcome": {
+      "title": "LegacyKeep",
+      "subtitle": "जहाँ पारिवारिक कहानियाँ हमेशा के लिए जीवित रहती हैं",
+      "getStartedButton": "अपनी विरासत शुरू करें",
+      "signInButton": "साइन इन करें"
+    }
+  },
+  "main": {
+    "home": {
+      "welcome": "स्वागत है, {userName}!",
+      "timelineTitle": "खोजें"
+    }
+  },
+  "common": {
+    "loading": "लोड हो रहा है...",
+    "back": "वापस"
+  }
+}

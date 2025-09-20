@@ -8,11 +8,15 @@ import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, typography, spacing } from '../../constants';
-import { HomeHeader } from '../../components/ui';
+import { HomeHeader, LanguageSelector, ThemeSelector } from '../../components/ui';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const FamilyScreen: React.FC = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
+  const { colors } = useTheme();
 
   const handleProfilePress = () => {
     // TODO: Navigate to profile screen
@@ -22,6 +26,8 @@ const FamilyScreen: React.FC = () => {
   const userInitials = user?.firstName && user?.lastName 
     ? `${user.firstName[0]}${user.lastName[0]}` 
     : 'LS';
+
+  const styles = createStyles(colors);
 
   return (
     <View style={styles.container}>
@@ -35,12 +41,19 @@ const FamilyScreen: React.FC = () => {
         {/* Main Content */}
         <View style={styles.content}>
           <View style={styles.placeholderContainer}>
-            <Ionicons name="heart" size={64} color={colors.secondary.teal[400]} />
-            <Text style={styles.title}>Family</Text>
+            <Ionicons name="heart" size={64} color={colors.primary} />
+            <Text style={styles.title}>{t('navigation.family')}</Text>
             <Text style={styles.subtitle}>
               Manage your family circle, relationships, and connections
             </Text>
             <Text style={styles.comingSoon}>Coming Soon</Text>
+            
+            {/* Demo Section */}
+            <View style={styles.demoSection}>
+              <Text style={[styles.demoTitle, { color: colors.textSecondary }]}>Language & Theme Demo:</Text>
+              <LanguageSelector style={styles.languageSelector} />
+              <ThemeSelector style={[styles.themeSelector, { marginTop: spacing.md }]} />
+            </View>
           </View>
         </View>
       </SafeAreaView>
@@ -48,10 +61,10 @@ const FamilyScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.neutral[50],
+    backgroundColor: colors.background,
   },
   safeArea: {
     flex: 1,
@@ -69,13 +82,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: typography.sizes['3xl'],
     fontWeight: typography.weights.bold,
-    color: colors.neutral[900],
+    color: colors.text,
     marginTop: spacing.lg,
     marginBottom: spacing.sm,
   },
   subtitle: {
     fontSize: typography.sizes.md,
-    color: colors.neutral[600],
+    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: spacing.xl,
@@ -83,13 +96,29 @@ const styles = StyleSheet.create({
   comingSoon: {
     fontSize: typography.sizes.sm,
     fontWeight: typography.weights.semibold,
-    color: colors.secondary.teal[600],
-    backgroundColor: colors.secondary.teal[50],
+    color: colors.primary,
+    backgroundColor: colors.surfaceSecondary,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: colors.secondary.teal[200],
+    borderColor: colors.border,
+  },
+  demoSection: {
+    marginTop: spacing.xl,
+    alignItems: 'center',
+    width: '100%',
+  },
+  demoTitle: {
+    fontSize: typography.sizes.md,
+    fontWeight: typography.weights.semibold,
+    marginBottom: spacing.md,
+  },
+  languageSelector: {
+    width: 200,
+  },
+  themeSelector: {
+    width: 200,
   },
 });
 

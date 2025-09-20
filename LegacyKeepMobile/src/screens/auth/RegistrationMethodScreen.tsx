@@ -17,7 +17,7 @@ import { useNavigation } from '@react-navigation/native';
 import { AuthStackScreenProps } from '../../navigation/types';
 import { ROUTES } from '../../navigation/types';
 import { colors, typography, spacing } from '../../constants';
-import { authTexts } from '../../constants/texts';
+import { useLanguage } from '../../contexts/LanguageContext';
 import GradientBackground from '../../components/ui/GradientBackground';
 import GlassmorphismContainer from '../../components/ui/GlassmorphismContainer';
 import GradientText from '../../components/ui/GradientText';
@@ -26,9 +26,10 @@ type Props = AuthStackScreenProps<typeof ROUTES.REGISTRATION_METHOD>;
 
 const RegistrationMethodScreen: React.FC<Props> = () => {
   const navigation = useNavigation();
+  const { t } = useLanguage();
 
   const handleEmailRegistration = () => {
-    (navigation as any).navigate(ROUTES.EMAIL_REGISTRATION);
+    (navigation as any).navigate(ROUTES.REGISTRATION);
   };
 
   const handlePhoneRegistration = () => {
@@ -56,10 +57,10 @@ const RegistrationMethodScreen: React.FC<Props> = () => {
               fontWeight="bold"
               style={styles.title}
             >
-              {authTexts.registrationMethod.title}
+              LegacyKeep
             </GradientText>
             <Text style={styles.subtitle}>
-              {authTexts.registrationMethod.subtitle}
+              {t('auth.registrationMethod.subtitle')}
             </Text>
           </View>
 
@@ -75,7 +76,7 @@ const RegistrationMethodScreen: React.FC<Props> = () => {
                   <Text style={styles.optionIcon}>📧</Text>
                 </View>
                 <Text style={styles.optionText}>
-                  {authTexts.registrationMethod.emailOption}
+                  {t('auth.registrationMethod.emailOption')}
                 </Text>
               </TouchableOpacity>
             </GlassmorphismContainer>
@@ -90,7 +91,7 @@ const RegistrationMethodScreen: React.FC<Props> = () => {
                   <Text style={styles.optionIcon}>📱</Text>
                 </View>
                 <Text style={styles.optionText}>
-                  {authTexts.registrationMethod.phoneOption}
+                  {t('auth.registrationMethod.phoneOption')}
                 </Text>
               </TouchableOpacity>
             </GlassmorphismContainer>
@@ -105,7 +106,7 @@ const RegistrationMethodScreen: React.FC<Props> = () => {
                   <Text style={styles.optionIcon}>🔗</Text>
                 </View>
                 <Text style={styles.optionText}>
-                  {authTexts.registrationMethod.socialOption}
+                  {t('auth.registrationMethod.socialOption')}
                 </Text>
               </TouchableOpacity>
             </GlassmorphismContainer>
@@ -114,10 +115,10 @@ const RegistrationMethodScreen: React.FC<Props> = () => {
           {/* Sign In Link */}
           <View style={styles.footer}>
             <Text style={styles.signInText}>
-              {authTexts.registrationMethod.alreadyHaveAccount}{' '}
+              {t('auth.registrationMethod.alreadyHaveAccount')}{' '}
               <TouchableOpacity onPress={handleSignIn} activeOpacity={0.8}>
                 <Text style={styles.signInLinkText}>
-                  {authTexts.registrationMethod.signInLink}
+                  {t('auth.registrationMethod.signInLink')}
                 </Text>
               </TouchableOpacity>
             </Text>

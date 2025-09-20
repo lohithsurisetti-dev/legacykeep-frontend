@@ -22,9 +22,9 @@ import { useNavigation } from '@react-navigation/native';
 import { AuthStackScreenProps } from '../../navigation/types';
 import { ROUTES } from '../../navigation/types';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { colors, typography, spacing } from '../../constants';
 import { componentColors } from '../../constants/designSystem';
-import { authTexts } from '../../constants/texts';
 import Input from '../../components/forms/Input';
 import Button from '../../components/forms/Button';
 import { validateEmailOrUsername, validatePassword } from '../../utils/validation';
@@ -45,6 +45,7 @@ interface LoginFormErrors {
 const LoginScreen: React.FC<Props> = () => {
   const navigation = useNavigation();
   const { login } = useAuth();
+  const { t } = useLanguage();
   
   const [formData, setFormData] = useState<LoginFormData>({
     emailOrUsername: '',
@@ -121,7 +122,7 @@ const LoginScreen: React.FC<Props> = () => {
     } catch (error) {
       console.error('Login error:', error);
       setErrors({
-        general: error instanceof Error ? error.message : authTexts.validation.loginFailed,
+        general: error instanceof Error ? error.message : t('auth.validation.loginFailed'),
       });
     } finally {
       setIsLoading(false);
@@ -183,8 +184,8 @@ const LoginScreen: React.FC<Props> = () => {
         >
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.title}>{authTexts.login.title}</Text>
-            <Text style={styles.subtitle}>{authTexts.login.subtitle}</Text>
+            <Text style={styles.title}>LegacyKeep</Text>
+            <Text style={styles.subtitle}>{t('auth.login.subtitle')}</Text>
           </View>
 
           {/* Form Container with Glassmorphism - Centered */}
@@ -207,7 +208,7 @@ const LoginScreen: React.FC<Props> = () => {
                     ]}
                     pointerEvents="none"
                   >
-                    {authTexts.login.credentialsLabel}
+                    {t('auth.login.credentialsLabel')}
                   </Text>
                   <TextInput
                     style={styles.input}
@@ -218,6 +219,7 @@ const LoginScreen: React.FC<Props> = () => {
                     keyboardType="default"
                     autoCapitalize="none"
                     autoCorrect={false}
+                    autoComplete="off"
                     pointerEvents="auto"
                     editable={true}
                   />
@@ -237,7 +239,7 @@ const LoginScreen: React.FC<Props> = () => {
                     ]}
                     pointerEvents="none"
                   >
-                    {authTexts.login.passwordLabel}
+                    {t('auth.login.passwordLabel')}
                   </Text>
                   <View style={styles.passwordInputWrapper}>
                     <TextInput
@@ -247,6 +249,8 @@ const LoginScreen: React.FC<Props> = () => {
                       value={formData.password}
                       onChangeText={(value) => handleInputChange('password', value)}
                       secureTextEntry={!showPassword}
+                      autoComplete="off"
+                      autoCorrect={false}
                       pointerEvents="auto"
                       editable={true}
                     />
@@ -270,7 +274,7 @@ const LoginScreen: React.FC<Props> = () => {
 
               {/* Login Button */}
               <LoginButton
-                title={authTexts.login.loginButton}
+                title={t('auth.login.loginButton')}
                 onPress={handleLogin}
                 disabled={isLoading}
                 loading={isLoading}
@@ -284,7 +288,7 @@ const LoginScreen: React.FC<Props> = () => {
                 onPress={handleForgotPassword}
                 activeOpacity={0.7}
               >
-                <Text style={styles.forgotPasswordText}>{authTexts.login.forgotPassword}</Text>
+                <Text style={styles.forgotPasswordText}>{t('auth.login.forgotPassword')}</Text>
               </TouchableOpacity>
             </GlassmorphismContainer>
           </View>
@@ -296,7 +300,7 @@ const LoginScreen: React.FC<Props> = () => {
           <View style={styles.socialSection}>
             <View style={styles.divider}>
               <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>{authTexts.login.socialLoginDivider}</Text>
+              <Text style={styles.dividerText}>{t('auth.login.socialLoginDivider')}</Text>
               <View style={styles.dividerLine} />
             </View>
 
@@ -338,9 +342,9 @@ const LoginScreen: React.FC<Props> = () => {
 
           {/* Sign Up Link */}
           <View style={styles.footerTextContainer}>
-            <Text style={styles.footerText}>{authTexts.login.noAccount} </Text>
+            <Text style={styles.footerText}>{t('auth.login.noAccount')} </Text>
             <TouchableOpacity onPress={handleSignUp} activeOpacity={0.7}>
-              <Text style={styles.signUpLink}>{authTexts.login.signUpLink}</Text>
+              <Text style={styles.signUpLink}>{t('auth.login.signUpLink')}</Text>
             </TouchableOpacity>
           </View>
       </View>

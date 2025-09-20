@@ -9,8 +9,9 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, typography, spacing, gradients } from '../../constants';
-import { mainTexts } from '../../constants/texts';
+import { typography, spacing, gradients } from '../../constants';
+import { useTheme } from '../../contexts/ThemeContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 // Types for different insight types
 export interface BirthdayInsight {
@@ -58,37 +59,40 @@ const QuickInsightsBar: React.FC<QuickInsightsBarProps> = ({
   onCreateStory,
   onViewDetails,
 }) => {
+  const { colors, effectiveTheme } = useTheme();
+  const { t } = useLanguage();
+  const styles = createStyles(colors, effectiveTheme);
+  
   // If no insights, show a minimal "no events" state
   if (insights.length === 0) {
     return (
       <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>{mainTexts.home.quickInsights.noEvents}</Text>
+        <Text style={styles.emptyText}>{t('main.home.quickInsights.noEvents')}</Text>
       </View>
     );
   }
 
   const getInsightText = (insight: InsightItem): string => {
-    const { quickInsights } = mainTexts.home;
     
     switch (insight.type) {
       case 'birthday':
         if (insight.daysUntil === 0) {
-          return quickInsights.birthdayToday.replace('{name}', insight.name);
+          return t('main.home.quickInsights.birthdayToday').replace('{name}', insight.name);
         } else if (insight.daysUntil === 1) {
-          return quickInsights.birthdayTomorrow.replace('{name}', insight.name);
+          return t('main.home.quickInsights.birthdayTomorrow').replace('{name}', insight.name);
         } else {
-          return quickInsights.birthdayDays
+          return t('main.home.quickInsights.birthdayDays')
             .replace('{name}', insight.name)
             .replace('{days}', insight.daysUntil.toString());
         }
       
       case 'anniversary':
         if (insight.daysUntil === 0) {
-          return quickInsights.anniversaryToday
+          return t('main.home.quickInsights.anniversaryToday')
             .replace('{name}', insight.name)
             .replace('{partner}', insight.partner);
         } else {
-          return quickInsights.anniversaryDays
+          return t('main.home.quickInsights.anniversaryDays')
             .replace('{name}', insight.name)
             .replace('{partner}', insight.partner)
             .replace('{days}', insight.daysUntil.toString());
@@ -96,9 +100,9 @@ const QuickInsightsBar: React.FC<QuickInsightsBarProps> = ({
       
       case 'event':
         if (insight.daysUntil === 0) {
-          return quickInsights.eventToday.replace('{event}', insight.event);
+          return t('main.home.quickInsights.eventToday').replace('{event}', insight.event);
         } else {
-          return quickInsights.eventDays
+          return t('main.home.quickInsights.eventDays')
             .replace('{event}', insight.event)
             .replace('{days}', insight.daysUntil.toString());
         }
@@ -123,11 +127,11 @@ const QuickInsightsBar: React.FC<QuickInsightsBarProps> = ({
 
   const getInsightColor = (insight: InsightItem): string => {
     if (insight.daysUntil === 0) {
-      return colors.error[500]; // Today - urgent red
+      return colors.error; // Today - urgent red
     } else if (insight.daysUntil <= 3) {
-      return colors.warning[500]; // Soon - warning amber
+      return colors.warning; // Soon - warning amber
     } else {
-      return colors.secondary.teal[500]; // Future - calm teal
+      return colors.primary; // Future - calm teal
     }
   };
 
@@ -135,39 +139,50 @@ const QuickInsightsBar: React.FC<QuickInsightsBarProps> = ({
     const iconColor = getInsightColor(insight);
     const isUrgent = insight.daysUntil === 0;
     
+    const cardContent = (
+      <View style={styles.insightContent}>
+        {/* Icon and main text */}
+        <View style={styles.insightHeader}>
+          <View style={[styles.insightIconContainer, { backgroundColor: `${iconColor}15` }]}>
+            <Ionicons name={getInsightIcon(insight) as any} size={20} color={iconColor} />
+          </View>
+          <View style={styles.insightTextContainer}>
+            <Text style={styles.insightText} numberOfLines={2} ellipsizeMode="tail">
+              {getInsightText(insight)}
+            </Text>
+            {insight.type === 'birthday' && insight.relationship && (
+              <Text style={styles.relationshipText} numberOfLines={1} ellipsizeMode="tail">
+                {insight.relationship}
+              </Text>
+            )}
+            {insight.type === 'event' && insight.location && (
+              <Text style={styles.locationText} numberOfLines={1} ellipsizeMode="tail">
+                {insight.location}
+              </Text>
+            )}
+          </View>
+        </View>
+      </View>
+    );
+    
     return (
       <View key={insight.id} style={styles.insightCard}>
-        <LinearGradient
-          colors={isUrgent ? [colors.error[400], colors.warning[400]] : gradients.peacock}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.insightBorder}
-        >
-          <View style={styles.insightContent}>
-            {/* Icon and main text */}
-            <View style={styles.insightHeader}>
-              <View style={[styles.insightIconContainer, { backgroundColor: `${iconColor}15` }]}>
-                <Ionicons name={getInsightIcon(insight) as any} size={20} color={iconColor} />
-              </View>
-              <View style={styles.insightTextContainer}>
-                <Text style={styles.insightText} numberOfLines={2} ellipsizeMode="tail">
-                  {getInsightText(insight)}
-                </Text>
-                {insight.type === 'birthday' && insight.relationship && (
-                  <Text style={styles.relationshipText} numberOfLines={1} ellipsizeMode="tail">
-                    {insight.relationship}
-                  </Text>
-                )}
-                {insight.type === 'event' && insight.location && (
-                  <Text style={styles.locationText} numberOfLines={1} ellipsizeMode="tail">
-                    {insight.location}
-                  </Text>
-                )}
-              </View>
-            </View>
-
+        {effectiveTheme === 'dark' ? (
+          // Dark mode: Simple border
+          <View style={[styles.insightBorderDark, isUrgent && styles.urgentBorder]}>
+            {cardContent}
           </View>
-        </LinearGradient>
+        ) : (
+          // Light mode: Gradient border
+          <LinearGradient
+            colors={isUrgent ? [colors.error, colors.warning] : gradients.peacock}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.insightBorderLight}
+          >
+            {cardContent}
+          </LinearGradient>
+        )}
       </View>
     );
   };
@@ -186,7 +201,7 @@ const QuickInsightsBar: React.FC<QuickInsightsBarProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any, theme: any) => StyleSheet.create({
   container: {
     marginBottom: spacing.lg,
   },
@@ -205,7 +220,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: typography.sizes.sm,
-    color: colors.neutral[400],
+    color: colors.textTertiary,
     fontStyle: 'italic',
   },
   // Insight card styles
@@ -213,14 +228,36 @@ const styles = StyleSheet.create({
     width: 260, // More compact width
     height: 70, // More compact height
   },
-  insightBorder: {
+  // Light mode: Gradient border
+  insightBorderLight: {
     borderRadius: 12,
-    padding: 1, // Very thin gradient border
+    padding: 1, // Creates gradient border effect
     height: '100%',
   },
+  // Dark mode: Subtle border
+  insightBorderDark: {
+    borderRadius: 12,
+    height: '100%',
+    borderWidth: 1,
+    borderColor: colors.border, // Subtle border in dark mode
+    shadowColor: colors.shadow,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  urgentBorder: {
+    borderColor: colors.error, // Red border for urgent items
+    borderWidth: 2,
+    shadowColor: colors.error,
+    shadowOpacity: 0.2,
+  },
   insightContent: {
-    backgroundColor: colors.neutral[50],
-    borderRadius: 11,
+    backgroundColor: colors.surface,
+    borderRadius: theme === 'dark' ? 11 : 11, // Same radius for both themes
     padding: spacing.sm,
     height: '100%',
     justifyContent: 'center', // Center content vertically
@@ -245,18 +282,18 @@ const styles = StyleSheet.create({
   insightText: {
     fontSize: typography.sizes.sm,
     fontWeight: typography.weights.semibold,
-    color: colors.neutral[900],
+    color: colors.text,
     lineHeight: 18,
   },
   relationshipText: {
     fontSize: typography.sizes.xs,
-    color: colors.neutral[500],
+    color: colors.textSecondary,
     marginTop: 1,
     lineHeight: 14,
   },
   locationText: {
     fontSize: typography.sizes.xs,
-    color: colors.neutral[500],
+    color: colors.textSecondary,
     marginTop: 1,
     lineHeight: 14,
   },

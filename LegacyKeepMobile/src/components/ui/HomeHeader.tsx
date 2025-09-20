@@ -7,7 +7,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, typography, spacing } from '../../constants';
+import { typography, spacing } from '../../constants';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface HomeHeaderProps {
   onProfilePress?: () => void;
@@ -16,6 +17,7 @@ interface HomeHeaderProps {
 }
 
 const HomeHeader: React.FC<HomeHeaderProps> = ({ onProfilePress, scrollY }) => {
+  const { colors } = useTheme();
   // Create animated styles for scroll-to-fade
   const headerHeight = scrollY?.interpolate({
     inputRange: [0, 80],
@@ -28,6 +30,8 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({ onProfilePress, scrollY }) => {
     outputRange: [1, 0.3, 0], // Fade out: visible → semi-transparent → invisible
     extrapolate: 'clamp',
   }) || 1;
+
+  const styles = createStyles(colors);
 
   return (
     <Animated.View 
@@ -61,7 +65,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({ onProfilePress, scrollY }) => {
             <Ionicons
               name="person"
               size={20}
-              color={colors.neutral[900]}
+              color={colors.text}
             />
           </View>
         </TouchableOpacity>
@@ -70,13 +74,13 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({ onProfilePress, scrollY }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: colors.neutral[50],
-    borderBottomWidth: 1,
-    borderBottomColor: colors.neutral[200],
-    // Padding is now handled by animated values
-  },
+const createStyles = (colors: any) => StyleSheet.create({
+    container: {
+      backgroundColor: colors.headerBackground,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      // Padding is now handled by animated values
+    },
   content: {
     flex: 1,
     flexDirection: 'row',
@@ -85,21 +89,21 @@ const styles = StyleSheet.create({
     paddingLeft: spacing.md, // Less left padding to move title left
     paddingRight: spacing.lg, // Keep more right padding for profile icon
   },
-  title: {
-    fontSize: typography.sizes['2xl'], // Larger title for better prominence
-    fontWeight: typography.weights.bold,
-    color: colors.neutral[900],
-  },
+    title: {
+      fontSize: typography.sizes['2xl'], // Larger title for better prominence
+      fontWeight: typography.weights.bold,
+      color: colors.text,
+    },
   profileButton: {
     padding: spacing.xs,
   },
-  profileIconContainer: {
-    width: 32,
-    height: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
-    // No border, clean minimal look
-  },
+    profileIconContainer: {
+      width: 32,
+      height: 32,
+      justifyContent: 'center',
+      alignItems: 'center',
+      // No border, clean minimal look
+    },
 });
 
 export default HomeHeader;

@@ -1,0 +1,51 @@
+{
+  "auth": {
+    "login": {
+      "title": "LegacyKeep",
+      "subtitle": "Préserver les Histoires de Famille",
+      "credentialsLabel": "Email, Téléphone ou Nom d'utilisateur",
+      "credentialsPlaceholder": "Entrez vos identifiants",
+      "passwordLabel": "Mot de passe",
+      "passwordPlaceholder": "••••••••",
+      "loginButton": "Se connecter",
+      "forgotPassword": "Mot de passe oublié?",
+      "socialLoginDivider": "Ou continuer avec",
+      "noAccount": "Vous n'avez pas de compte?",
+      "signUpLink": "S'inscrire"
+    },
+    "welcome": {
+      "title": "LegacyKeep",
+      "subtitle": "Où les Histoires de Famille Vivent pour Toujours",
+      "description": "Connectez les générations à travers des histoires, des souvenirs et des moments qui comptent.",
+      "getStartedButton": "Commencer Votre Héritage",
+      "signInButton": "Se connecter",
+      "features": {
+        "connect": {
+          "title": "Connecter",
+          "description": "Rassemblez votre famille à travers les générations"
+        },
+        "preserve": {
+          "title": "Préserver",
+          "description": "Protégez les précieux souvenirs et histoires"
+        },
+        "discover": {
+          "title": "Découvrir",
+          "description": "Découvrez le patrimoine unique de votre famille"
+        }
+      }
+    }
+  },
+  "main": {
+    "home": {
+      "welcome": "Bienvenue, {userName}!",
+      "timelineTitle": "Explorer"
+    }
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "cancel": "Annuler",
+    "back": "Retour"
+  }
+}

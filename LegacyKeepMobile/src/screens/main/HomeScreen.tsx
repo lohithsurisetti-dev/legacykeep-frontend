@@ -8,15 +8,18 @@ import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, Animated, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, typography, spacing, gradients } from '../../constants';
-import { mainTexts } from '../../constants/texts';
+import { typography, spacing } from '../../constants';
 import { HomeHeader, GradientText, QuickInsightsBar } from '../../components/ui';
+import { useLanguage } from '../../contexts/LanguageContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import type { InsightItem } from '../../components/ui/QuickInsightsBar';
 import { useAuth } from '../../contexts/AuthContext';
 
 const HomeScreen: React.FC = () => {
   const scrollY = useRef(new Animated.Value(0)).current;
   const { user } = useAuth();
+  const { t } = useLanguage();
+  const { colors, gradients } = useTheme();
 
   const handleProfilePress = () => {
     // TODO: Navigate to profile screen
@@ -75,6 +78,8 @@ const HomeScreen: React.FC = () => {
     },
   ];
 
+  const styles = createStyles(colors);
+
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
@@ -108,7 +113,7 @@ const HomeScreen: React.FC = () => {
 
             {/* Explore - Unique Asymmetric Layout */}
             <View style={styles.timelineHeader}>
-              <Text style={styles.timelineTitle}>{mainTexts.home.timelineTitle}</Text>
+              <Text style={styles.timelineTitle}>{t('main.home.timelineTitle')}</Text>
               <TouchableOpacity>
                 <GradientText gradient="peacock" fontSize="sm" fontWeight="semibold">
                   View All
@@ -126,7 +131,7 @@ const HomeScreen: React.FC = () => {
                       <Text style={styles.memoryCategory}>Story • 2 hours ago</Text>
                     </View>
                     <View style={styles.memoryTypeIcon}>
-                      <Ionicons name="library" size={16} color={colors.secondary.teal[600]} />
+                      <Ionicons name="library" size={16} color={colors.primary} />
                     </View>
                   </View>
                   <View style={styles.memoryContent}>
@@ -137,9 +142,9 @@ const HomeScreen: React.FC = () => {
                     </Text>
                     <View style={styles.memoryFooter}>
                       <View style={styles.memoryReactions}>
-                        <Ionicons name="heart" size={14} color={colors.error[500]} />
+                        <Ionicons name="heart" size={14} color={colors.error} />
                         <Text style={styles.reactionCount}>12</Text>
-                        <Ionicons name="chatbubble" size={14} color={colors.neutral[400]} />
+                        <Ionicons name="chatbubble" size={14} color={colors.textTertiary} />
                         <Text style={styles.reactionCount}>5</Text>
                       </View>
                       <Text style={styles.memoryTime}>2h</Text>
@@ -158,7 +163,7 @@ const HomeScreen: React.FC = () => {
                       <Text style={styles.memoryCategory}>Photos • 1 day ago</Text>
                     </View>
                     <View style={styles.memoryTypeIcon}>
-                      <Ionicons name="images" size={16} color={colors.secondary.teal[600]} />
+                      <Ionicons name="images" size={16} color={colors.primary} />
                     </View>
                   </View>
                   <View style={styles.photoCollection}>
@@ -179,9 +184,9 @@ const HomeScreen: React.FC = () => {
                     </Text>
                     <View style={styles.memoryFooter}>
                       <View style={styles.memoryReactions}>
-                        <Ionicons name="heart" size={14} color={colors.error[500]} />
+                        <Ionicons name="heart" size={14} color={colors.error} />
                         <Text style={styles.reactionCount}>18</Text>
-                        <Ionicons name="chatbubble" size={14} color={colors.neutral[400]} />
+                        <Ionicons name="chatbubble" size={14} color={colors.textTertiary} />
                         <Text style={styles.reactionCount}>8</Text>
                       </View>
                       <Text style={styles.memoryTime}>1d</Text>
@@ -200,13 +205,13 @@ const HomeScreen: React.FC = () => {
                       <Text style={styles.memoryCategory}>Video • 3 days ago</Text>
                     </View>
                     <View style={styles.memoryTypeIcon}>
-                      <Ionicons name="videocam" size={16} color={colors.secondary.teal[600]} />
+                      <Ionicons name="videocam" size={16} color={colors.primary} />
                     </View>
                   </View>
                   <View style={styles.videoContainer}>
                     <View style={styles.videoThumbnail} />
                     <View style={styles.playButton}>
-                      <Ionicons name="play" size={24} color={colors.neutral[50]} />
+                      <Ionicons name="play" size={24} color={colors.textInverse} />
                     </View>
                   </View>
                   <View style={styles.memoryContent}>
@@ -217,9 +222,9 @@ const HomeScreen: React.FC = () => {
                     </Text>
                     <View style={styles.memoryFooter}>
                       <View style={styles.memoryReactions}>
-                        <Ionicons name="heart" size={14} color={colors.error[500]} />
+                        <Ionicons name="heart" size={14} color={colors.error} />
                         <Text style={styles.reactionCount}>25</Text>
-                        <Ionicons name="chatbubble" size={14} color={colors.neutral[400]} />
+                        <Ionicons name="chatbubble" size={14} color={colors.textTertiary} />
                         <Text style={styles.reactionCount}>12</Text>
                       </View>
                       <Text style={styles.memoryTime}>3d</Text>
@@ -234,10 +239,10 @@ const HomeScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.neutral[50],
+    backgroundColor: colors.background,
   },
   safeArea: {
     flex: 1,
@@ -262,7 +267,7 @@ const styles = StyleSheet.create({
   timelineTitle: {
     fontSize: typography.sizes.xl,
     fontWeight: typography.weights.bold,
-    color: colors.neutral[900],
+    color: colors.text,
   },
   // Memory Card Styles - Modern Clean Design
   memoryWrapper: {
@@ -270,10 +275,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xs,
   },
   memoryCard: {
-    backgroundColor: colors.neutral[50],
+    backgroundColor: colors.surface,
     borderRadius: 20,
     overflow: 'hidden',
-    shadowColor: colors.neutral[900],
+    shadowColor: colors.shadow,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -282,7 +287,7 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 4,
     borderWidth: 1,
-    borderColor: colors.neutral[100],
+    borderColor: colors.borderLight,
   },
   memoryHeader: {
     flexDirection: 'row',
@@ -294,9 +299,9 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: colors.neutral[200],
+    backgroundColor: colors.surfaceSecondary,
     marginRight: spacing.md,
-    shadowColor: colors.neutral[900],
+    shadowColor: colors.shadow,
     shadowOffset: {
       width: 0,
       height: 1,
@@ -311,22 +316,22 @@ const styles = StyleSheet.create({
   memoryAuthor: {
     fontSize: typography.sizes.sm,
     fontWeight: typography.weights.bold,
-    color: colors.neutral[900],
+    color: colors.text,
   },
   memoryCategory: {
     fontSize: typography.sizes.xs,
-    color: colors.neutral[500],
+    color: colors.textSecondary,
     marginTop: 2,
   },
   memoryTypeIcon: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: colors.secondary.teal[50],
+    backgroundColor: colors.surfaceSecondary,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: colors.secondary.teal[100],
+    borderColor: colors.border,
   },
   memoryContent: {
     padding: spacing.lg,
@@ -335,13 +340,13 @@ const styles = StyleSheet.create({
   memoryTitle: {
     fontSize: typography.sizes.lg,
     fontWeight: typography.weights.bold,
-    color: colors.neutral[900],
+    color: colors.text,
     marginBottom: spacing.sm,
     lineHeight: 24,
   },
   memorySnippet: {
     fontSize: typography.sizes.sm,
-    color: colors.neutral[600],
+    color: colors.textSecondary,
     lineHeight: 22,
     marginBottom: spacing.md,
   },
@@ -357,12 +362,12 @@ const styles = StyleSheet.create({
   },
   reactionCount: {
     fontSize: typography.sizes.xs,
-    color: colors.neutral[500],
+    color: colors.textSecondary,
     marginRight: spacing.sm,
   },
   memoryTime: {
     fontSize: typography.sizes.xs,
-    color: colors.neutral[400],
+    color: colors.textTertiary,
     fontWeight: typography.weights.medium,
   },
   // Photo Collection Styles
@@ -374,7 +379,7 @@ const styles = StyleSheet.create({
   },
   mainPhoto: {
     flex: 2,
-    backgroundColor: colors.neutral[200],
+    backgroundColor: colors.surfaceSecondary,
     borderRadius: 12,
   },
   photoGrid: {
@@ -383,12 +388,12 @@ const styles = StyleSheet.create({
   },
   smallPhoto: {
     flex: 1,
-    backgroundColor: colors.neutral[200],
+    backgroundColor: colors.surfaceSecondary,
     borderRadius: 8,
   },
   photoCount: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: colors.photoOverlay,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 8,
@@ -396,13 +401,13 @@ const styles = StyleSheet.create({
   photoCountText: {
     fontSize: typography.sizes.sm,
     fontWeight: typography.weights.bold,
-    color: colors.neutral[50],
+    color: colors.textInverse,
   },
   // Video Styles
   videoContainer: {
     position: 'relative',
     height: 200,
-    backgroundColor: colors.neutral[200],
+    backgroundColor: colors.surfaceSecondary,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 16,
@@ -413,16 +418,16 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '100%',
     height: '100%',
-    backgroundColor: colors.neutral[200],
+    backgroundColor: colors.surfaceSecondary,
   },
   playButton: {
     width: 70,
     height: 70,
     borderRadius: 35,
-    backgroundColor: 'rgba(0,0,0,0.8)',
+    backgroundColor: colors.videoOverlay,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: colors.neutral[900],
+    shadowColor: colors.shadow,
     shadowOffset: {
       width: 0,
       height: 4,

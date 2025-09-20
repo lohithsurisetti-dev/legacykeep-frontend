@@ -10,7 +10,7 @@ import { useNavigation } from '@react-navigation/native';
 import { AuthStackScreenProps } from '../../navigation/types';
 import { ROUTES } from '../../navigation/types';
 import { colors, typography, spacing } from '../../constants';
-import { authTexts } from '../../constants/texts';
+import { useLanguage } from '../../contexts/LanguageContext';
 import GradientBackground from '../../components/ui/GradientBackground';
 import GlassmorphismContainer from '../../components/ui/GlassmorphismContainer';
 import GradientText from '../../components/ui/GradientText';
@@ -20,6 +20,7 @@ type Props = AuthStackScreenProps<typeof ROUTES.REGISTRATION_SUCCESS>;
 
 const RegistrationSuccessScreen: React.FC<Props> = () => {
   const navigation = useNavigation();
+  const { t } = useLanguage();
 
   const handleGetStarted = () => {
     // Navigate to onboarding or main app
@@ -44,23 +45,23 @@ const RegistrationSuccessScreen: React.FC<Props> = () => {
               fontWeight="bold"
               style={styles.title}
             >
-              {authTexts.registrationSuccess.title}
+              {t('auth.registrationSuccess.title')}
             </GradientText>
             <Text style={styles.subtitle}>
-              {authTexts.registrationSuccess.subtitle}
+              {t('auth.registrationSuccess.subtitle')}
             </Text>
           </View>
 
           {/* Description */}
           <GlassmorphismContainer style={styles.descriptionContainer}>
             <Text style={styles.description}>
-              {authTexts.registrationSuccess.description}
+              {t('auth.registrationSuccess.description')}
             </Text>
           </GlassmorphismContainer>
 
           {/* Get Started Button */}
           <LoginButton
-            title={authTexts.registrationSuccess.getStartedButton}
+            title={t('auth.registrationSuccess.getStartedButton')}
             onPress={handleGetStarted}
             style={styles.getStartedButton}
           />

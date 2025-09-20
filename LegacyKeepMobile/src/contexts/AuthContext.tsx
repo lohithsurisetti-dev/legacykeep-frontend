@@ -37,6 +37,7 @@ export interface AuthContextType extends AuthState {
   refreshAccessToken: () => Promise<void>;
   updateUser: (userData: Partial<User>) => void;
   setOnboardingComplete: (complete: boolean) => void;
+  completeVerification: () => void;
 }
 
 export interface RegisterData {
@@ -214,6 +215,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }));
   };
 
+  const completeVerification = (): void => {
+    setAuthState(prev => ({
+      ...prev,
+      isAuthenticated: true,
+      isOnboardingComplete: true,
+      accessToken: 'mock-access-token',
+      refreshToken: 'mock-refresh-token',
+      user: prev.user ? { ...prev.user, isEmailVerified: true } : null,
+    }));
+  };
+
   // =============================================================================
   // Context Value
   // =============================================================================
@@ -226,6 +238,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     refreshAccessToken,
     updateUser,
     setOnboardingComplete,
+    completeVerification,
   };
 
   return (
