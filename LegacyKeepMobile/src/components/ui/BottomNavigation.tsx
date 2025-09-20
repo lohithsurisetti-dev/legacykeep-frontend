@@ -108,8 +108,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.neutral[50],
     borderTopWidth: 1,
     borderTopColor: colors.neutral[200],
-    paddingTop: spacing.xs,
-    paddingBottom: spacing.xs, // More compact like your design
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.md, // More generous bottom padding
+    paddingHorizontal: spacing.xs,
   },
   tabContainer: {
     flexDirection: 'row',
@@ -119,12 +120,12 @@ const styles = StyleSheet.create({
   tab: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: spacing.xs / 2, // More compact
+    paddingVertical: spacing.xs, // Better vertical padding
   },
   tabLabel: {
     fontSize: typography.sizes.xs,
     fontWeight: typography.weights.semibold,
-    marginTop: spacing.xs / 2,
+    marginTop: spacing.xs,
   },
 });
 

@@ -10,23 +10,32 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, typography, spacing, gradients } from '../../constants';
 import { mainTexts } from '../../constants/texts';
-import { HomeHeader, BottomNavigation, GradientText } from '../../components/ui';
+import { HomeHeader, GradientText, QuickInsightsBar } from '../../components/ui';
+import type { InsightItem } from '../../components/ui/QuickInsightsBar';
 import { useAuth } from '../../contexts/AuthContext';
 
 const HomeScreen: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('home');
   const scrollY = useRef(new Animated.Value(0)).current;
   const { user } = useAuth();
-
-  const handleTabPress = (tabId: string) => {
-    setActiveTab(tabId);
-    // TODO: Navigate to respective screens
-    console.log('Tab pressed:', tabId);
-  };
 
   const handleProfilePress = () => {
     // TODO: Navigate to profile screen
     console.log('Profile pressed');
+  };
+
+  const handleSendMessage = (insight: InsightItem) => {
+    // TODO: Navigate to chat with person
+    console.log('Send message for:', insight);
+  };
+
+  const handleCreateStory = (insight: InsightItem) => {
+    // TODO: Navigate to story creation with context
+    console.log('Create story for:', insight);
+  };
+
+  const handleViewDetails = (insight: InsightItem) => {
+    // TODO: Navigate to event/person details
+    console.log('View details for:', insight);
   };
 
   // Dynamic content based on user data
@@ -35,6 +44,36 @@ const HomeScreen: React.FC = () => {
   const userInitials = user?.firstName && user?.lastName 
     ? `${user.firstName[0]}${user.lastName[0]}` 
     : 'LS';
+
+  // Sample insights data - TODO: Replace with real API data
+  const sampleInsights: InsightItem[] = [
+    {
+      type: 'birthday',
+      id: '1',
+      name: 'Sarah',
+      date: '2024-09-23',
+      daysUntil: 3,
+      relationship: 'Your daughter',
+    },
+    {
+      type: 'anniversary',
+      id: '2',
+      name: 'Mom',
+      partner: 'Dad',
+      date: '2024-09-25',
+      daysUntil: 5,
+      years: 35,
+    },
+    {
+      type: 'event',
+      id: '3',
+      event: 'Family Reunion',
+      date: '2024-10-01',
+      daysUntil: 11,
+      location: 'Grandma\'s House',
+      eventType: 'family-gathering',
+    },
+  ];
 
   return (
     <View style={styles.container}>
@@ -59,40 +98,17 @@ const HomeScreen: React.FC = () => {
         >
           {/* Main Content - Unique LegacyKeep Family Timeline */}
       <View style={styles.content}>
-            {/* Family Pulse - Elegant Stats Overview */}
-            <View style={styles.pulseWrapper}>
-              <LinearGradient
-                colors={gradients.peacock}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.pulseBorder}
-              >
-                <View style={styles.pulseCard}>
-                  <Text style={styles.pulseTitle}>Family Pulse</Text>
-                  <Text style={styles.pulseSubtitle}>This week's legacy moments</Text>
-                  <View style={styles.pulseMetrics}>
-                    <View style={styles.metricItem}>
-                      <Text style={styles.metricNumber}>12</Text>
-                      <Text style={styles.metricLabel}>New Memories</Text>
-                    </View>
-                    <View style={styles.metricDivider} />
-                    <View style={styles.metricItem}>
-                      <Text style={styles.metricNumber}>5</Text>
-                      <Text style={styles.metricLabel}>Active Members</Text>
-                    </View>
-                    <View style={styles.metricDivider} />
-                    <View style={styles.metricItem}>
-                      <Text style={styles.metricNumber}>3</Text>
-                      <Text style={styles.metricLabel}>Stories Shared</Text>
-                    </View>
-                  </View>
-                </View>
-              </LinearGradient>
-            </View>
+            {/* Quick Insights Bar - Birthday reminders and events */}
+            <QuickInsightsBar
+              insights={sampleInsights}
+              onSendMessage={handleSendMessage}
+              onCreateStory={handleCreateStory}
+              onViewDetails={handleViewDetails}
+            />
 
-            {/* Legacy Timeline - Unique Asymmetric Layout */}
+            {/* Explore - Unique Asymmetric Layout */}
             <View style={styles.timelineHeader}>
-              <Text style={styles.timelineTitle}>Legacy Timeline</Text>
+              <Text style={styles.timelineTitle}>{mainTexts.home.timelineTitle}</Text>
               <TouchableOpacity>
                 <GradientText gradient="peacock" fontSize="sm" fontWeight="semibold">
                   View All
@@ -100,14 +116,8 @@ const HomeScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
             
-            {/* Memory Card 1 - Unique Diagonal Layout */}
+            {/* Memory Card 1 - Modern Clean Layout */}
             <View style={styles.memoryWrapper}>
-              <LinearGradient
-                colors={gradients.peacock}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.memoryBorder}
-              >
                 <View style={styles.memoryCard}>
                   <View style={styles.memoryHeader}>
                     <View style={styles.memoryAvatar} />
@@ -136,17 +146,10 @@ const HomeScreen: React.FC = () => {
                     </View>
                   </View>
                 </View>
-              </LinearGradient>
             </View>
 
             {/* Memory Card 2 - Photo Collection Style */}
             <View style={styles.memoryWrapper}>
-              <LinearGradient
-                colors={gradients.peacock}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.memoryBorder}
-              >
                 <View style={styles.memoryCard}>
                   <View style={styles.memoryHeader}>
                     <View style={styles.memoryAvatar} />
@@ -185,17 +188,10 @@ const HomeScreen: React.FC = () => {
                     </View>
                   </View>
                 </View>
-              </LinearGradient>
             </View>
 
             {/* Memory Card 3 - Video Style */}
             <View style={styles.memoryWrapper}>
-              <LinearGradient
-                colors={gradients.peacock}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.memoryBorder}
-              >
                 <View style={styles.memoryCard}>
                   <View style={styles.memoryHeader}>
                     <View style={styles.memoryAvatar} />
@@ -230,16 +226,9 @@ const HomeScreen: React.FC = () => {
                     </View>
                   </View>
                 </View>
-              </LinearGradient>
             </View>
       </View>
         </Animated.ScrollView>
-        
-        {/* Bottom Navigation */}
-        <BottomNavigation
-          activeTab={activeTab}
-          onTabPress={handleTabPress}
-        />
     </SafeAreaView>
     </View>
   );
@@ -260,60 +249,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xl, // Extra space at bottom
   },
   content: {
-    paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
-  },
-  // Family Pulse Card with Gradient Border
-  pulseWrapper: {
-    marginBottom: spacing.lg,
-  },
-  pulseBorder: {
-    borderRadius: 20,
-    padding: 2, // Creates gradient border effect
-  },
-  pulseCard: {
-    backgroundColor: colors.neutral[50],
-    borderRadius: 18,
-    padding: spacing.lg,
-    alignItems: 'center',
-  },
-  pulseTitle: {
-    fontSize: typography.sizes.xl,
-    fontWeight: typography.weights.bold,
-    color: colors.neutral[900],
-    marginBottom: spacing.xs,
-  },
-  pulseSubtitle: {
-    fontSize: typography.sizes.sm,
-    color: colors.neutral[600],
-    marginBottom: spacing.md,
-  },
-  pulseMetrics: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-    justifyContent: 'center',
-  },
-  metricItem: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  metricNumber: {
-    fontSize: typography.sizes['2xl'],
-    fontWeight: typography.weights.bold,
-    color: colors.secondary.teal[600],
-  },
-  metricLabel: {
-    fontSize: typography.sizes.xs,
-    color: colors.neutral[500],
-    marginTop: spacing.xs / 2,
-    textAlign: 'center',
-  },
-  metricDivider: {
-    width: 1,
-    height: 40,
-    backgroundColor: colors.neutral[200],
-    marginHorizontal: spacing.md,
   },
   // Timeline Styles
   timelineHeader: {
@@ -321,38 +257,53 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: spacing.md,
+    paddingHorizontal: spacing.md,
   },
   timelineTitle: {
     fontSize: typography.sizes.xl,
     fontWeight: typography.weights.bold,
     color: colors.neutral[900],
   },
-  // Memory Card Styles - Unique LegacyKeep Design
+  // Memory Card Styles - Modern Clean Design
   memoryWrapper: {
     marginBottom: spacing.lg,
-  },
-  memoryBorder: {
-    borderRadius: 16,
-    padding: 2, // Creates gradient border
+    paddingHorizontal: spacing.xs,
   },
   memoryCard: {
     backgroundColor: colors.neutral[50],
-    borderRadius: 14,
+    borderRadius: 20,
     overflow: 'hidden',
+    shadowColor: colors.neutral[900],
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: colors.neutral[100],
   },
   memoryHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.neutral[100],
+    padding: spacing.lg,
+    borderBottomWidth: 0, // Remove border for cleaner look
   },
   memoryAvatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: colors.neutral[200],
-    marginRight: spacing.sm,
+    marginRight: spacing.md,
+    shadowColor: colors.neutral[900],
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
   },
   memoryInfo: {
     flex: 1,
@@ -368,27 +319,31 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   memoryTypeIcon: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: colors.neutral[100],
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.secondary.teal[50],
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.secondary.teal[100],
   },
   memoryContent: {
-    padding: spacing.md,
+    padding: spacing.lg,
+    paddingTop: spacing.md,
   },
   memoryTitle: {
-    fontSize: typography.sizes.md,
+    fontSize: typography.sizes.lg,
     fontWeight: typography.weights.bold,
     color: colors.neutral[900],
-    marginBottom: spacing.xs,
+    marginBottom: spacing.sm,
+    lineHeight: 24,
   },
   memorySnippet: {
     fontSize: typography.sizes.sm,
     color: colors.neutral[600],
-    lineHeight: 20,
-    marginBottom: spacing.sm,
+    lineHeight: 22,
+    marginBottom: spacing.md,
   },
   memoryFooter: {
     flexDirection: 'row',
@@ -413,26 +368,30 @@ const styles = StyleSheet.create({
   // Photo Collection Styles
   photoCollection: {
     flexDirection: 'row',
-    height: 120,
-    gap: 2,
+    height: 140,
+    gap: 4,
+    marginBottom: spacing.md,
   },
   mainPhoto: {
     flex: 2,
     backgroundColor: colors.neutral[200],
+    borderRadius: 12,
   },
   photoGrid: {
     flex: 1,
-    gap: 2,
+    gap: 4,
   },
   smallPhoto: {
     flex: 1,
     backgroundColor: colors.neutral[200],
+    borderRadius: 8,
   },
   photoCount: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.7)',
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 8,
   },
   photoCountText: {
     fontSize: typography.sizes.sm,
@@ -442,10 +401,13 @@ const styles = StyleSheet.create({
   // Video Styles
   videoContainer: {
     position: 'relative',
-    height: 180,
+    height: 200,
     backgroundColor: colors.neutral[200],
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 16,
+    marginBottom: spacing.md,
+    overflow: 'hidden',
   },
   videoThumbnail: {
     position: 'absolute',
@@ -454,12 +416,20 @@ const styles = StyleSheet.create({
     backgroundColor: colors.neutral[200],
   },
   playButton: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: 'rgba(0,0,0,0.8)',
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: colors.neutral[900],
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
 });
 

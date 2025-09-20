@@ -8,13 +8,10 @@ import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { MainStackParamList, ROUTES } from './types';
 
-// Import screens (we'll create these later)
-import HomeScreen from '../screens/main/HomeScreen';
+// Import screens and tab navigator
+import TabNavigator from './TabNavigator';
 import ProfileScreen from '../screens/main/ProfileScreen';
 import SettingsScreen from '../screens/main/SettingsScreen';
-import ChatScreen from '../screens/main/ChatScreen';
-import FamilyScreen from '../screens/main/FamilyScreen';
-import StoriesScreen from '../screens/main/StoriesScreen';
 import MediaScreen from '../screens/main/MediaScreen';
 
 const Stack = createStackNavigator<MainStackParamList>();
@@ -22,27 +19,28 @@ const Stack = createStackNavigator<MainStackParamList>();
 const MainStack: React.FC = () => {
   return (
     <Stack.Navigator
-      initialRouteName={ROUTES.HOME}
       screenOptions={{
         headerShown: true,
         gestureEnabled: true,
         cardStyle: { backgroundColor: '#ffffff' },
       }}
     >
+      {/* Main tab navigator - contains Home, Family, Stories, Chat */}
       <Stack.Screen
-        name={ROUTES.HOME}
-        component={HomeScreen}
+        name="MainTabs"
+        component={TabNavigator}
         options={{
-          title: 'LegacyKeep',
-          headerShown: false, // We'll use bottom tabs for main navigation
+          headerShown: false, // Tabs handle their own headers
         }}
       />
       
+      {/* Modal/overlay screens */}
       <Stack.Screen
         name={ROUTES.PROFILE}
         component={ProfileScreen}
         options={{
           title: 'Profile',
+          presentation: 'modal',
         }}
       />
       
@@ -51,30 +49,7 @@ const MainStack: React.FC = () => {
         component={SettingsScreen}
         options={{
           title: 'Settings',
-        }}
-      />
-      
-      <Stack.Screen
-        name={ROUTES.CHAT}
-        component={ChatScreen}
-        options={{
-          title: 'Chat',
-        }}
-      />
-      
-      <Stack.Screen
-        name={ROUTES.FAMILY}
-        component={FamilyScreen}
-        options={{
-          title: 'Family',
-        }}
-      />
-      
-      <Stack.Screen
-        name={ROUTES.STORIES}
-        component={StoriesScreen}
-        options={{
-          title: 'Stories',
+          presentation: 'modal',
         }}
       />
       

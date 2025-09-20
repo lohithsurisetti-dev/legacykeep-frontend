@@ -71,13 +71,17 @@ export type OnboardingStackParamList = {
 // =============================================================================
 
 export type MainStackParamList = {
-  Home: undefined;
+  MainTabs: undefined;
   Profile: undefined;
   Settings: undefined;
-  Chat: undefined;
+  Media: undefined;
+};
+
+export type TabParamList = {
+  Home: undefined;
   Family: undefined;
   Stories: undefined;
-  Media: undefined;
+  Chat: undefined;
 };
 
 // =============================================================================

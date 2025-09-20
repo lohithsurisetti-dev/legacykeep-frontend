@@ -82,7 +82,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
+    paddingLeft: spacing.md, // Less left padding to move title left
+    paddingRight: spacing.lg, // Keep more right padding for profile icon
   },
   title: {
     fontSize: typography.sizes['2xl'], // Larger title for better prominence

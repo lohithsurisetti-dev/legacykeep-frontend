@@ -14,3 +14,4 @@ export { default as ProgressTracker } from './ProgressTracker';
 export { default as GlassmorphismSpinner } from './GlassmorphismSpinner';
 export { default as HomeHeader } from './HomeHeader';
 export { default as BottomNavigation } from './BottomNavigation';
+export { default as QuickInsightsBar } from './QuickInsightsBar';

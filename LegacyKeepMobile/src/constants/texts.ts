@@ -237,6 +237,22 @@ export const mainTexts = {
     recentActivityTitle: 'Recent Activity',
     familyHighlightsTitle: 'Family Highlights',
     engagementTitle: 'Engagement Features',
+    timelineTitle: 'Explore',
+    quickInsights: {
+      title: 'Quick Insights',
+      noBirthdays: 'No upcoming birthdays',
+      noEvents: 'No upcoming events',
+      birthdayToday: '{name}\'s birthday is today! 🎂',
+      birthdayTomorrow: '{name}\'s birthday is tomorrow',
+      birthdayDays: '{name}\'s birthday in {days} days',
+      anniversaryToday: '{name} & {partner}\'s anniversary today! 💝',
+      anniversaryDays: '{name} & {partner}\'s anniversary in {days} days',
+      eventToday: '{event} is today',
+      eventDays: '{event} in {days} days',
+      sendMessage: 'Send Message',
+      createStory: 'Create Story',
+      viewDetails: 'View Details',
+    },
   },
 } as const;
 
