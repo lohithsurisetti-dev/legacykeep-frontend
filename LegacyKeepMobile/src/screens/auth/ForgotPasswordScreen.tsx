@@ -85,9 +85,8 @@ const ForgotPasswordScreen: React.FC<Props> = () => {
     setIsLoading(true);
     try {
       // TODO: Reset password with backend
-
       console.log('Password reset successful');
-      (navigation as any).navigate(ROUTES.LOGIN);
+      (navigation as any).navigate(ROUTES.PASSWORD_RESET_SUCCESS);
     } catch (error) {
       console.error('Reset password error:', error);
     } finally {

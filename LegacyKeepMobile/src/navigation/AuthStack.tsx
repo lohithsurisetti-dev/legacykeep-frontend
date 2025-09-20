@@ -21,6 +21,7 @@ import SocialLoginScreen from '../screens/auth/SocialLoginScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
 import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
 import PasswordResetScreen from '../screens/auth/PasswordResetScreen';
+import PasswordResetSuccessScreen from '../screens/auth/PasswordResetSuccessScreen';
 import EmailVerificationScreen from '../screens/auth/EmailVerificationScreen';
 import PhoneVerificationScreen from '../screens/auth/PhoneVerificationScreen';
 
@@ -129,6 +130,14 @@ const AuthStack: React.FC = () => {
         component={PasswordResetScreen}
         options={{
           title: 'Set New Password',
+        }}
+      />
+      
+      <Stack.Screen
+        name={ROUTES.PASSWORD_RESET_SUCCESS}
+        component={PasswordResetSuccessScreen}
+        options={{
+          title: 'Password Reset Complete',
         }}
       />
       

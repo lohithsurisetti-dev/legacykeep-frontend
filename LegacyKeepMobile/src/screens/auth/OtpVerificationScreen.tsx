@@ -325,7 +325,7 @@ const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
             title={getButtonText()}
             onPress={handleVerify}
             disabled={isLoading}
-            loading={isLoading}
+            loading={purpose === 'registration' ? isLoading : false}
             gradient="horizontal"
             style={styles.verifyButton}
           />

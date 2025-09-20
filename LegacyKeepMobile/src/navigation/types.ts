@@ -37,6 +37,7 @@ export type AuthStackParamList = {
   Login: undefined;
   ForgotPassword: undefined;
   PasswordReset: undefined;
+  PasswordResetSuccess: undefined;
   EmailVerification: {
     email: string;
     userId: string;
@@ -133,6 +134,7 @@ export const ROUTES = {
   LOGIN: 'Login',
   FORGOT_PASSWORD: 'ForgotPassword',
   PASSWORD_RESET: 'PasswordReset',
+  PASSWORD_RESET_SUCCESS: 'PasswordResetSuccess',
   EMAIL_VERIFICATION: 'EmailVerification',
   PHONE_VERIFICATION: 'PhoneVerification',
   

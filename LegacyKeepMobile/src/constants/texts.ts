@@ -215,6 +215,13 @@ export const authTexts = {
       verifyButton: 'Continue',
     },
   },
+
+  // Password Reset Success Screen
+  passwordResetSuccess: {
+    title: 'Password Successfully Reset!',
+    subtitle: 'You can now log in with your new password.',
+    backToLoginButton: 'Back to Login',
+  },
 } as const;
 
 // ============================================================================
