@@ -225,6 +225,22 @@ export const authTexts = {
 } as const;
 
 // ============================================================================
+// MAIN APP TEXTS
+// ============================================================================
+
+export const mainTexts = {
+  // Home Screen
+  home: {
+    welcome: 'Welcome, {userName}!',
+    familyName: '{familyName}',
+    quickActionsTitle: 'Quick Actions',
+    recentActivityTitle: 'Recent Activity',
+    familyHighlightsTitle: 'Family Highlights',
+    engagementTitle: 'Engagement Features',
+  },
+} as const;
+
+// ============================================================================
 // COMMON TEXTS
 // ============================================================================
 

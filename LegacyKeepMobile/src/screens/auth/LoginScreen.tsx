@@ -92,11 +92,11 @@ const LoginScreen: React.FC<Props> = () => {
     const newData = { ...formData, [field]: value };
     setFormData(newData);
     
-    // Mark field as touched
-    setTouchedFields(prev => new Set([...prev, field]));
-    
-    // Validate only the touched field
-    validateForm(newData, false);
+    // Don't validate on input change - only validate on login button press
+    // Clear any existing errors for this field
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: undefined }));
+    }
   };
 
   const handleLogin = async () => {
@@ -115,7 +115,9 @@ const LoginScreen: React.FC<Props> = () => {
       // Add a small delay to demonstrate the spinner
       await new Promise(resolve => setTimeout(resolve, 1500));
       await login(formData.emailOrUsername, formData.password);
-      // Navigation will be handled by the auth context
+      
+      // Navigation will be handled automatically by AuthContext
+      console.log('Login successful, AuthContext will handle navigation');
     } catch (error) {
       console.error('Login error:', error);
       setErrors({
@@ -270,7 +272,7 @@ const LoginScreen: React.FC<Props> = () => {
               <LoginButton
                 title={authTexts.login.loginButton}
                 onPress={handleLogin}
-                disabled={!isFormValid || isLoading}
+                disabled={isLoading}
                 loading={isLoading}
                 style={styles.loginButton}
               />

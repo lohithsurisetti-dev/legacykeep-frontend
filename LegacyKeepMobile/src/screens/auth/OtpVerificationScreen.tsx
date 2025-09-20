@@ -169,9 +169,10 @@ const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
           emailOrPhone: emailOrPhone,
         });
       } else {
-        // Registration flow - navigate to success or main app
-        // TODO: Navigate to main app
+        // Registration flow - navigate to main app
         console.log('Account created successfully');
+        // TODO: Update auth context to set isAuthenticated = true
+        // This will automatically navigate to main app via RootNavigator
       }
     } catch (error) {
       console.error('OTP verification failed:', error);

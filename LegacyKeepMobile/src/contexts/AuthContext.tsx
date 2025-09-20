@@ -126,7 +126,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       setAuthState({
         isAuthenticated: true,
-        isOnboardingComplete: false, // We'll determine this based on user data
+        isOnboardingComplete: true, // Skip onboarding for testing
         isLoading: false,
         user: mockUser,
         accessToken: mockTokens.accessToken,
