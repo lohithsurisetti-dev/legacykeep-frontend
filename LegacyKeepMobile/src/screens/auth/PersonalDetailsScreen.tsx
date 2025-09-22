@@ -19,6 +19,7 @@ import { AuthStackScreenProps } from '../../navigation/types';
 import { ROUTES } from '../../navigation/types';
 import { colors, typography, spacing, gradients } from '../../constants';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useRegistration } from '../../contexts/RegistrationContext';
 import { BackButton, GradientButton, ProgressTracker, GradientText } from '../../components/ui';
 import { LinearGradient } from 'expo-linear-gradient';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -38,11 +39,23 @@ interface PersonalDetailsFormErrors {
 const PersonalDetailsScreen: React.FC<Props> = () => {
   const navigation = useNavigation();
   const { t } = useLanguage();
+  const { data, updateData, canProceedToNext } = useRegistration();
   
-  const [formData, setFormData] = useState<PersonalDetailsFormData>({
-    dateOfBirth: null,
-    gender: '',
-  });
+  // Map registration context data to local form data for compatibility
+  const formData = {
+    dateOfBirth: data.dateOfBirth,
+    gender: data.gender,
+  };
+
+  const setFormData = (updates: Partial<PersonalDetailsFormData>) => {
+    // Update registration context when form data changes
+    const contextUpdates: Partial<typeof data> = {};
+    
+    if (updates.dateOfBirth !== undefined) contextUpdates.dateOfBirth = updates.dateOfBirth;
+    if (updates.gender !== undefined) contextUpdates.gender = updates.gender;
+    
+    updateData(contextUpdates);
+  };
   
   const [errors, setErrors] = useState<PersonalDetailsFormErrors>({});
   const [touchedFields, setTouchedFields] = useState<Set<keyof PersonalDetailsFormData>>(new Set());
@@ -113,10 +126,16 @@ const PersonalDetailsScreen: React.FC<Props> = () => {
       return;
     }
 
+    // Check if registration context allows proceeding
+    if (!canProceedToNext()) {
+      console.error('Cannot proceed: Registration context validation failed');
+      return;
+    }
+
     setIsLoading(true);
     try {
-      // TODO: Save personal details data
-      console.log('Personal details:', formData);
+      // Data is already saved in context via updateData calls
+      console.log('Personal details saved to context:', { dateOfBirth: data.dateOfBirth, gender: data.gender });
       
       // Navigate to next screen
       (navigation as any).navigate(ROUTES.LOCATION);
@@ -257,7 +276,7 @@ const PersonalDetailsScreen: React.FC<Props> = () => {
                       onChange={(event, selectedDate) => {
                         // Don't auto-select, just update the picker value
                         if (selectedDate) {
-                          setFormData(prev => ({ ...prev, dateOfBirth: selectedDate }));
+                          handleInputChange('dateOfBirth', selectedDate);
                         }
                       }}
                       maximumDate={new Date()}

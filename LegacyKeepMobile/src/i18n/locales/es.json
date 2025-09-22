@@ -45,6 +45,7 @@
       "termsText": "Acepto los",
       "termsLink": "Términos y Condiciones",
       "createAccountButton": "Crear Cuenta",
+      "sendVerificationButton": "Continuar",
       "alreadyHaveAccount": "¿Ya tienes una cuenta?",
       "signInLink": "Iniciar sesión"
     },
@@ -54,7 +55,7 @@
     },
     "otpVerification": {
       "title": "Verifica tu Cuenta",
-      "subtitle": "Crear Cuenta", 
+      "subtitle": "Crear Cuenta",
       "verifyButton": "Verificar y Completar",
       "otpLabel": "Código de Verificación",
       "description": "Ingresa el código de seis dígitos enviado a {emailOrPhone}",
@@ -84,7 +85,7 @@
       }
     },
     "forgotPassword": {
-      "title": "Restablecer Contraseña", 
+      "title": "Restablecer Contraseña",
       "subtitle": "Crea tu nueva contraseña",
       "newPasswordPlaceholder": "Nueva contraseña",
       "confirmPasswordPlaceholder": "Confirmar nueva contraseña",
@@ -98,12 +99,17 @@
     "location": {
       "title": "Ubicación",
       "subtitle": "¿Dónde te encuentras?",
+      "addressLabel": "Dirección",
+      "addressPlaceholder": "Ingresa tu dirección",
       "cityLabel": "Ciudad",
       "cityPlaceholder": "Ingresa tu ciudad",
       "stateLabel": "Estado/Provincia",
       "statePlaceholder": "Ingresa tu estado o provincia",
-      "countryLabel": "País", 
+      "countryLabel": "País",
       "countryPlaceholder": "Ingresa tu país",
+      "zipCodeLabel": "Código Postal",
+      "zipCodePlaceholder": "Ingresa tu código postal",
+      "continueButton": "Continuar",
       "generateOtpButton": "Generar OTP",
       "alreadyHaveAccount": "¿Ya tienes una cuenta?",
       "signIn": "Iniciar Sesión"

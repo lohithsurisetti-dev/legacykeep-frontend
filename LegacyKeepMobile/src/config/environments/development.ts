@@ -22,18 +22,18 @@ export const developmentConfig = {
     timeout: parseInt(process.env.EXPO_PUBLIC_API_TIMEOUT || '10000'),
     retryAttempts: parseInt(process.env.EXPO_PUBLIC_API_RETRY_ATTEMPTS || '3'),
     endpoints: {
-      auth: process.env.EXPO_PUBLIC_AUTH_SERVICE_URL || 'http://localhost:8081',
-      user: process.env.EXPO_PUBLIC_USER_SERVICE_URL || 'http://localhost:8082',
-      chat: process.env.EXPO_PUBLIC_CHAT_SERVICE_URL || 'http://localhost:8083',
+      auth: process.env.EXPO_PUBLIC_AUTH_SERVICE_URL || 'http://192.168.1.81:8084/api/v1',
+      user: process.env.EXPO_PUBLIC_USER_SERVICE_URL || 'http://192.168.1.81:8082/user/api/v1',
+      chat: process.env.EXPO_PUBLIC_CHAT_SERVICE_URL || 'http://192.168.1.81:8083/api/v1',
       family:
-        process.env.EXPO_PUBLIC_FAMILY_SERVICE_URL || 'http://localhost:8084',
+        process.env.EXPO_PUBLIC_FAMILY_SERVICE_URL || 'http://192.168.1.81:8084/api/v1',
       stories:
-        process.env.EXPO_PUBLIC_STORY_SERVICE_URL || 'http://localhost:8085',
+        process.env.EXPO_PUBLIC_STORY_SERVICE_URL || 'http://192.168.1.81:8085/api/v1',
       media:
-        process.env.EXPO_PUBLIC_MEDIA_SERVICE_URL || 'http://localhost:8086',
+        process.env.EXPO_PUBLIC_MEDIA_SERVICE_URL || 'http://192.168.1.81:8086/api/v1',
       notifications:
         process.env.EXPO_PUBLIC_NOTIFICATION_SERVICE_URL ||
-        'http://localhost:8087',
+        'http://192.168.1.81:8083/api/v1',
     },
   },
 
@@ -100,7 +100,7 @@ export const developmentConfig = {
 
   // Mock Services
   mock: {
-    enableMockAuth: process.env.EXPO_PUBLIC_ENABLE_MOCK_AUTH !== 'false',
+    enableMockAuth: false, // Disable mock auth - use real API calls
     enableMockApi: process.env.EXPO_PUBLIC_ENABLE_MOCK_API !== 'false',
     enableMockStorage: process.env.EXPO_PUBLIC_ENABLE_MOCK_STORAGE !== 'false',
     enableMockNotifications:

@@ -10,8 +10,8 @@ const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-
 // Username validation regex (alphanumeric, underscore, hyphen, 3-20 chars)
 const USERNAME_REGEX = /^[a-zA-Z0-9_-]{3,20}$/;
 
-// Password validation regex (at least 8 chars, 1 uppercase, 1 lowercase, 1 number)
-const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/;
+// Password validation regex (at least 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char)
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/;
 
 // Enhanced phone number validation regex (international format with better digit handling)
 const PHONE_REGEX = /^\+?[1-9]\d{6,14}$/;
@@ -132,7 +132,7 @@ export const validatePassword = (password: string): ValidationResult => {
   if (!PASSWORD_REGEX.test(password)) {
     return { 
       isValid: false, 
-      error: 'Password must contain at least 1 uppercase letter, 1 lowercase letter, and 1 number' 
+      error: 'Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character (@$!%*?&)' 
     };
   }
   

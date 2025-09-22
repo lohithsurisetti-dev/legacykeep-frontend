@@ -14,6 +14,7 @@ import { AuthStackScreenProps } from '../../navigation/types';
 import { ROUTES } from '../../navigation/types';
 import { colors, typography, spacing, gradients } from '../../constants';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useRegistration } from '../../contexts/RegistrationContext';
 import { validateEmail, validatePassword, validateUsername, validateEmailOrPhone } from '../../utils/validation';
 import GradientButton from '../../components/ui/GradientButton';
 import GradientText from '../../components/ui/GradientText';
@@ -38,24 +39,55 @@ interface FormErrors {
   emailOrPhone?: string;
   password?: string;
   agreeToTerms?: string;
+  general?: string;
 }
 
 const RegistrationScreen: React.FC<Props> = () => {
   const navigation = useNavigation();
   const { t } = useLanguage();
-  const [formData, setFormData] = useState<FormData>({
-    firstName: '',
-    lastName: '',
-    username: '',
-    emailOrPhone: '',
-    password: '',
-    agreeToTerms: false,
-  });
+  const { data, updateData, canProceedToNext } = useRegistration();
+  
+  // Map registration context data to local form data for compatibility
+  const formData = {
+    firstName: data.firstName,
+    lastName: data.lastName,
+    username: data.username,
+    emailOrPhone: data.email || data.phoneNumber || '',
+    password: data.password,
+    agreeToTerms: data.acceptTerms,
+  };
+
+  const setFormData = (updates: Partial<FormData>) => {
+    // Update registration context when form data changes
+    const contextUpdates: Partial<typeof data> = {};
+    
+    if (updates.firstName !== undefined) contextUpdates.firstName = updates.firstName;
+    if (updates.lastName !== undefined) contextUpdates.lastName = updates.lastName;
+    if (updates.username !== undefined) contextUpdates.username = updates.username;
+    if (updates.emailOrPhone !== undefined) {
+      // Determine if it's email or phone
+      if (updates.emailOrPhone.includes('@')) {
+        contextUpdates.email = updates.emailOrPhone;
+        contextUpdates.phoneNumber = '';
+      } else {
+        contextUpdates.phoneNumber = updates.emailOrPhone;
+        contextUpdates.email = '';
+      }
+    }
+    if (updates.password !== undefined) {
+      contextUpdates.password = updates.password;
+      contextUpdates.confirmPassword = updates.password; // Auto-match for single password field
+    }
+    if (updates.agreeToTerms !== undefined) contextUpdates.acceptTerms = updates.agreeToTerms;
+    
+    updateData(contextUpdates);
+  };
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
 
   const handleInputChange = (field: keyof FormData, value: string | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    // Update via the custom setFormData function that syncs with context
+    setFormData({ [field]: value });
     // Clear error when user starts typing
     if (errors[field as keyof FormErrors]) {
       setErrors(prev => ({ ...prev, [field as keyof FormErrors]: undefined }));
@@ -107,15 +139,20 @@ const RegistrationScreen: React.FC<Props> = () => {
       return;
     }
 
+    // Check registration context validation
+    if (!canProceedToNext()) {
+      setErrors({ general: 'Please fill in all required fields correctly' });
+      return;
+    }
+
     setIsLoading(true);
     try {
-      // TODO: Implement actual registration API call
-      // await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
-
-      // Navigate directly to personal details screen
+      // Data is already stored in registration context
+      // Navigate to next screen to continue data collection
       (navigation as any).navigate(ROUTES.PERSONAL_DETAILS);
     } catch (error) {
-      console.error('Create account error:', error);
+      console.error('Navigation error:', error);
+      setErrors({ general: 'Something went wrong. Please try again.' });
     } finally {
       setIsLoading(false);
     }
@@ -158,7 +195,7 @@ const RegistrationScreen: React.FC<Props> = () => {
                     onChangeText={(value) => handleInputChange('firstName', value)}
                     autoCapitalize="words"
                     autoCorrect={false}
-                    autoComplete="off"
+                    autoComplete="name-given"
                   />
                 </View>
                 <View style={styles.nameFieldContainer}>
@@ -169,7 +206,7 @@ const RegistrationScreen: React.FC<Props> = () => {
                     onChangeText={(value) => handleInputChange('lastName', value)}
                     autoCapitalize="words"
                     autoCorrect={false}
-                    autoComplete="off"
+                    autoComplete="name-family"
                   />
                 </View>
               </View>
@@ -182,7 +219,7 @@ const RegistrationScreen: React.FC<Props> = () => {
                 onChangeText={(value) => handleInputChange('username', value)}
                 autoCapitalize="none"
                 autoCorrect={false}
-                autoComplete="off"
+                autoComplete="username"
               />
 
               {/* Email/Phone Field */}
@@ -194,7 +231,7 @@ const RegistrationScreen: React.FC<Props> = () => {
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
-                autoComplete="off"
+                autoComplete="email"
               />
 
               {/* Password Field */}
@@ -206,7 +243,7 @@ const RegistrationScreen: React.FC<Props> = () => {
                 secureTextEntry
                 autoCapitalize="none"
                 autoCorrect={false}
-                autoComplete="off"
+                autoComplete="password-new"
               />
 
               {/* Terms Checkbox */}
@@ -252,7 +289,7 @@ const RegistrationScreen: React.FC<Props> = () => {
         {/* Footer */}
         <View style={styles.footer}>
           <GradientButton
-            title={t('auth.registration.createAccountButton')}
+            title={t('auth.registration.sendVerificationButton')}
             onPress={handleCreateAccount}
             disabled={isLoading}
             loading={isLoading}

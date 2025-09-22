@@ -135,7 +135,7 @@ const ForgotPasswordScreen: React.FC<Props> = () => {
                     secureTextEntry={!showNewPassword}
                     autoCapitalize="none"
                     autoCorrect={false}
-                    autoComplete="off"
+                    autoComplete="password-new"
                   />
                   <TouchableOpacity
                     style={styles.eyeButton}
@@ -162,7 +162,7 @@ const ForgotPasswordScreen: React.FC<Props> = () => {
                     secureTextEntry={!showConfirmPassword}
                     autoCapitalize="none"
                     autoCorrect={false}
-                    autoComplete="off"
+                    autoComplete="password-new"
                   />
                   <TouchableOpacity
                     style={styles.eyeButton}

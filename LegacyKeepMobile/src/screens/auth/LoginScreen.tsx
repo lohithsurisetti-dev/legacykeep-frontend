@@ -219,7 +219,7 @@ const LoginScreen: React.FC<Props> = () => {
                     keyboardType="default"
                     autoCapitalize="none"
                     autoCorrect={false}
-                    autoComplete="off"
+                    autoComplete="email"
                     pointerEvents="auto"
                     editable={true}
                   />
@@ -249,7 +249,7 @@ const LoginScreen: React.FC<Props> = () => {
                       value={formData.password}
                       onChangeText={(value) => handleInputChange('password', value)}
                       secureTextEntry={!showPassword}
-                      autoComplete="off"
+                      autoComplete="current-password"
                       autoCorrect={false}
                       pointerEvents="auto"
                       editable={true}

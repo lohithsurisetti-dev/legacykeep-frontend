@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { AuthProvider } from './src/contexts/AuthContext';
 import { LanguageProvider } from './src/contexts/LanguageContext';
 import { ThemeProvider } from './src/contexts/ThemeContext';
+import { RegistrationProvider } from './src/contexts/RegistrationContext';
 import { RootNavigator } from './src/navigation';
 import SplashScreen from './src/components/SplashScreen';
 import './src/i18n'; // Initialize i18n
@@ -68,10 +69,12 @@ export default function App() {
       >
         <ThemeProvider>
           <LanguageProvider>
-            <AuthProvider>
-              <RootNavigator />
-              <StatusBar style='auto' />
-            </AuthProvider>
+            <RegistrationProvider>
+              <AuthProvider>
+                <RootNavigator />
+                <StatusBar style='auto' />
+              </AuthProvider>
+            </RegistrationProvider>
           </LanguageProvider>
         </ThemeProvider>
       </Animated.View>

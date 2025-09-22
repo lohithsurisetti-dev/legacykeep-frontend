@@ -20,6 +20,7 @@ import { ROUTES } from '../../navigation/types';
 import { colors, typography, spacing, gradients } from '../../constants';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useRegistration } from '../../contexts/RegistrationContext';
 import { BackButton, GradientButton, ProgressTracker, GradientText } from '../../components/ui';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -37,6 +38,7 @@ const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
   const navigation = useNavigation();
   const { t } = useLanguage();
   const { completeVerification } = useAuth();
+  const { data, submitRegistration, generateOtp, verifyOtp } = useRegistration();
   
   // Get params for dynamic behavior
   const purpose = route?.params?.purpose || 'registration';
@@ -80,6 +82,15 @@ const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
   // Initialize refs array
   useEffect(() => {
     otpInputRefs.current = otpInputRefs.current.slice(0, 6);
+  }, []);
+
+  // Debug: Log when OTP screen mounts
+  useEffect(() => {
+    console.log('🚀 OTP SCREEN: Component mounted');
+    console.log('🚀 OTP SCREEN: Purpose:', purpose);
+    console.log('🚀 OTP SCREEN: EmailOrPhone:', emailOrPhone);
+    console.log('🚀 OTP SCREEN: Registration data:', JSON.stringify(data, null, 2));
+    console.log('🚀 OTP SCREEN: Registration progress:', data.registrationProgress);
   }, []);
 
   const validateForm = (data: OtpFormData) => {
@@ -149,36 +160,45 @@ const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
 
 
   const handleVerify = async () => {
+    console.log('🚀 OTP SCREEN: handleVerify() called');
+    console.log('🚀 OTP SCREEN: Form data:', formData);
+    console.log('🚀 OTP SCREEN: Purpose:', purpose);
+    
     if (!validateForm(formData)) {
+      console.log('❌ OTP SCREEN: Form validation failed');
       return;
     }
 
     setIsLoading(true);
     try {
-      // TODO: Verify OTP with backend
-      console.log('Verifying OTP:', formData.otp.join(''));
-      console.log('Purpose:', purpose);
-      console.log('Email/Phone:', emailOrPhone);
-      
-      // Add delay to demonstrate spinner
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // TODO: Verify OTP with backend
+      const otpCode = formData.otp.join('');
+      console.log('🚀 OTP SCREEN: Verifying OTP:', otpCode);
+      console.log('🚀 OTP SCREEN: Purpose:', purpose);
       
       if (purpose === 'password-reset') {
-        // Navigate to password reset screen
+        // Password reset flow - verify OTP and navigate to reset screen
+        await verifyOtp(otpCode);
         (navigation as any).navigate(ROUTES.FORGOT_PASSWORD, {
           step: 'reset',
           emailOrPhone: emailOrPhone,
         });
       } else {
-        // Registration flow - complete verification and authenticate user
-        console.log('Account created and verified successfully');
+        // Registration flow - only verify OTP (registration already done in LocationScreen)
+        console.log('🚀 OTP SCREEN: Starting OTP verification...');
+        console.log('🚀 OTP SCREEN: Auth completed?', data.registrationProgress.authCompleted);
+        
+        // Verify OTP (registration should already be completed from LocationScreen)
+        console.log('🚀 OTP SCREEN: Calling verifyOtp...');
+        await verifyOtp(otpCode);
+        
+        // Complete verification and authenticate user
+        console.log('✅ OTP SCREEN: Account verified successfully');
         completeVerification();
         // The RootNavigator will automatically navigate to Main app when isAuthenticated becomes true
       }
     } catch (error) {
       console.error('OTP verification failed:', error);
+      setErrors({ otp: error instanceof Error ? error.message : 'Verification failed' });
     } finally {
       setIsLoading(false);
     }
@@ -188,8 +208,9 @@ const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
     if (resendCooldown > 0) return;
     
     try {
-      // TODO: Resend OTP
-      console.log('Resending OTP...');
+      // Resend OTP using registration context
+      await generateOtp();
+      console.log('OTP resent successfully');
       
       // Start cooldown timer
       setResendCooldown(60);
@@ -206,6 +227,7 @@ const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
       console.log('New verification code sent');
     } catch (error) {
       console.error('Failed to resend code:', error);
+      setErrors({ otp: 'Failed to resend OTP. Please try again.' });
     }
   };
 

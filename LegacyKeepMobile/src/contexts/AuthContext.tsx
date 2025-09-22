@@ -5,6 +5,7 @@
  */
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { authApi, tokenStorage } from '../services';
 
 // =============================================================================
 // Types
@@ -85,8 +86,41 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const initializeAuth = async () => {
     try {
-      // TODO: Check for stored tokens and user data
-      // For now, we'll start with no authentication
+      // Check for stored tokens
+      const storedTokens = await tokenStorage.getTokens();
+      
+      if (storedTokens && !await tokenStorage.isTokenExpired()) {
+        // Tokens exist and are valid, get user profile
+        try {
+          const profileResponse = await authApi.getUserProfile();
+          
+          if (profileResponse.status === 'success' && profileResponse.data) {
+            setAuthState({
+              isAuthenticated: true,
+              isOnboardingComplete: true,
+              isLoading: false,
+              user: {
+                id: profileResponse.data.id.toString(),
+                email: profileResponse.data.email || '',
+                username: profileResponse.data.username,
+                isEmailVerified: profileResponse.data.isEmailVerified,
+                isPhoneVerified: profileResponse.data.isPhoneVerified,
+                firstName: profileResponse.data.firstName,
+                lastName: profileResponse.data.lastName,
+                profilePictureUrl: profileResponse.data.profilePictureUrl,
+              },
+              accessToken: storedTokens.accessToken,
+              refreshToken: storedTokens.refreshToken,
+            });
+            return;
+          }
+        } catch (profileError) {
+          console.warn('Failed to get user profile, clearing tokens:', profileError);
+          await tokenStorage.clearTokens();
+        }
+      }
+      
+      // No valid tokens, start unauthenticated
       setAuthState(prev => ({
         ...prev,
         isLoading: false,
@@ -104,65 +138,88 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Auth Methods
   // =============================================================================
 
-  const login = async (_email: string, _password: string): Promise<void> => {
+  const login = async (email: string, password: string): Promise<void> => {
     try {
       setAuthState(prev => ({ ...prev, isLoading: true }));
 
-      // TODO: Implement actual login API call
-      // For now, we'll simulate a successful login
-      const mockUser: User = {
-        id: '1',
-        email: _email,
-        username: 'testuser',
-        isEmailVerified: true,
-        isPhoneVerified: false,
-        firstName: 'Test',
-        lastName: 'User',
-      };
-
-      const mockTokens = {
-        accessToken: 'mock-access-token',
-        refreshToken: 'mock-refresh-token',
-      };
-
-      setAuthState({
-        isAuthenticated: true,
-        isOnboardingComplete: true, // Skip onboarding for testing
-        isLoading: false,
-        user: mockUser,
-        accessToken: mockTokens.accessToken,
-        refreshToken: mockTokens.refreshToken,
+      // Call real login API
+      const response = await authApi.login({
+        identifier: email,
+        password,
+        rememberMe: false,
       });
+
+      if (response.status === 'success' && response.data) {
+        // Get user profile
+        const profileResponse = await authApi.getUserProfile();
+        
+        if (profileResponse.status === 'success' && profileResponse.data) {
+          setAuthState({
+            isAuthenticated: true,
+            isOnboardingComplete: true,
+            isLoading: false,
+            user: {
+              id: profileResponse.data.id.toString(),
+              email: profileResponse.data.email || '',
+              username: profileResponse.data.username,
+              isEmailVerified: profileResponse.data.isEmailVerified,
+              isPhoneVerified: profileResponse.data.isPhoneVerified,
+              firstName: profileResponse.data.firstName,
+              lastName: profileResponse.data.lastName,
+              profilePictureUrl: profileResponse.data.profilePictureUrl,
+            },
+            accessToken: response.data.accessToken,
+            refreshToken: response.data.refreshToken,
+          });
+        } else {
+          throw new Error('Failed to get user profile after login');
+        }
+      } else {
+        throw new Error(response.message || 'Login failed');
+      }
     } catch (error) {
       setAuthState(prev => ({ ...prev, isLoading: false }));
       throw error;
     }
   };
 
-  const register = async (_userData: RegisterData): Promise<void> => {
+  const register = async (userData: RegisterData): Promise<void> => {
     try {
       setAuthState(prev => ({ ...prev, isLoading: true }));
 
-      // TODO: Implement actual registration API call
-      // For now, we'll simulate a successful registration
-      const mockUser: User = {
-        id: '1',
-        email: _userData.email || '',
-        username: _userData.username,
-        isEmailVerified: false,
-        isPhoneVerified: false,
-        firstName: _userData.firstName,
-        lastName: _userData.lastName,
-      };
-
-      setAuthState({
-        isAuthenticated: false, // User needs to verify email/phone
-        isOnboardingComplete: false,
-        isLoading: false,
-        user: mockUser,
-        accessToken: null,
-        refreshToken: null,
+      // Call real registration API
+      const response = await authApi.register({
+        username: userData.username,
+        email: userData.email,
+        phoneNumber: userData.phoneNumber,
+        password: userData.password,
+        confirmPassword: userData.confirmPassword,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        acceptTerms: userData.acceptTerms,
       });
+
+      if (response.status === 'success' && response.data) {
+        // Registration successful, user needs verification
+        setAuthState({
+          isAuthenticated: false, // User needs to verify email/phone
+          isOnboardingComplete: false,
+          isLoading: false,
+          user: {
+            id: response.data.id.toString(),
+            email: response.data.email || '',
+            username: response.data.username,
+            isEmailVerified: response.data.isEmailVerified,
+            isPhoneVerified: response.data.isPhoneVerified,
+            firstName: response.data.firstName,
+            lastName: response.data.lastName,
+          },
+          accessToken: null,
+          refreshToken: null,
+        });
+      } else {
+        throw new Error(response.message || 'Registration failed');
+      }
     } catch (error) {
       setAuthState(prev => ({ ...prev, isLoading: false }));
       throw error;
@@ -173,9 +230,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setAuthState(prev => ({ ...prev, isLoading: true }));
 
-      // TODO: Implement actual logout API call
-      // Clear stored tokens and user data
+      // Call logout API (this also clears tokens)
+      await authApi.logout();
 
+      // Clear auth state
       setAuthState({
         isAuthenticated: false,
         isOnboardingComplete: false,
@@ -186,14 +244,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
     } catch (error) {
       console.error('Logout error:', error);
-      setAuthState(prev => ({ ...prev, isLoading: false }));
+      
+      // Even if API fails, clear local state and tokens
+      await tokenStorage.clearTokens();
+      setAuthState({
+        isAuthenticated: false,
+        isOnboardingComplete: false,
+        isLoading: false,
+        user: null,
+        accessToken: null,
+        refreshToken: null,
+      });
     }
   };
 
   const refreshAccessToken = async (): Promise<void> => {
     try {
-      // TODO: Implement actual token refresh API call
-      console.log('Refreshing access token...');
+      // Call token refresh API
+      const response = await authApi.refreshToken();
+      
+      if (response.status === 'success' && response.data) {
+        // Update auth state with new token
+        setAuthState(prev => ({
+          ...prev,
+          accessToken: response.data!.accessToken,
+        }));
+      } else {
+        throw new Error('Token refresh failed');
+      }
     } catch (error) {
       console.error('Token refresh error:', error);
       // If refresh fails, logout the user

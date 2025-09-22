@@ -45,6 +45,7 @@
       "termsText": "I agree to the",
       "termsLink": "Terms and Conditions",
       "createAccountButton": "Create Account",
+      "sendVerificationButton": "Continue",
       "alreadyHaveAccount": "Already have an account?",
       "signInLink": "Sign in"
     },
@@ -54,7 +55,7 @@
     },
     "otpVerification": {
       "title": "Verify Your Account",
-      "subtitle": "Create Account", 
+      "subtitle": "Create Account",
       "verifyButton": "Verify & Complete",
       "otpLabel": "Verification Code",
       "description": "Enter the six-digit code sent to {emailOrPhone}",
@@ -84,7 +85,7 @@
       }
     },
     "forgotPassword": {
-      "title": "Reset Password", 
+      "title": "Reset Password",
       "subtitle": "Create your new password",
       "newPasswordPlaceholder": "New password",
       "confirmPasswordPlaceholder": "Confirm new password",
@@ -98,12 +99,17 @@
     "location": {
       "title": "Location",
       "subtitle": "Where are you located?",
+      "addressLabel": "Address",
+      "addressPlaceholder": "Enter your street address",
       "cityLabel": "City",
       "cityPlaceholder": "Enter your city",
       "stateLabel": "State/Province",
       "statePlaceholder": "Enter your state or province",
-      "countryLabel": "Country", 
+      "countryLabel": "Country",
       "countryPlaceholder": "Enter your country",
+      "zipCodeLabel": "ZIP/Postal Code",
+      "zipCodePlaceholder": "Enter your ZIP or postal code",
+      "continueButton": "Continue",
       "generateOtpButton": "Generate OTP",
       "alreadyHaveAccount": "Already have an account?",
       "signIn": "Sign In"
