@@ -10,6 +10,7 @@ import { AuthStackParamList, ROUTES } from './types';
 
 // Import screens (we'll create these one by one)
 import WelcomeScreen from '../screens/auth/WelcomeScreen';
+import EmailPhoneScreen from '../screens/auth/EmailPhoneScreen';
 import RegistrationMethodScreen from '../screens/auth/RegistrationMethodScreen';
 import RegistrationScreen from '../screens/auth/RegistrationScreen';
 import PersonalDetailsScreen from '../screens/auth/PersonalDetailsScreen';
@@ -42,6 +43,14 @@ const AuthStack: React.FC = () => {
         component={WelcomeScreen}
         options={{
           title: 'Welcome to LegacyKeep',
+        }}
+      />
+      
+      <Stack.Screen
+        name={ROUTES.EMAIL_PHONE}
+        component={EmailPhoneScreen}
+        options={{
+          title: 'Enter Email or Phone',
         }}
       />
       

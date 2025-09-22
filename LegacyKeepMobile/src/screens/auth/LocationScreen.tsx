@@ -25,19 +25,15 @@ import { BackButton, GradientButton, ProgressTracker, GradientText } from '../..
 type Props = AuthStackScreenProps<typeof ROUTES.LOCATION>;
 
 interface LocationFormData {
-  address: string;
   city: string;
   state: string;
   country: string;
-  zipCode: string;
 }
 
 interface LocationFormErrors {
-  address?: string;
   city?: string;
   state?: string;
   country?: string;
-  zipCode?: string;
   general?: string;
 }
 
@@ -48,22 +44,18 @@ const LocationScreen: React.FC<Props> = () => {
   
   // Map registration context data to local form data for compatibility
   const formData = {
-    address: data.address,
     city: data.city,
     state: data.state,
     country: data.country,
-    zipCode: data.zipCode,
   };
 
   const setFormData = (updates: Partial<LocationFormData>) => {
     // Update registration context when form data changes
     const contextUpdates: Partial<typeof data> = {};
     
-    if (updates.address !== undefined) contextUpdates.address = updates.address;
     if (updates.city !== undefined) contextUpdates.city = updates.city;
     if (updates.state !== undefined) contextUpdates.state = updates.state;
     if (updates.country !== undefined) contextUpdates.country = updates.country;
-    if (updates.zipCode !== undefined) contextUpdates.zipCode = updates.zipCode;
     
     updateData(contextUpdates);
   };
@@ -75,12 +67,7 @@ const LocationScreen: React.FC<Props> = () => {
   const validateForm = (data: LocationFormData, validateAll: boolean = false) => {
     const newErrors: LocationFormErrors = {};
     
-    // Validate address (only if touched or validateAll)
-    if (validateAll || touchedFields.has('address')) {
-      if (!data.address.trim()) {
-        newErrors.address = 'Address is required';
-      }
-    }
+    // Address is now optional - no validation needed
     
     // Validate city (only if touched or validateAll)
     if (validateAll || touchedFields.has('city')) {
@@ -103,12 +90,7 @@ const LocationScreen: React.FC<Props> = () => {
       }
     }
     
-    // Validate zipCode (only if touched or validateAll)
-    if (validateAll || touchedFields.has('zipCode')) {
-      if (!data.zipCode.trim()) {
-        newErrors.zipCode = 'ZIP/Postal code is required';
-      }
-    }
+    // ZIP/Postal code is now optional - no validation needed
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -129,8 +111,8 @@ const LocationScreen: React.FC<Props> = () => {
     console.log('🚀 LOCATION SCREEN: handleContinue() called');
     console.log('🚀 LOCATION SCREEN: Current form data:', formData);
     
-    // Mark all fields as touched to show validation errors
-    setTouchedFields(new Set(['address', 'city', 'state', 'country', 'zipCode']));
+    // Mark only required fields as touched to show validation errors
+    setTouchedFields(new Set(['city', 'state', 'country']));
     
     if (!validateForm(formData, true)) {
       return;
@@ -146,11 +128,9 @@ const LocationScreen: React.FC<Props> = () => {
     try {
       // Data is already saved in context via updateData calls
       console.log('Location data saved to context:', {
-        address: data.address,
         city: data.city,
         state: data.state,
-        country: data.country,
-        zipCode: data.zipCode
+        country: data.country
       });
       
       // THIS IS WHERE WE MAKE THE REGISTRATION API CALL
@@ -202,19 +182,6 @@ const LocationScreen: React.FC<Props> = () => {
           {/* Form */}
           <View style={styles.formContainer}>
             <View style={styles.form}>
-              {/* Address Field */}
-              <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>{t('auth.location.addressLabel')}</Text>
-                <TextInput
-                  style={[styles.input, errors.address && styles.inputError]}
-                  placeholder={t('auth.location.addressPlaceholder')}
-                  placeholderTextColor={colors.neutral[500]}
-                  value={formData.address}
-                  onChangeText={(value) => handleInputChange('address', value)}
-                  autoCapitalize="words"
-                />
-              </View>
-
               {/* City Field */}
               <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>{t('auth.location.cityLabel')}</Text>
@@ -254,18 +221,6 @@ const LocationScreen: React.FC<Props> = () => {
                 />
               </View>
 
-              {/* ZIP Code Field */}
-              <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>{t('auth.location.zipCodeLabel')}</Text>
-                <TextInput
-                  style={[styles.input, errors.zipCode && styles.inputError]}
-                  placeholder={t('auth.location.zipCodePlaceholder')}
-                  placeholderTextColor={colors.neutral[500]}
-                  value={formData.zipCode}
-                  onChangeText={(value) => handleInputChange('zipCode', value)}
-                  autoCapitalize="characters"
-                />
-              </View>
 
             </View>
           </View>

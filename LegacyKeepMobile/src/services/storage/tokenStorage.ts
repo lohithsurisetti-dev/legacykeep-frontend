@@ -44,6 +44,12 @@ class TokenStorageService {
     userId: number;
   }): Promise<void> {
     try {
+      // Check if Keychain is available
+      if (!Keychain || !Keychain.setInternetCredentials) {
+        console.warn('Keychain not available, cannot store tokens');
+        return;
+      }
+
       const expiresAt = new Date(Date.now() + tokens.expiresIn * 1000);
       
       // Store sensitive tokens in Keychain (most secure)
@@ -76,15 +82,21 @@ class TokenStorageService {
    */
   async getTokens(): Promise<StoredTokens | null> {
     try {
+      // Check if Keychain is available
+      if (!Keychain || !Keychain.getInternetCredentials) {
+        console.warn('Keychain not available, returning null');
+        return null;
+      }
+
       // Get access token from Keychain
       const accessTokenResult = await Keychain.getInternetCredentials(KEYCHAIN_SERVICE);
-      if (!accessTokenResult || accessTokenResult === false) {
+      if (!accessTokenResult) {
         return null;
       }
 
       // Get refresh token from Keychain
       const refreshTokenResult = await Keychain.getInternetCredentials(`${KEYCHAIN_SERVICE}_refresh`);
-      if (!refreshTokenResult || refreshTokenResult === false) {
+      if (!refreshTokenResult) {
         return null;
       }
 
@@ -107,6 +119,7 @@ class TokenStorageService {
       
     } catch (error) {
       console.error('Failed to retrieve tokens:', error);
+      // Return null instead of throwing to prevent app crashes
       return null;
     }
   }
@@ -116,8 +129,14 @@ class TokenStorageService {
    */
   async getAccessToken(): Promise<string | null> {
     try {
+      // Check if Keychain is available
+      if (!Keychain || !Keychain.getInternetCredentials) {
+        console.warn('Keychain not available, returning null');
+        return null;
+      }
+
       const result = await Keychain.getInternetCredentials(KEYCHAIN_SERVICE);
-      if (!result || result === false) {
+      if (!result) {
         return null;
       }
       return result.password;
@@ -133,7 +152,7 @@ class TokenStorageService {
   async getRefreshToken(): Promise<string | null> {
     try {
       const result = await Keychain.getInternetCredentials(`${KEYCHAIN_SERVICE}_refresh`);
-      if (!result || result === false) {
+      if (!result) {
         return null;
       }
       return result.password;
@@ -172,8 +191,8 @@ class TokenStorageService {
   async clearTokens(): Promise<void> {
     try {
       // Clear from Keychain
-      await Keychain.resetInternetCredentials(KEYCHAIN_SERVICE);
-      await Keychain.resetInternetCredentials(`${KEYCHAIN_SERVICE}_refresh`);
+      await Keychain.resetInternetCredentials({ service: KEYCHAIN_SERVICE });
+      await Keychain.resetInternetCredentials({ service: `${KEYCHAIN_SERVICE}_refresh` });
       
       // Clear from AsyncStorage
       await AsyncStorage.multiRemove([TOKEN_EXPIRY_KEY, USER_ID_KEY]);
@@ -213,7 +232,7 @@ class TokenStorageService {
   async hasTokens(): Promise<boolean> {
     try {
       const accessTokenResult = await Keychain.getInternetCredentials(KEYCHAIN_SERVICE);
-      return !!(accessTokenResult && accessTokenResult !== false);
+      return !!accessTokenResult;
     } catch (error) {
       console.error('Failed to check token existence:', error);
       return false;

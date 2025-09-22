@@ -23,6 +23,7 @@ export type RootStackParamList = {
 
 export type AuthStackParamList = {
   Welcome: undefined;
+  EmailPhone: undefined;
   RegistrationMethod: undefined;
   Registration: undefined;
   PersonalDetails: undefined;
@@ -127,6 +128,7 @@ export const ROUTES = {
   
   // Auth Routes
   WELCOME: 'Welcome',
+  EMAIL_PHONE: 'EmailPhone',
   REGISTRATION_METHOD: 'RegistrationMethod',
   REGISTRATION: 'Registration',
   PERSONAL_DETAILS: 'PersonalDetails',

@@ -30,7 +30,7 @@ const WelcomeScreen: React.FC<Props> = () => {
   const { t } = useLanguage();
 
   const handleGetStarted = () => {
-    (navigation as any).navigate(ROUTES.REGISTRATION);
+    (navigation as any).navigate(ROUTES.EMAIL_PHONE);
   };
 
   const handleSignIn = () => {

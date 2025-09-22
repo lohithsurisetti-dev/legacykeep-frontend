@@ -13,22 +13,24 @@ import { authApi, userApi } from '../services';
 // =============================================================================
 
 export interface RegistrationData {
-  // Basic Registration Info (Screen 1)
+  // Email/Phone Info (Screen 1 - New)
+  email?: string;
+  phoneNumber?: string;
+  
+  // Basic Registration Info (Screen 2)
   firstName: string;
   lastName: string;
   username: string;
-  email?: string;
-  phoneNumber?: string;
   password: string;
   confirmPassword: string;
   acceptTerms: boolean;
   acceptMarketing: boolean;
   
-  // Personal Details (Screen 2)
+  // Personal Details (Screen 3)
   dateOfBirth: Date | null;
   gender: string;
   
-  // Location Info (Screen 3)
+  // Location Info (Screen 4)
   address: string;
   city: string;
   state: string;
@@ -51,6 +53,7 @@ export interface RegistrationContextType {
   data: RegistrationData;
   updateData: (updates: Partial<RegistrationData>) => void;
   updateStep: (step: number) => void;
+  setEmailOrPhone: (email: string, phoneNumber: string) => void;
   submitRegistration: () => Promise<{ success: boolean; userId?: number; error?: string }>;
   generateOtp: () => Promise<void>;
   verifyOtp: (otpCode: string) => Promise<void>;
@@ -134,6 +137,14 @@ export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ chil
     }));
   };
 
+  const setEmailOrPhone = (email: string, phoneNumber: string) => {
+    setData(prev => ({
+      ...prev,
+      email: email || undefined,
+      phoneNumber: phoneNumber || undefined,
+    }));
+  };
+
   const resetRegistration = () => {
     setData(initialRegistrationData);
   };
@@ -144,27 +155,30 @@ export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ chil
 
   const getStepValidation = (step: number): boolean => {
     switch (step) {
-      case 1: // Basic Registration
+      case 1: // Email/Phone (New first step)
+        return !!(
+          data.email?.trim() || data.phoneNumber?.trim()
+        );
+      
+      case 2: // Basic Registration
         return !!(
           data.firstName.trim() &&
           data.lastName.trim() &&
           data.username.trim() &&
-          (data.email?.trim() || data.phoneNumber?.trim()) &&
           data.password.trim() &&
           data.confirmPassword.trim() &&
           data.password === data.confirmPassword &&
           data.acceptTerms
         );
       
-      case 2: // Personal Details
+      case 3: // Personal Details
         return !!(
           data.dateOfBirth &&
           data.gender.trim()
         );
       
-      case 3: // Location
+      case 4: // Location
         return !!(
-          data.address.trim() &&
           data.city.trim() &&
           data.state.trim() &&
           data.country.trim()
@@ -242,11 +256,9 @@ export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ chil
           firstName: data.firstName,
           lastName: data.lastName,
           dateOfBirth: data.dateOfBirth?.toISOString().split('T')[0], // Convert to YYYY-MM-DD
-          addressLine1: data.address,
           city: data.city,
           state: data.state,
           country: data.country,
-          postalCode: data.zipCode,
         });
         
         setData(prev => ({
@@ -338,6 +350,7 @@ export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ chil
     data,
     updateData,
     updateStep,
+    setEmailOrPhone,
     submitRegistration,
     generateOtp,
     verifyOtp,

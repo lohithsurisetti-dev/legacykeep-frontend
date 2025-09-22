@@ -155,7 +155,7 @@ class ApiClient {
     
     if (envConfig.app.debugMode) {
       console.error(`❌ ${error.response?.status} ${error.config?.method?.toUpperCase()} ${error.config?.url}`, {
-        error: error.response?.data,
+        error: error.response?.data || error.message,
       });
     }
 

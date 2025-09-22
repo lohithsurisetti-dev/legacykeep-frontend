@@ -27,8 +27,8 @@ interface FormData {
   firstName: string;
   lastName: string;
   username: string;
-  emailOrPhone: string;
   password: string;
+  confirmPassword: string;
   agreeToTerms: boolean;
 }
 
@@ -36,8 +36,8 @@ interface FormErrors {
   firstName?: string;
   lastName?: string;
   username?: string;
-  emailOrPhone?: string;
   password?: string;
+  confirmPassword?: string;
   agreeToTerms?: string;
   general?: string;
 }
@@ -52,8 +52,8 @@ const RegistrationScreen: React.FC<Props> = () => {
     firstName: data.firstName,
     lastName: data.lastName,
     username: data.username,
-    emailOrPhone: data.email || data.phoneNumber || '',
     password: data.password,
+    confirmPassword: data.confirmPassword,
     agreeToTerms: data.acceptTerms,
   };
 
@@ -64,20 +64,8 @@ const RegistrationScreen: React.FC<Props> = () => {
     if (updates.firstName !== undefined) contextUpdates.firstName = updates.firstName;
     if (updates.lastName !== undefined) contextUpdates.lastName = updates.lastName;
     if (updates.username !== undefined) contextUpdates.username = updates.username;
-    if (updates.emailOrPhone !== undefined) {
-      // Determine if it's email or phone
-      if (updates.emailOrPhone.includes('@')) {
-        contextUpdates.email = updates.emailOrPhone;
-        contextUpdates.phoneNumber = '';
-      } else {
-        contextUpdates.phoneNumber = updates.emailOrPhone;
-        contextUpdates.email = '';
-      }
-    }
-    if (updates.password !== undefined) {
-      contextUpdates.password = updates.password;
-      contextUpdates.confirmPassword = updates.password; // Auto-match for single password field
-    }
+    if (updates.password !== undefined) contextUpdates.password = updates.password;
+    if (updates.confirmPassword !== undefined) contextUpdates.confirmPassword = updates.confirmPassword;
     if (updates.agreeToTerms !== undefined) contextUpdates.acceptTerms = updates.agreeToTerms;
     
     updateData(contextUpdates);
@@ -113,10 +101,9 @@ const RegistrationScreen: React.FC<Props> = () => {
       newErrors.username = usernameValidation.error;
     }
 
-    // Email/Phone validation
-    const emailOrPhoneValidation = validateEmailOrPhone(formData.emailOrPhone);
-    if (!emailOrPhoneValidation.isValid) {
-      newErrors.emailOrPhone = emailOrPhoneValidation.error;
+    // Confirm password validation
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = t('auth.registrationValidation.passwordMismatch');
     }
 
     // Password validation
@@ -222,17 +209,6 @@ const RegistrationScreen: React.FC<Props> = () => {
                 autoComplete="username"
               />
 
-              {/* Email/Phone Field */}
-              <TextInput
-                style={[styles.input, errors.emailOrPhone && styles.inputError]}
-                placeholder={t('auth.registration.emailOrPhonePlaceholder')}
-                value={formData.emailOrPhone}
-                onChangeText={(value) => handleInputChange('emailOrPhone', value)}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-                autoComplete="email"
-              />
 
               {/* Password Field */}
               <TextInput
@@ -240,6 +216,18 @@ const RegistrationScreen: React.FC<Props> = () => {
                 placeholder={t('auth.registration.passwordPlaceholder')}
                 value={formData.password}
                 onChangeText={(value) => handleInputChange('password', value)}
+                secureTextEntry
+                autoCapitalize="none"
+                autoCorrect={false}
+                autoComplete="password-new"
+              />
+
+              {/* Confirm Password Field */}
+              <TextInput
+                style={[styles.input, errors.confirmPassword && styles.inputError]}
+                placeholder={t('auth.registration.confirmPasswordPlaceholder')}
+                value={formData.confirmPassword}
+                onChangeText={(value) => handleInputChange('confirmPassword', value)}
                 secureTextEntry
                 autoCapitalize="none"
                 autoCorrect={false}

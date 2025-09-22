@@ -72,7 +72,7 @@ i18n
     
     // Configuration
     fallbackLng: 'en',
-    debug: __DEV__, // Enable debug in development
+    debug: false, // Temporarily disable debug to reduce noise
     
     // Interpolation
     interpolation: {
@@ -86,6 +86,15 @@ i18n
     
     // Compatibility
     compatibilityJSON: 'v4',
+  })
+  .then(() => {
+    console.log('✅ i18n initialized successfully');
+    console.log('Available languages:', Object.keys(i18n.options.resources || {}));
+    console.log('Current language:', i18n.language);
+    console.log('Welcome title translation:', i18n.t('auth.welcome.title'));
+  })
+  .catch((error) => {
+    console.error('❌ i18n initialization failed:', error);
   });
 
 export default i18n;

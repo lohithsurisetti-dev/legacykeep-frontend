@@ -261,6 +261,54 @@ class AuthApiService {
     }
   }
 
+  /**
+   * Validate Username Availability
+   */
+  async validateUsername(username: string): Promise<ApiResponse<{ available: boolean }>> {
+    try {
+      const response = await this.client.get<ApiResponse<{ available: boolean }>>(`/auth/validate/username/${encodeURIComponent(username)}`);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error, 'Username validation failed');
+    }
+  }
+
+  /**
+   * Validate Email Availability
+   */
+  async validateEmail(email: string): Promise<ApiResponse<{ available: boolean }>> {
+    try {
+      const response = await this.client.get<ApiResponse<{ available: boolean }>>(`/auth/validate/email/${encodeURIComponent(email)}`);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error, 'Email validation failed');
+    }
+  }
+
+  /**
+   * Validate Phone Number Availability
+   */
+  async validatePhone(phoneNumber: string): Promise<ApiResponse<{ available: boolean }>> {
+    try {
+      const response = await this.client.get<ApiResponse<{ available: boolean }>>(`/auth/validate/phone/${encodeURIComponent(phoneNumber)}`);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error, 'Phone validation failed');
+    }
+  }
+
+  /**
+   * Bulk Validation for Username, Email, and Phone
+   */
+  async validateBulk(data: { username?: string; email?: string; phoneNumber?: string }): Promise<ApiResponse<{ username?: { available: boolean }; email?: { available: boolean }; phoneNumber?: { available: boolean } }>> {
+    try {
+      const response = await this.client.post<ApiResponse<{ username?: { available: boolean }; email?: { available: boolean }; phoneNumber?: { available: boolean } }>>('/auth/validate/bulk', data);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error, 'Bulk validation failed');
+    }
+  }
+
   // =============================================================================
   // Mock Implementations for Development
   // =============================================================================

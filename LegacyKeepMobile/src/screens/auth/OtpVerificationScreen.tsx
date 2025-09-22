@@ -183,18 +183,16 @@ const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
           emailOrPhone: emailOrPhone,
         });
       } else {
-        // Registration flow - only verify OTP (registration already done in LocationScreen)
+        // Registration flow - verify OTP and navigate to registration form
         console.log('🚀 OTP SCREEN: Starting OTP verification...');
-        console.log('🚀 OTP SCREEN: Auth completed?', data.registrationProgress.authCompleted);
         
-        // Verify OTP (registration should already be completed from LocationScreen)
+        // Verify OTP first
         console.log('🚀 OTP SCREEN: Calling verifyOtp...');
         await verifyOtp(otpCode);
         
-        // Complete verification and authenticate user
-        console.log('✅ OTP SCREEN: Account verified successfully');
-        completeVerification();
-        // The RootNavigator will automatically navigate to Main app when isAuthenticated becomes true
+        // Navigate to registration form to collect remaining details
+        console.log('✅ OTP SCREEN: OTP verified successfully, navigating to registration form');
+        (navigation as any).navigate(ROUTES.REGISTRATION);
       }
     } catch (error) {
       console.error('OTP verification failed:', error);

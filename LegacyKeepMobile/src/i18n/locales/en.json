@@ -34,6 +34,16 @@
         }
       }
     },
+    "emailPhone": {
+      "title": "Let's Get Started",
+      "subtitle": "Enter your email or phone number to begin your legacy journey",
+      "emailOrPhoneLabel": "Email or Phone Number",
+      "emailOrPhonePlaceholder": "Enter your email or phone number",
+      "continueButton": "Continue",
+      "sendingOtp": "Sending OTP...",
+      "validating": "Validating...",
+      "helpText": "We'll send you a verification code to confirm your identity"
+    },
     "registration": {
       "title": "Create Account",
       "subtitle": "Join LegacyKeep",
@@ -42,6 +52,7 @@
       "usernamePlaceholder": "Username",
       "emailOrPhonePlaceholder": "Email or phone number",
       "passwordPlaceholder": "Create a password",
+      "confirmPasswordPlaceholder": "Confirm your password",
       "termsText": "I agree to the",
       "termsLink": "Terms and Conditions",
       "createAccountButton": "Create Account",
@@ -99,15 +110,15 @@
     "location": {
       "title": "Location",
       "subtitle": "Where are you located?",
-      "addressLabel": "Address",
+      "addressLabel": "Address (Optional)",
       "addressPlaceholder": "Enter your street address",
       "cityLabel": "City",
       "cityPlaceholder": "Enter your city",
       "stateLabel": "State/Province",
       "statePlaceholder": "Enter your state or province",
-      "countryLabel": "Country",
+      "countryLabel": "Country", 
       "countryPlaceholder": "Enter your country",
-      "zipCodeLabel": "ZIP/Postal Code",
+      "zipCodeLabel": "ZIP/Postal Code (Optional)",
       "zipCodePlaceholder": "Enter your ZIP or postal code",
       "continueButton": "Continue",
       "generateOtpButton": "Generate OTP",
@@ -153,6 +164,14 @@
         "createStory": "Create Story",
         "viewDetails": "View Details"
       }
+    },
+    "validation": {
+      "emailOrPhoneRequired": "Please enter your email or phone number",
+      "invalidEmail": "Please enter a valid email address",
+      "invalidPhone": "Please enter a valid phone number (e.g., +1234567890)",
+      "emailAlreadyExists": "This email is already registered",
+      "phoneAlreadyExists": "This phone number is already registered",
+      "otpGenerationFailed": "Failed to send verification code. Please try again."
     }
   },
   "common": {

@@ -34,6 +34,16 @@
         }
       }
     },
+    "emailPhone": {
+      "title": "Empecemos",
+      "subtitle": "Ingresa tu correo o número de teléfono para comenzar tu viaje de legado",
+      "emailOrPhoneLabel": "Correo o Número de Teléfono",
+      "emailOrPhonePlaceholder": "Ingresa tu correo o número de teléfono",
+      "continueButton": "Continuar",
+      "sendingOtp": "Enviando código...",
+      "validating": "Validando...",
+      "helpText": "Te enviaremos un código de verificación para confirmar tu identidad"
+    },
     "registration": {
       "title": "Crear Cuenta",
       "subtitle": "Únete a LegacyKeep",
@@ -42,6 +52,7 @@
       "usernamePlaceholder": "Nombre de usuario",
       "emailOrPhonePlaceholder": "Correo o teléfono",
       "passwordPlaceholder": "Crear contraseña",
+      "confirmPasswordPlaceholder": "Confirma tu contraseña",
       "termsText": "Acepto los",
       "termsLink": "Términos y Condiciones",
       "createAccountButton": "Crear Cuenta",
@@ -99,7 +110,7 @@
     "location": {
       "title": "Ubicación",
       "subtitle": "¿Dónde te encuentras?",
-      "addressLabel": "Dirección",
+      "addressLabel": "Dirección (Opcional)",
       "addressPlaceholder": "Ingresa tu dirección",
       "cityLabel": "Ciudad",
       "cityPlaceholder": "Ingresa tu ciudad",
@@ -107,7 +118,7 @@
       "statePlaceholder": "Ingresa tu estado o provincia",
       "countryLabel": "País",
       "countryPlaceholder": "Ingresa tu país",
-      "zipCodeLabel": "Código Postal",
+      "zipCodeLabel": "Código Postal (Opcional)",
       "zipCodePlaceholder": "Ingresa tu código postal",
       "continueButton": "Continuar",
       "generateOtpButton": "Generar OTP",
@@ -153,6 +164,14 @@
         "createStory": "Crear Historia",
         "viewDetails": "Ver Detalles"
       }
+    },
+    "validation": {
+      "emailOrPhoneRequired": "Por favor ingresa tu correo o número de teléfono",
+      "invalidEmail": "Por favor ingresa un correo válido",
+      "invalidPhone": "Por favor ingresa un número de teléfono válido (ej., +1234567890)",
+      "emailAlreadyExists": "Este correo ya está registrado",
+      "phoneAlreadyExists": "Este número de teléfono ya está registrado",
+      "otpGenerationFailed": "Error al enviar el código de verificación. Inténtalo de nuevo."
     }
   },
   "common": {
