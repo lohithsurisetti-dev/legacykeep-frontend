@@ -76,7 +76,7 @@ const GradientButton: React.FC<GradientButtonProps> = ({
           <Text
             style={[
               {
-                fontSize: typography.sizes.md,
+                fontSize: typography.sizes.lg,
                 fontWeight: typography.weights.bold,
                 color: colors.neutral[50],
               },

@@ -118,7 +118,7 @@ export const validateUsername = (username: string): ValidationResult => {
 };
 
 /**
- * Validates password strength
+ * Validates password strength (more lenient - only requires length and at least one complexity requirement)
  */
 export const validatePassword = (password: string): ValidationResult => {
   if (!password) {
@@ -129,10 +129,18 @@ export const validatePassword = (password: string): ValidationResult => {
     return { isValid: false, error: 'Password must be at least 8 characters' };
   }
   
-  if (!PASSWORD_REGEX.test(password)) {
+  // Check if password has at least one complexity requirement (uppercase, lowercase, number, or special char)
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasLowercase = /[a-z]/.test(password);
+  const hasNumber = /\d/.test(password);
+  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+  
+  const complexityCount = [hasUppercase, hasLowercase, hasNumber, hasSpecialChar].filter(Boolean).length;
+  
+  if (complexityCount === 0) {
     return { 
       isValid: false, 
-      error: 'Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character (@$!%*?&)' 
+      error: 'Password must contain at least one letter, number, or special character' 
     };
   }
   

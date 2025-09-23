@@ -21,6 +21,7 @@ import { colors, typography, spacing, gradients } from '../../constants';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRegistration } from '../../contexts/RegistrationContext';
+import { authApi } from '../../services';
 import { BackButton, GradientButton, ProgressTracker, GradientText } from '../../components/ui';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -32,6 +33,7 @@ interface OtpFormData {
 
 interface OtpFormErrors {
   otp?: string;
+  resend?: string;
 }
 
 const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
@@ -76,12 +78,22 @@ const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
   const [errors, setErrors] = useState<OtpFormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
   
   const otpInputRefs = useRef<TextInput[]>([]);
 
   // Initialize refs array
   useEffect(() => {
     otpInputRefs.current = otpInputRefs.current.slice(0, 6);
+  }, []);
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
   }, []);
 
   // Debug: Log when OTP screen mounts
@@ -183,16 +195,16 @@ const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
           emailOrPhone: emailOrPhone,
         });
       } else {
-        // Registration flow - verify OTP and navigate to registration form
+        // Registration flow - verify OTP and complete registration
         console.log('🚀 OTP SCREEN: Starting OTP verification...');
         
         // Verify OTP first
         console.log('🚀 OTP SCREEN: Calling verifyOtp...');
         await verifyOtp(otpCode);
         
-        // Navigate to registration form to collect remaining details
-        console.log('✅ OTP SCREEN: OTP verified successfully, navigating to registration form');
-        (navigation as any).navigate(ROUTES.REGISTRATION);
+        // Registration is now complete with profile creation
+        console.log('✅ OTP SCREEN: Registration completed successfully, navigating to home');
+        (navigation as any).navigate(ROUTES.HOME);
       }
     } catch (error) {
       console.error('OTP verification failed:', error);
@@ -206,16 +218,33 @@ const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
     if (resendCooldown > 0) return;
     
     try {
-      // Resend OTP using registration context
-      await generateOtp();
-      console.log('OTP resent successfully');
+      // Get email from registration context
+      const email = data.email;
+      if (!email || !email.trim()) {
+        throw new Error('Email not found. Please restart the registration process.');
+      }
+
+      console.log('🚀 OTP SCREEN: Resending OTP for email:', email);
+      await authApi.resendOtp(email);
+      console.log('✅ OTP SCREEN: OTP resent successfully');
+      
+      // Clear any existing errors
+      setErrors({});
+      
+      // Clear any existing timer
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
       
       // Start cooldown timer
       setResendCooldown(60);
-      const timer = setInterval(() => {
+      timerRef.current = setInterval(() => {
         setResendCooldown((prev) => {
           if (prev <= 1) {
-            clearInterval(timer);
+            if (timerRef.current) {
+              clearInterval(timerRef.current);
+              timerRef.current = null;
+            }
             return 0;
           }
           return prev - 1;
@@ -223,9 +252,10 @@ const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
       }, 1000);
       
       console.log('New verification code sent');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to resend code:', error);
-      setErrors({ otp: 'Failed to resend OTP. Please try again.' });
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to resend OTP. Please try again.';
+      setErrors({ resend: errorMessage });
     }
   };
 
@@ -338,6 +368,13 @@ const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
                     )}
                   </TouchableOpacity>
                 </View>
+                
+                {/* Resend Error Message */}
+                {errors.resend && (
+                  <View style={styles.errorContainer}>
+                    <Text style={styles.errorText}>{errors.resend}</Text>
+                  </View>
+                )}
               </View>
             </View>
           </View>
@@ -483,6 +520,15 @@ const styles = StyleSheet.create({
     fontSize: typography.sizes.md,
     fontWeight: typography.weights.medium,
     color: colors.neutral[400],
+    textAlign: 'center',
+  },
+  errorContainer: {
+    marginTop: spacing.sm,
+    alignItems: 'center',
+  },
+  errorText: {
+    fontSize: typography.sizes.sm,
+    color: colors.error[500],
     textAlign: 'center',
   },
   footer: {

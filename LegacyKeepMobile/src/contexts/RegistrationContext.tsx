@@ -6,36 +6,36 @@
  */
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { authApi, userApi } from '../services';
+import { authApi, userApi, tokenStorage } from '../services';
+import { useAuth } from './AuthContext';
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface RegistrationData {
-  // Email/Phone Info (Screen 1 - New)
-  email?: string;
-  phoneNumber?: string;
-  
-  // Basic Registration Info (Screen 2)
+  // Basic Registration Info (Screen 1)
   firstName: string;
   lastName: string;
   username: string;
   password: string;
-  confirmPassword: string;
   acceptTerms: boolean;
   acceptMarketing: boolean;
   
-  // Personal Details (Screen 3)
+  // Personal Details (Screen 2)
   dateOfBirth: Date | null;
   gender: string;
   
-  // Location Info (Screen 4)
+  // Location Info (Screen 3)
   address: string;
   city: string;
   state: string;
   country: string;
   zipCode: string;
+  
+  // Email/Phone Info (Screen 4 - Moved after location)
+  email?: string;
+  phoneNumber?: string;
   
   // Registration State
   currentStep: number;
@@ -47,6 +47,7 @@ export interface RegistrationData {
     locationCompleted: boolean;
     otpSent: boolean;
   };
+  accountCreated: boolean; // Track if account is already created
 }
 
 export interface RegistrationContextType {
@@ -74,7 +75,6 @@ const initialRegistrationData: RegistrationData = {
   email: '',
   phoneNumber: '',
   password: '',
-  confirmPassword: '',
   acceptTerms: false,
   acceptMarketing: false,
   
@@ -93,6 +93,7 @@ const initialRegistrationData: RegistrationData = {
   currentStep: 1,
   isSubmitting: false,
   errors: {},
+  accountCreated: false,
   registrationProgress: {
     authCompleted: false,
     profileCompleted: false,
@@ -117,6 +118,7 @@ interface RegistrationProviderProps {
 
 export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ children }) => {
   const [data, setData] = useState<RegistrationData>(initialRegistrationData);
+  const { completeVerification } = useAuth();
 
   // =============================================================================
   // Data Management
@@ -155,33 +157,30 @@ export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ chil
 
   const getStepValidation = (step: number): boolean => {
     switch (step) {
-      case 1: // Email/Phone (New first step)
-        return !!(
-          data.email?.trim() || data.phoneNumber?.trim()
-        );
-      
-      case 2: // Basic Registration
+      case 1: // Basic Registration
         return !!(
           data.firstName.trim() &&
           data.lastName.trim() &&
           data.username.trim() &&
-          data.password.trim() &&
-          data.confirmPassword.trim() &&
-          data.password === data.confirmPassword &&
-          data.acceptTerms
+          data.password.trim()
         );
       
-      case 3: // Personal Details
+      case 2: // Personal Details
         return !!(
           data.dateOfBirth &&
           data.gender.trim()
         );
       
-      case 4: // Location
+      case 3: // Location
         return !!(
           data.city.trim() &&
           data.state.trim() &&
           data.country.trim()
+        );
+      
+      case 4: // Email/Phone (Moved after location)
+        return !!(
+          data.email?.trim() || data.phoneNumber?.trim()
         );
       
       default:
@@ -199,6 +198,12 @@ export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ chil
 
   const submitRegistration = async (): Promise<{ success: boolean; userId?: number; error?: string }> => {
     try {
+      // Check if account is already created
+      if (data.accountCreated) {
+        console.log('✅ REGISTRATION: Account already created, skipping...');
+        return { success: true, userId: 1 }; // Return success without creating again
+      }
+
       console.log('🚀 REGISTRATION: Starting submitRegistration...');
       console.log('🚀 REGISTRATION: Current data:', JSON.stringify(data, null, 2));
       
@@ -211,10 +216,10 @@ export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ chil
       const registrationData: any = {
         username: data.username,
         password: data.password,
-        confirmPassword: data.confirmPassword,
+        confirmPassword: data.password, // Use same password for confirmation
         firstName: data.firstName,
         lastName: data.lastName,
-        acceptTerms: data.acceptTerms,
+        acceptTerms: true, // User agrees by clicking continue
         acceptMarketing: data.acceptMarketing,
       };
       
@@ -239,6 +244,25 @@ export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ chil
       }
 
       const userId = authResponse.data.id;
+      
+      // Store JWT tokens if provided by the registration response
+      if (authResponse.data.accessToken && authResponse.data.refreshToken) {
+        console.log('🚀 REGISTRATION: Storing JWT tokens from registration response');
+        try {
+          await tokenStorage.storeTokens({
+            accessToken: authResponse.data.accessToken,
+            refreshToken: authResponse.data.refreshToken,
+            expiresIn: authResponse.data.expiresIn || 900, // Default 15 minutes
+            refreshExpiresIn: authResponse.data.refreshExpiresIn || 2592000, // Default 30 days
+          });
+          console.log('✅ REGISTRATION: JWT tokens stored successfully');
+        } catch (tokenError) {
+          console.warn('Failed to store JWT tokens from registration:', tokenError);
+          // Don't fail registration if token storage fails
+        }
+      } else {
+        console.warn('⚠️ REGISTRATION: No JWT tokens received from registration response');
+      }
 
       // Update progress
       setData(prev => ({
@@ -250,9 +274,9 @@ export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ chil
       }));
 
       // Step 2: Create user profile (personal details + location)
-      console.log('🚀 REGISTRATION: Calling userApi.updateProfile...');
+      console.log('🚀 REGISTRATION: Calling userApi.createProfile...');
       try {
-        await userApi.updateProfile({
+        await userApi.createProfile({
           firstName: data.firstName,
           lastName: data.lastName,
           dateOfBirth: data.dateOfBirth?.toISOString().split('T')[0], // Convert to YYYY-MM-DD
@@ -276,7 +300,16 @@ export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ chil
 
       // Location data is now handled in Step 2 (user profile)
 
-      setData(prev => ({ ...prev, isSubmitting: false }));
+      setData(prev => ({ 
+        ...prev, 
+        isSubmitting: false,
+        accountCreated: true, // Mark account as created
+      }));
+      
+      // Update authentication state to reflect successful registration
+      console.log('🚀 REGISTRATION: Updating authentication state...');
+      completeVerification();
+      console.log('✅ REGISTRATION: Authentication state updated');
       
       return { success: true, userId };
       
@@ -326,8 +359,46 @@ export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ chil
       }
 
       console.log('🚀 OTP: Verifying OTP for email:', data.email, 'code:', otpCode);
-      await authApi.verifyOtp(data.email, otpCode);
-      console.log('✅ OTP: OTP verified successfully');
+      const verifyResp = await authApi.verifyOtp(
+        data.email!,
+        otpCode,
+        data.username,
+        data.password,
+        data.firstName,
+        data.lastName
+      );
+      console.log('✅ OTP: OTP verified (and registered if new):', JSON.stringify(verifyResp, null, 2));
+
+      // Create user profile before navigating
+      try {
+        console.log('🚀 OTP: Creating user profile after token receipt...');
+        await userApi.createProfile({
+          firstName: data.firstName,
+          lastName: data.lastName,
+          dateOfBirth: data.dateOfBirth?.toISOString().split('T')[0],
+          city: data.city,
+          state: data.state,
+          country: data.country,
+        });
+        console.log('✅ OTP: User profile created successfully');
+        setData(prev => ({
+          ...prev,
+          registrationProgress: {
+            ...prev.registrationProgress,
+            profileCompleted: true,
+            locationCompleted: true,
+          },
+        }));
+      } catch (profileErr) {
+        console.warn('⚠️ OTP: Profile creation failed (continuing):', profileErr);
+      }
+
+      // Mark account created and auth complete in context and Auth state
+      setData(prev => ({
+        ...prev,
+        accountCreated: true,
+      }));
+      completeVerification();
       
       // Registration is now complete!
       setData(prev => ({
@@ -335,6 +406,7 @@ export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ chil
         registrationProgress: {
           ...prev.registrationProgress,
           otpSent: true,
+          authCompleted: true,
         },
       }));
     } catch (error) {

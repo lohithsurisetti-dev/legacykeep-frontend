@@ -44,7 +44,6 @@ export interface RegisterRequest {
   email?: string;
   phoneNumber?: string;
   password: string;
-  confirmPassword: string; // Required by backend
   firstName?: string;
   lastName?: string;
   acceptTerms: boolean;
@@ -62,6 +61,13 @@ export interface RegisterResponse {
   isPhoneVerified: boolean;
   status: 'PENDING_VERIFICATION' | 'ACTIVE' | 'INACTIVE';
   createdAt: string;
+  
+  // JWT Tokens for immediate authentication
+  accessToken?: string;
+  refreshToken?: string;
+  tokenType?: string;
+  expiresIn?: number;
+  refreshExpiresIn?: number;
 }
 
 // =============================================================================

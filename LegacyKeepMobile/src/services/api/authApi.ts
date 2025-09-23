@@ -157,17 +157,38 @@ class AuthApiService {
   }
 
   /**
-   * Verify OTP code (New primary method)
+   * Verify OTP code (now registers new users and returns tokens)
    */
-  async verifyOtp(email: string, otpCode: string): Promise<ApiResponse<void>> {
+  async verifyOtp(
+    email: string,
+    otpCode: string,
+    username?: string,
+    password?: string,
+    firstName?: string,
+    lastName?: string
+  ): Promise<ApiResponse<RegisterResponse>> {
     console.log('🚀 AUTH API: verifyOtp() called for email:', email, 'code:', otpCode);
     try {
       console.log('🚀 AUTH API: Making real API call to /auth/verify-otp');
-      const response = await this.client.post<ApiResponse<void>>('/auth/verify-otp', {
-        email,
-        otpCode,
-      });
+      const payload: any = { email, otpCode };
+      if (username) payload.username = username;
+      if (password) payload.password = password;
+      if (firstName) payload.firstName = firstName;
+      if (lastName) payload.lastName = lastName;
+
+      const response = await this.client.post<ApiResponse<RegisterResponse>>('/auth/verify-otp', payload);
       console.log('✅ AUTH API: VerifyOtp response:', JSON.stringify(response.data, null, 2));
+
+      // Store tokens if present
+      if (response.data?.data?.accessToken && response.data?.data?.refreshToken) {
+        await tokenStorage.storeTokens({
+          accessToken: response.data.data.accessToken,
+          refreshToken: response.data.data.refreshToken,
+          expiresIn: response.data.data.expiresIn || 900,
+          refreshExpiresIn: response.data.data.refreshExpiresIn || 2592000,
+        });
+      }
+
       return response.data;
     } catch (error) {
       throw this.handleError(error, 'OTP verification failed');

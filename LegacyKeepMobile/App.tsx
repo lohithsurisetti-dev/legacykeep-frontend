@@ -69,12 +69,12 @@ export default function App() {
       >
         <ThemeProvider>
           <LanguageProvider>
-            <RegistrationProvider>
-              <AuthProvider>
+            <AuthProvider>
+              <RegistrationProvider>
                 <RootNavigator />
                 <StatusBar style='auto' />
-              </AuthProvider>
-            </RegistrationProvider>
+              </RegistrationProvider>
+            </AuthProvider>
           </LanguageProvider>
         </ThemeProvider>
       </Animated.View>

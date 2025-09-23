@@ -16,7 +16,9 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useRegistration } from '../../contexts/RegistrationContext';
 import { authApi } from '../../services';
 import { ROUTES } from '../../navigation/types';
-import { GradientButton } from '../../components/ui';
+import { GradientButton, BackButton } from '../../components/ui';
+import { validateEmailOrPhone } from '../../utils/validation';
+import { spacing, typography } from '../../constants';
 
 interface EmailPhoneFormData {
   emailOrPhone: string;
@@ -31,7 +33,7 @@ const EmailPhoneScreen: React.FC = () => {
   const navigation = useNavigation();
   const { t } = useLanguage();
   const { colors } = useTheme();
-  const { setEmailOrPhone, data } = useRegistration();
+  const { setEmailOrPhone, data, submitRegistration } = useRegistration();
 
   const [formData, setFormData] = useState<EmailPhoneFormData>({
     emailOrPhone: data.email || data.phoneNumber || '',
@@ -46,85 +48,22 @@ const EmailPhoneScreen: React.FC = () => {
     return input.includes('@');
   };
 
-  // Validate email format
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  // Validate phone format (basic E.164)
-  const validatePhone = (phone: string): boolean => {
-    const phoneRegex = /^\+[1-9]\d{1,14}$/;
-    return phoneRegex.test(phone);
-  };
-
-  // Real-time validation
-  const validateInput = async (input: string) => {
-    if (!input.trim()) {
-      setErrors({});
-      return;
-    }
-
-    setIsValidating(true);
-    setErrors({});
-
-    try {
-      if (isEmail(input)) {
-        if (!validateEmail(input)) {
-          setErrors({ emailOrPhone: t('auth.validation.invalidEmail') });
-          return;
-        }
-        // Check if email exists
-        const response = await authApi.validateEmail(input);
-        if (response.data && !response.data.available) {
-          setErrors({ emailOrPhone: t('auth.validation.emailAlreadyExists') });
-        }
-      } else {
-        if (!validatePhone(input)) {
-          setErrors({ emailOrPhone: t('auth.validation.invalidPhone') });
-          return;
-        }
-        // Check if phone exists
-        const response = await authApi.validatePhone(input);
-        if (response.data && !response.data.available) {
-          setErrors({ emailOrPhone: t('auth.validation.phoneAlreadyExists') });
-        }
-      }
-    } catch (error) {
-      console.error('Validation error:', error);
-      // Don't show error for validation failures, just continue
-    } finally {
-      setIsValidating(false);
-    }
-  };
 
   const handleInputChange = (value: string) => {
     setFormData({ emailOrPhone: value });
-    setErrors({});
-    
-    // Debounced validation
-    const timeoutId = setTimeout(() => {
-      validateInput(value);
-    }, 500);
-
-    return () => clearTimeout(timeoutId);
+    // Clear errors when user starts typing
+    if (errors.emailOrPhone) {
+      setErrors({});
+    }
   };
 
   const handleContinue = async () => {
     const { emailOrPhone } = formData;
 
-    if (!emailOrPhone.trim()) {
-      setErrors({ emailOrPhone: t('auth.validation.emailOrPhoneRequired') });
-      return;
-    }
-
-    if (isEmail(emailOrPhone) && !validateEmail(emailOrPhone)) {
-      setErrors({ emailOrPhone: t('auth.validation.invalidEmail') });
-      return;
-    }
-
-    if (!isEmail(emailOrPhone) && !validatePhone(emailOrPhone)) {
-      setErrors({ emailOrPhone: t('auth.validation.invalidPhone') });
+    // Validate format first
+    const formatValidation = validateEmailOrPhone(emailOrPhone);
+    if (!formatValidation.isValid) {
+      setErrors({ emailOrPhone: formatValidation.error });
       return;
     }
 
@@ -132,23 +71,39 @@ const EmailPhoneScreen: React.FC = () => {
     setErrors({});
 
     try {
-      // Save email/phone to context
+      // Save email/phone to context for later registration
       if (isEmail(emailOrPhone)) {
         setEmailOrPhone(emailOrPhone, '');
       } else {
         setEmailOrPhone('', emailOrPhone);
       }
 
-      // Generate and send OTP immediately
-      await authApi.generateOtp(emailOrPhone);
-
+      // Generate OTP - backend will check if account exists and handle accordingly
+      console.log('🚀 EMAIL/PHONE SCREEN: Generating OTP...');
+      if (isEmail(emailOrPhone)) {
+        await authApi.generateOtp(emailOrPhone);
+      } else {
+        // TODO: Add phone OTP support
+        throw new Error('Phone OTP not yet supported. Please use email.');
+      }
+      
+      console.log('✅ EMAIL/PHONE SCREEN: OTP generated and sent');
+      
       // Navigate to OTP verification
       navigation.navigate(ROUTES.OTP_VERIFICATION as never);
     } catch (error: any) {
       console.error('Error generating OTP:', error);
-      setErrors({
-        general: error.message || t('auth.validation.otpGenerationFailed'),
-      });
+      
+      // Check if it's an "account already exists" error (409 status)
+      if (error.response?.status === 409) {
+        setErrors({
+          emailOrPhone: error.response?.data?.message || 'Account already exists. Please sign in instead.',
+        });
+      } else {
+        setErrors({
+          general: error.message || t('auth.validation.otpGenerationFailed'),
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -163,16 +118,15 @@ const EmailPhoneScreen: React.FC = () => {
     >
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.content}>
+          <BackButton onPress={() => navigation.goBack()} />
+          
           <View style={styles.header}>
-            <Text style={styles.title}>{t('auth.emailPhone.title')}</Text>
-            <Text style={styles.subtitle}>{t('auth.emailPhone.subtitle')}</Text>
+            <Text style={styles.title}>LegacyKeep</Text>
+            <Text style={styles.subtitle}>Verify your account to complete registration</Text>
           </View>
 
           <View style={styles.form}>
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>
-                {t('auth.emailPhone.emailOrPhoneLabel')}
-              </Text>
               <TextInput
                 style={[
                   styles.input,
@@ -197,30 +151,32 @@ const EmailPhoneScreen: React.FC = () => {
                 <Text style={styles.generalErrorText}>{errors.general}</Text>
               </View>
             )}
+          </View>
+        </View>
+      </ScrollView>
 
+      {/* Footer with Continue Button */}
+      <View style={styles.footer}>
             <GradientButton
               title={
                 isLoading
                   ? t('auth.emailPhone.sendingOtp')
-                  : isValidating
-                  ? t('auth.emailPhone.validating')
-                  : t('auth.emailPhone.continueButton')
+                  : 'Send OTP'
               }
-              onPress={handleContinue}
-              disabled={isLoading || isValidating}
-              loading={isLoading}
-              gradient="horizontal"
-              style={styles.continueButton}
-            />
-
-            <View style={styles.helpText}>
-              <Text style={styles.helpTextContent}>
-                {t('auth.emailPhone.helpText')}
-              </Text>
-            </View>
-          </View>
+          onPress={handleContinue}
+          disabled={isLoading || isValidating}
+          loading={isLoading}
+          gradient="horizontal"
+          style={styles.continueButton}
+        />
+        
+        <View style={styles.signInContainer}>
+          <Text style={styles.footerText}>Already have an account? </Text>
+          <TouchableOpacity onPress={() => (navigation as any).navigate(ROUTES.LOGIN)}>
+            <Text style={styles.signInLink}>Sign In</Text>
+          </TouchableOpacity>
         </View>
-      </ScrollView>
+      </View>
     </KeyboardAvoidingView>
   );
 };
@@ -233,6 +189,7 @@ const createStyles = (colors: any) =>
     },
     scrollContainer: {
       flexGrow: 1,
+      paddingBottom: 100, // Space for footer
     },
     content: {
       flex: 1,
@@ -242,12 +199,13 @@ const createStyles = (colors: any) =>
     },
     header: {
       marginBottom: 40,
+      alignItems: 'center',
     },
     title: {
       fontSize: 28,
       fontWeight: '700',
       color: colors.text,
-      marginBottom: 12,
+      marginBottom: 8,
       textAlign: 'center',
     },
     subtitle: {
@@ -258,6 +216,8 @@ const createStyles = (colors: any) =>
     },
     form: {
       flex: 1,
+      justifyContent: 'center',
+      marginTop: 0,
     },
     inputContainer: {
       marginBottom: 24,
@@ -297,17 +257,32 @@ const createStyles = (colors: any) =>
       fontSize: 14,
       textAlign: 'center',
     },
-    continueButton: {
-      marginBottom: 24,
-    },
-    helpText: {
+    footer: {
       alignItems: 'center',
+      marginTop: spacing.lg,
+      marginBottom: spacing.xl,
+      paddingHorizontal: spacing.lg,
     },
-    helpTextContent: {
-      fontSize: 14,
+    continueButton: {
+      height: 48,
+      borderRadius: 8,
+      width: '100%',
+    },
+    signInContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: spacing.lg,
+    },
+    footerText: {
+      fontSize: typography.sizes.md,
       color: colors.textSecondary,
       textAlign: 'center',
-      lineHeight: 20,
+    },
+    signInLink: {
+      fontSize: 14,
+      color: colors.primary,
+      fontWeight: '600',
     },
   });
 

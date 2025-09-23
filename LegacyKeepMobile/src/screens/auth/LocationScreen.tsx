@@ -133,20 +133,9 @@ const LocationScreen: React.FC<Props> = () => {
         country: data.country
       });
       
-      // THIS IS WHERE WE MAKE THE REGISTRATION API CALL
-      // Registration API now automatically generates and sends OTP
-      console.log('🚀 LOCATION SCREEN: Calling submitRegistration (includes OTP generation)...');
-      const registrationResult = await submitRegistration();
-      
-      if (!registrationResult.success) {
-        throw new Error(registrationResult.error || 'Registration failed');
-      }
-      
-      console.log('✅ LOCATION SCREEN: Registration successful, OTP automatically sent');
-      
-      console.log('✅ LOCATION SCREEN: Registration successful, navigating to OTP screen');
-      // Navigate to OTP verification screen
-      (navigation as any).navigate(ROUTES.OTP_VERIFICATION);
+      console.log('✅ LOCATION SCREEN: Location data saved, navigating to Email/Phone screen');
+      // Navigate to Email/Phone screen for verification
+      (navigation as any).navigate(ROUTES.EMAIL_PHONE);
     } catch (error) {
       console.error('❌ LOCATION SCREEN: Registration/OTP generation failed:', error);
       setErrors({ general: error instanceof Error ? error.message : 'Registration failed. Please try again.' });
@@ -229,7 +218,7 @@ const LocationScreen: React.FC<Props> = () => {
         {/* Footer */}
         <View style={styles.footer}>
           <GradientButton
-            title={t('auth.location.generateOtpButton')}
+            title="Continue"
             onPress={handleGenerateOtp}
             disabled={isLoading}
             gradient="horizontal"
