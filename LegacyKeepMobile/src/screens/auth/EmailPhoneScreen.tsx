@@ -16,6 +16,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useRegistration } from '../../contexts/RegistrationContext';
 import { authApi } from '../../services';
 import { ROUTES } from '../../navigation/types';
+import { GradientButton } from '../../components/ui';
 
 interface EmailPhoneFormData {
   emailOrPhone: string;
@@ -197,22 +198,20 @@ const EmailPhoneScreen: React.FC = () => {
               </View>
             )}
 
-            <TouchableOpacity
-              style={[
-                styles.continueButton,
-                (isLoading || isValidating) && styles.continueButtonDisabled,
-              ]}
-              onPress={handleContinue}
-              disabled={isLoading || isValidating}
-            >
-              <Text style={styles.continueButtonText}>
-                {isLoading
+            <GradientButton
+              title={
+                isLoading
                   ? t('auth.emailPhone.sendingOtp')
                   : isValidating
                   ? t('auth.emailPhone.validating')
-                  : t('auth.emailPhone.continueButton')}
-              </Text>
-            </TouchableOpacity>
+                  : t('auth.emailPhone.continueButton')
+              }
+              onPress={handleContinue}
+              disabled={isLoading || isValidating}
+              loading={isLoading}
+              gradient="horizontal"
+              style={styles.continueButton}
+            />
 
             <View style={styles.helpText}>
               <Text style={styles.helpTextContent}>
@@ -299,19 +298,7 @@ const createStyles = (colors: any) =>
       textAlign: 'center',
     },
     continueButton: {
-      backgroundColor: colors.primary,
-      paddingVertical: 16,
-      borderRadius: 12,
-      alignItems: 'center',
       marginBottom: 24,
-    },
-    continueButtonDisabled: {
-      backgroundColor: colors.textDisabled,
-    },
-    continueButtonText: {
-      color: colors.textInverse,
-      fontSize: 16,
-      fontWeight: '600',
     },
     helpText: {
       alignItems: 'center',
