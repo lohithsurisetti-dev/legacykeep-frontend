@@ -1,13 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Animated } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { AuthProvider } from './src/contexts/AuthContext';
+import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 import { LanguageProvider } from './src/contexts/LanguageContext';
 import { ThemeProvider } from './src/contexts/ThemeContext';
 import { RegistrationProvider } from './src/contexts/RegistrationContext';
 import { RootNavigator } from './src/navigation';
 import SplashScreen from './src/components/SplashScreen';
-import './src/i18n'; // Initialize i18n
+import './src/i18n'; // Initialize i18n';
+
+// Wrapper component to handle the auth context dependency
+const AppWithAuth: React.FC = () => {
+  const { completeVerification } = useAuth();
+  
+  return (
+    <RegistrationProvider onVerificationComplete={completeVerification}>
+      <RootNavigator />
+      <StatusBar style='auto' />
+    </RegistrationProvider>
+  );
+};
 
 export default function App() {
   const [isSplashVisible, setIsSplashVisible] = useState(true);
@@ -70,10 +82,7 @@ export default function App() {
         <ThemeProvider>
           <LanguageProvider>
             <AuthProvider>
-              <RegistrationProvider>
-                <RootNavigator />
-                <StatusBar style='auto' />
-              </RegistrationProvider>
+              <AppWithAuth />
             </AuthProvider>
           </LanguageProvider>
         </ThemeProvider>

@@ -16,7 +16,7 @@ import { colors, typography, spacing, gradients } from '../../constants';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useRegistration } from '../../contexts/RegistrationContext';
 import { validateEmail, validatePassword, validateUsername, validateEmailOrPhone } from '../../utils/validation';
-import { authApi } from '../../services';
+import { authService } from '../../services';
 import GradientButton from '../../components/ui/GradientButton';
 import GradientText from '../../components/ui/GradientText';
 import ProgressTracker from '../../components/ui/ProgressTracker';
@@ -81,7 +81,7 @@ const RegistrationScreen: React.FC<Props> = () => {
       
       usernameTimeoutRef.current = setTimeout(async () => {
         try {
-          const response = await authApi.validateUsername(formData.username.trim());
+          const response = await authService.validateUsername({ username: formData.username.trim() });
           if (response.data && response.data.available) {
             setUsernameStatus('available');
           } else {

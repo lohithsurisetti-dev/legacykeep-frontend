@@ -21,7 +21,7 @@ import { colors, typography, spacing, gradients } from '../../constants';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRegistration } from '../../contexts/RegistrationContext';
-import { authApi } from '../../services';
+import { authService } from '../../services';
 import { BackButton, GradientButton, ProgressTracker, GradientText } from '../../components/ui';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -203,8 +203,8 @@ const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
         await verifyOtp(otpCode);
         
         // Registration is now complete with profile creation
-        console.log('✅ OTP SCREEN: Registration completed successfully, navigating to home');
-        (navigation as any).navigate(ROUTES.HOME);
+        console.log('✅ OTP SCREEN: Registration completed successfully, navigating to main app');
+        (navigation as any).navigate(ROUTES.MAIN);
       }
     } catch (error) {
       console.error('OTP verification failed:', error);
@@ -225,7 +225,7 @@ const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
       }
 
       console.log('🚀 OTP SCREEN: Resending OTP for email:', email);
-      await authApi.resendOtp(email);
+      await authService.generateOtp(email);
       console.log('✅ OTP SCREEN: OTP resent successfully');
       
       // Clear any existing errors

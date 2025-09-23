@@ -36,6 +36,21 @@ export interface StoredTokens {
 // =============================================================================
 
 class TokenStorageService {
+  private isSecureStoreAvailable: boolean = false;
+
+  constructor() {
+    this.checkSecureStoreAvailability();
+  }
+
+  private async checkSecureStoreAvailability() {
+    try {
+      this.isSecureStoreAvailable = await SecureStore.isAvailableAsync();
+      console.log('🔍 TOKEN STORAGE: SecureStore available:', this.isSecureStoreAvailable);
+    } catch (error) {
+      console.error('❌ TOKEN STORAGE: Failed to check SecureStore availability:', error);
+      this.isSecureStoreAvailable = false;
+    }
+  }
   
   /**
    * Store JWT tokens securely
@@ -50,25 +65,37 @@ class TokenStorageService {
     try {
       const expiresAt = new Date(Date.now() + tokens.expiresIn * 1000);
       
+      // Try Keychain first, fallback to SecureStore if it fails
+      let keychainWorked = false;
       if (Keychain && Keychain.setInternetCredentials) {
-        // Store sensitive tokens in Keychain (most secure)
-        await Keychain.setInternetCredentials(
-          KEYCHAIN_SERVICE,
-          ACCESS_TOKEN_KEY,
-          tokens.accessToken
-        );
-        
-        await Keychain.setInternetCredentials(
-          `${KEYCHAIN_SERVICE}_refresh`,
-          REFRESH_TOKEN_KEY,
-          tokens.refreshToken
-        );
-      } else if (SecureStore?.isAvailableAsync && await SecureStore.isAvailableAsync()) {
-        console.warn('Keychain not available; storing tokens via SecureStore');
+        try {
+          console.log('🔍 TOKEN STORAGE: Attempting to use Keychain for token storage');
+          await Keychain.setInternetCredentials(
+            KEYCHAIN_SERVICE,
+            ACCESS_TOKEN_KEY,
+            tokens.accessToken
+          );
+          
+          await Keychain.setInternetCredentials(
+            `${KEYCHAIN_SERVICE}_refresh`,
+            REFRESH_TOKEN_KEY,
+            tokens.refreshToken
+          );
+          keychainWorked = true;
+          console.log('✅ TOKEN STORAGE: Successfully stored tokens in Keychain');
+        } catch (keychainError: any) {
+          console.warn('⚠️ TOKEN STORAGE: Keychain failed, falling back to SecureStore:', keychainError.message);
+        }
+      }
+      
+      if (!keychainWorked && this.isSecureStoreAvailable) {
+        console.log('🔍 TOKEN STORAGE: Using SecureStore for token storage');
         await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, tokens.accessToken, { keychainService: KEYCHAIN_SERVICE });
         await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refreshToken, { keychainService: `${KEYCHAIN_SERVICE}_refresh` });
       } else {
-        console.warn('No secure storage available; skipping token persistence');
+        console.warn('⚠️ TOKEN STORAGE: No secure storage available, storing in AsyncStorage (less secure)');
+        await AsyncStorage.setItem(ACCESS_TOKEN_KEY, tokens.accessToken);
+        await AsyncStorage.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken);
       }
 
       // Store non-sensitive metadata in AsyncStorage
@@ -80,8 +107,7 @@ class TokenStorageService {
       
     } catch (error) {
       console.error('Failed to store tokens:', error);
-      // Do not block auth flow if secure storage is unavailable in dev
-      return;
+      throw new Error('Failed to store authentication tokens');
     }
   }
 
@@ -93,14 +119,25 @@ class TokenStorageService {
       let accessToken: string | null = null;
       let refreshToken: string | null = null;
 
-      if (Keychain?.getInternetCredentials) {
-        const accessTokenResult = await Keychain.getInternetCredentials(KEYCHAIN_SERVICE);
-        const refreshTokenResult = await Keychain.getInternetCredentials(`${KEYCHAIN_SERVICE}_refresh`);
-        accessToken = accessTokenResult ? accessTokenResult.password : null;
-        refreshToken = refreshTokenResult ? refreshTokenResult.password : null;
-      } else if (SecureStore?.isAvailableAsync && await SecureStore.isAvailableAsync()) {
+      // Try Keychain first, fallback to SecureStore if it fails
+      if (Keychain && Keychain.getInternetCredentials) {
+        try {
+          const accessTokenResult = await Keychain.getInternetCredentials(KEYCHAIN_SERVICE);
+          const refreshTokenResult = await Keychain.getInternetCredentials(`${KEYCHAIN_SERVICE}_refresh`);
+          accessToken = accessTokenResult ? accessTokenResult.password : null;
+          refreshToken = refreshTokenResult ? refreshTokenResult.password : null;
+        } catch (keychainError: any) {
+          console.warn('⚠️ TOKEN STORAGE: Keychain failed in getTokens, falling back to SecureStore:', keychainError.message);
+        }
+      }
+      
+      // If Keychain didn't work or wasn't available, try SecureStore
+      if ((!accessToken || !refreshToken) && this.isSecureStoreAvailable) {
         accessToken = await SecureStore.getItemAsync(ACCESS_TOKEN_KEY, { keychainService: KEYCHAIN_SERVICE });
         refreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY, { keychainService: `${KEYCHAIN_SERVICE}_refresh` });
+      } else {
+        accessToken = await AsyncStorage.getItem(ACCESS_TOKEN_KEY);
+        refreshToken = await AsyncStorage.getItem(REFRESH_TOKEN_KEY);
       }
 
       if (!accessToken || !refreshToken) return null;
@@ -134,16 +171,27 @@ class TokenStorageService {
    */
   async getAccessToken(): Promise<string | null> {
     try {
-      if (Keychain?.getInternetCredentials) {
-        const result = await Keychain.getInternetCredentials(KEYCHAIN_SERVICE);
-        return result ? result.password : null;
+      // Try Keychain first, fallback to SecureStore if it fails
+      if (Keychain && Keychain.getInternetCredentials) {
+        try {
+          console.log('🔍 TOKEN STORAGE: Attempting to retrieve token from Keychain');
+          const result = await Keychain.getInternetCredentials(KEYCHAIN_SERVICE);
+          if (result) {
+            console.log('✅ TOKEN STORAGE: Successfully retrieved token from Keychain');
+            return result.password;
+          }
+        } catch (keychainError: any) {
+          console.warn('⚠️ TOKEN STORAGE: Keychain failed, falling back to SecureStore:', keychainError.message);
+        }
       }
-      if (SecureStore?.isAvailableAsync && await SecureStore.isAvailableAsync()) {
+      if (this.isSecureStoreAvailable) {
+        console.log('🔍 TOKEN STORAGE: Retrieving token from SecureStore');
         return await SecureStore.getItemAsync(ACCESS_TOKEN_KEY, { keychainService: KEYCHAIN_SERVICE });
       }
-      return null;
+      console.log('🔍 TOKEN STORAGE: Retrieving token from AsyncStorage');
+      return await AsyncStorage.getItem(ACCESS_TOKEN_KEY);
     } catch (error) {
-      console.error('Failed to retrieve access token:', error);
+      console.error('❌ TOKEN STORAGE: Failed to retrieve access token:', error);
       return null;
     }
   }
@@ -153,14 +201,21 @@ class TokenStorageService {
    */
   async getRefreshToken(): Promise<string | null> {
     try {
-      if (Keychain?.getInternetCredentials) {
-        const result = await Keychain.getInternetCredentials(`${KEYCHAIN_SERVICE}_refresh`);
-        return result ? result.password : null;
+      // Try Keychain first, fallback to SecureStore if it fails
+      if (Keychain && Keychain.getInternetCredentials) {
+        try {
+          const result = await Keychain.getInternetCredentials(`${KEYCHAIN_SERVICE}_refresh`);
+          if (result) {
+            return result.password;
+          }
+        } catch (keychainError: any) {
+          console.warn('⚠️ TOKEN STORAGE: Keychain failed in getRefreshToken, falling back to SecureStore:', keychainError.message);
+        }
       }
-      if (SecureStore?.isAvailableAsync && await SecureStore.isAvailableAsync()) {
+      if (this.isSecureStoreAvailable) {
         return await SecureStore.getItemAsync(REFRESH_TOKEN_KEY, { keychainService: `${KEYCHAIN_SERVICE}_refresh` });
       }
-      return null;
+      return await AsyncStorage.getItem(REFRESH_TOKEN_KEY);
     } catch (error) {
       console.error('Failed to retrieve refresh token:', error);
       return null;

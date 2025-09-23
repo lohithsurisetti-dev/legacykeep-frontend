@@ -105,7 +105,7 @@ export const validateUsername = (username: string): ValidationResult => {
   
   // Check for reserved usernames (basic check)
   const reservedUsernames = ['admin', 'root', 'user', 'test', 'guest', 'api', 'www', 'mail', 'support'];
-  if (reservedUsernames.includes(trimmedUsername.toLowerCase())) {
+  if (reservedUsernames.includes(trimmedUsername?.toLowerCase() || '')) {
     return { isValid: false, error: 'This username is reserved' };
   }
   

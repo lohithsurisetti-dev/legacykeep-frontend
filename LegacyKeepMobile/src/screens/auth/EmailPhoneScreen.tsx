@@ -14,7 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useRegistration } from '../../contexts/RegistrationContext';
-import { authApi } from '../../services';
+import { authService } from '../../services';
 import { ROUTES } from '../../navigation/types';
 import { GradientButton, BackButton } from '../../components/ui';
 import { validateEmailOrPhone } from '../../utils/validation';
@@ -81,7 +81,7 @@ const EmailPhoneScreen: React.FC = () => {
       // Generate OTP - backend will check if account exists and handle accordingly
       console.log('🚀 EMAIL/PHONE SCREEN: Generating OTP...');
       if (isEmail(emailOrPhone)) {
-        await authApi.generateOtp(emailOrPhone);
+        await authService.generateOtp(emailOrPhone);
       } else {
         // TODO: Add phone OTP support
         throw new Error('Phone OTP not yet supported. Please use email.');

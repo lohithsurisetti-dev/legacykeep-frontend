@@ -6,8 +6,7 @@
  */
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { authApi, userApi, tokenStorage } from '../services';
-import { useAuth } from './AuthContext';
+import { authService, userService, tokenStorage } from '../services';
 
 // =============================================================================
 // Types
@@ -114,11 +113,11 @@ const RegistrationContext = createContext<RegistrationContextType | undefined>(u
 
 interface RegistrationProviderProps {
   children: ReactNode;
+  onVerificationComplete?: () => void;
 }
 
-export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ children }) => {
+export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ children, onVerificationComplete }) => {
   const [data, setData] = useState<RegistrationData>(initialRegistrationData);
-  const { completeVerification } = useAuth();
 
   // =============================================================================
   // Data Management
@@ -210,7 +209,7 @@ export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ chil
       setData(prev => ({ ...prev, isSubmitting: true, errors: {} }));
 
       // Step 1: Create auth account (basic registration)
-      console.log('🚀 REGISTRATION: Calling authApi.register...');
+      console.log('🚀 REGISTRATION: Calling authService.register...');
       
       // Prepare registration data - only send email OR phone, not both
       const registrationData: any = {
@@ -234,7 +233,7 @@ export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ chil
       }
       
       console.log('🚀 REGISTRATION: Registration data:', JSON.stringify(registrationData, null, 2));
-      const authResponse = await authApi.register(registrationData);
+      const authResponse = await authService.register(registrationData);
       
       console.log('🚀 REGISTRATION: Auth API response:', JSON.stringify(authResponse, null, 2));
 
@@ -274,9 +273,9 @@ export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ chil
       }));
 
       // Step 2: Create user profile (personal details + location)
-      console.log('🚀 REGISTRATION: Calling userApi.createProfile...');
+      console.log('🚀 REGISTRATION: Calling userService.createProfile...');
       try {
-        await userApi.createProfile({
+        await userService.createProfile({
           firstName: data.firstName,
           lastName: data.lastName,
           dateOfBirth: data.dateOfBirth?.toISOString().split('T')[0], // Convert to YYYY-MM-DD
@@ -308,7 +307,7 @@ export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ chil
       
       // Update authentication state to reflect successful registration
       console.log('🚀 REGISTRATION: Updating authentication state...');
-      completeVerification();
+      onVerificationComplete?.();
       console.log('✅ REGISTRATION: Authentication state updated');
       
       return { success: true, userId };
@@ -336,7 +335,7 @@ export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ chil
       }
 
       console.log('🚀 OTP: Generating OTP for email:', data.email);
-      await authApi.generateOtp(data.email);
+      await authService.generateOtp(data.email);
       console.log('✅ OTP: OTP generated successfully');
       
       setData(prev => ({
@@ -359,28 +358,68 @@ export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ chil
       }
 
       console.log('🚀 OTP: Verifying OTP for email:', data.email, 'code:', otpCode);
-      const verifyResp = await authApi.verifyOtp(
-        data.email!,
+      const verifyResp = await authService.verifyOtp({
+        email: data.email!,
         otpCode,
-        data.username,
-        data.password,
-        data.firstName,
-        data.lastName
-      );
+        username: data.username,
+        password: data.password,
+        firstName: data.firstName,
+        lastName: data.lastName,
+      });
       console.log('✅ OTP: OTP verified (and registered if new):', JSON.stringify(verifyResp, null, 2));
+
+      // Store JWT tokens from verification response
+      if (verifyResp.status === 'success' && verifyResp.data?.accessToken && verifyResp.data?.refreshToken) {
+        console.log('🚀 OTP: Storing JWT tokens from verification response');
+        console.log('🚀 OTP: Access token (first 20 chars):', verifyResp.data.accessToken.substring(0, 20) + '...');
+        console.log('🚀 OTP: Refresh token (first 20 chars):', verifyResp.data.refreshToken.substring(0, 20) + '...');
+        console.log('🚀 OTP: User ID:', verifyResp.data.id);
+        
+        try {
+          await tokenStorage.storeTokens({
+            accessToken: verifyResp.data.accessToken,
+            refreshToken: verifyResp.data.refreshToken,
+            expiresIn: verifyResp.data.expiresIn ?? 900,
+            refreshExpiresIn: verifyResp.data.refreshExpiresIn ?? 2592000,
+            userId: verifyResp.data.id,
+          });
+          console.log('✅ OTP: JWT tokens stored successfully');
+        } catch (tokenStorageError) {
+          console.error('❌ OTP: Failed to store tokens:', tokenStorageError);
+          throw new Error('Failed to store authentication tokens');
+        }
+        
+        // Verify token was stored correctly
+        const storedToken = await tokenStorage.getAccessToken();
+        console.log('🔍 OTP: Retrieved stored token (first 20 chars):', storedToken ? storedToken.substring(0, 20) + '...' : 'null');
+        
+        // Small delay to ensure token is fully stored
+        await new Promise(resolve => setTimeout(resolve, 100));
+      } else {
+        throw new Error('Authentication tokens missing from verify-otp response');
+      }
 
       // Create user profile before navigating
       try {
         console.log('🚀 OTP: Creating user profile after token receipt...');
-        await userApi.createProfile({
+        
+        // Double-check token before making profile call
+        const tokenBeforeProfile = await tokenStorage.getAccessToken();
+        console.log('🔍 OTP: Token before profile call (first 20 chars):', tokenBeforeProfile ? tokenBeforeProfile.substring(0, 20) + '...' : 'null');
+        
+        const profileData = {
           firstName: data.firstName,
           lastName: data.lastName,
           dateOfBirth: data.dateOfBirth?.toISOString().split('T')[0],
           city: data.city,
           state: data.state,
           country: data.country,
-        });
-        console.log('✅ OTP: User profile created successfully');
+        };
+        console.log('🚀 OTP: Profile data being sent:', JSON.stringify(profileData, null, 2));
+        
+        const profileResponse = await userService.createProfile(profileData);
+        console.log('✅ OTP: User profile created successfully:', JSON.stringify(profileResponse, null, 2));
+        
         setData(prev => ({
           ...prev,
           registrationProgress: {
@@ -389,8 +428,15 @@ export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ chil
             locationCompleted: true,
           },
         }));
-      } catch (profileErr) {
-        console.warn('⚠️ OTP: Profile creation failed (continuing):', profileErr);
+      } catch (profileErr: any) {
+        console.error('❌ OTP: Profile creation failed:', profileErr);
+        console.error('❌ OTP: Profile error details:', {
+          message: profileErr.message,
+          stack: profileErr.stack,
+          response: profileErr.response?.data,
+          status: profileErr.response?.status,
+        });
+        throw profileErr; // Re-throw to stop the flow and show the error
       }
 
       // Mark account created and auth complete in context and Auth state
@@ -398,7 +444,7 @@ export const RegistrationProvider: React.FC<RegistrationProviderProps> = ({ chil
         ...prev,
         accountCreated: true,
       }));
-      completeVerification();
+      onVerificationComplete?.();
       
       // Registration is now complete!
       setData(prev => ({
