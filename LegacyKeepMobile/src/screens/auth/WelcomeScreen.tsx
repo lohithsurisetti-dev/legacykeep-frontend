@@ -22,7 +22,7 @@ import { ROUTES } from '../../navigation/types';
 import { colors, typography, spacing, gradients, LAYOUT } from '../../constants';
 import { componentColors, brandColors } from '../../constants/designSystem';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { getResponsiveLayout, getResponsiveComponentSizes } from '../../utils/responsive';
+import { getResponsiveLayout, getResponsiveComponentSizes, getResponsiveDimensions, getDeviceSize, DEVICE_SIZES } from '../../utils/responsive';
 import { responsiveStyles } from '../../styles/responsiveStyles';
 
 type Props = AuthStackScreenProps<typeof ROUTES.WELCOME>;
@@ -30,6 +30,11 @@ type Props = AuthStackScreenProps<typeof ROUTES.WELCOME>;
 const WelcomeScreen: React.FC<Props> = () => {
   const navigation = useNavigation();
   const { t } = useLanguage();
+  
+  // Get responsive utilities
+  const deviceSize = getDeviceSize();
+  const dimensions = getResponsiveDimensions();
+  const isLargeScreen = deviceSize === DEVICE_SIZES.LARGE || deviceSize === DEVICE_SIZES.XLARGE;
 
   const handleGetStarted = () => {
     (navigation as any).navigate(ROUTES.REGISTRATION);
@@ -44,7 +49,7 @@ const WelcomeScreen: React.FC<Props> = () => {
       <SafeAreaView style={styles.safeArea}>
         <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
         
-        <View style={[styles.content, responsiveStyles.centeredContent]}>
+        <View style={styles.content}>
           {/* Hero Section */}
           <View style={styles.hero}>
             <Text style={styles.logo}>{t('auth.welcome.title')}</Text>
@@ -53,55 +58,43 @@ const WelcomeScreen: React.FC<Props> = () => {
             </Text>
           </View>
 
-          {/* Single Premium Feature Card */}
-          <GlassmorphismContainer style={styles.mainCard}>
-            <View style={styles.featuresGrid}>
-              {/* Connect Feature */}
-              <View style={styles.featureItem}>
-                <View style={styles.featureIconContainer}>
-                  <Ionicons name="people" size={20} color={colors.neutral[50]} />
-                </View>
-                <Text style={styles.featureTitle}>{t('auth.welcome.features.connect.title')}</Text>
-                <Text style={styles.featureDescription}>{t('auth.welcome.features.connect.description')}</Text>
+          {/* Feature Highlights */}
+          <View style={styles.featuresContainer}>
+            <View style={styles.featureRow}>
+              <View style={styles.featureIcon}>
+                <Ionicons name="people" size={24} color={colors.neutral[50]} />
               </View>
-
-              {/* Preserve Feature */}
-              <View style={styles.featureItem}>
-                <View style={styles.featureIconContainer}>
-                  <Ionicons name="shield-checkmark" size={20} color={colors.neutral[50]} />
-                </View>
-                <Text style={styles.featureTitle}>{t('auth.welcome.features.preserve.title')}</Text>
-                <Text style={styles.featureDescription}>{t('auth.welcome.features.preserve.description')}</Text>
-              </View>
-
-              {/* Discover Feature */}
-              <View style={styles.featureItem}>
-                <View style={styles.featureIconContainer}>
-                  <Ionicons name="compass" size={20} color={colors.neutral[50]} />
-                </View>
-                <Text style={styles.featureTitle}>{t('auth.welcome.features.discover.title')}</Text>
-                <Text style={styles.featureDescription}>{t('auth.welcome.features.discover.description')}</Text>
-              </View>
+              <Text style={styles.featureText}>Connect</Text>
             </View>
-          </GlassmorphismContainer>
+            <View style={styles.featureRow}>
+              <View style={styles.featureIcon}>
+                <Ionicons name="shield-checkmark" size={24} color={colors.neutral[50]} />
+              </View>
+              <Text style={styles.featureText}>Preserve</Text>
+            </View>
+            <View style={styles.featureRow}>
+              <View style={styles.featureIcon}>
+                <Ionicons name="compass" size={24} color={colors.neutral[50]} />
+              </View>
+              <Text style={styles.featureText}>Discover</Text>
+            </View>
+          </View>
 
-          {/* Footer with Primary Button */}
-          <View style={styles.footer}>
+          {/* Call to Action */}
+          <View style={styles.ctaContainer}>
             <TouchableOpacity
               style={styles.primaryButton}
               onPress={handleGetStarted}
               activeOpacity={0.8}
             >
               <Text style={styles.primaryButtonText}>{t('auth.welcome.getStartedButton')}</Text>
+              <Ionicons name="arrow-forward" size={20} color={colors.secondary.teal[600]} style={styles.buttonIcon} />
             </TouchableOpacity>
             
-            {/* Sign In Link */}
-            <View style={styles.footerTextContainer}>
-              <Text style={styles.footerText}>Already have an account? </Text>
-              <TouchableOpacity onPress={handleSignIn} activeOpacity={0.7}>
-                <Text style={styles.signInLinkText}>Sign in</Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity onPress={handleSignIn} activeOpacity={0.7} style={styles.signInButton}>
+              <Text style={styles.signInText}>Already have an account? </Text>
+              <Text style={styles.signInLink}>Sign in</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </SafeAreaView>
@@ -118,123 +111,106 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.xl,
     justifyContent: 'space-between',
-    minHeight: '100%', // Ensure full height
+    paddingTop: spacing.xxl,
+    paddingBottom: spacing.xl,
   },
+  
   // Hero Section
   hero: {
     alignItems: 'center',
-    marginBottom: spacing.md,
-    marginTop: 0,
+    marginBottom: spacing.xxl,
   },
   logo: {
     fontSize: typography.sizes['5xl'],
     fontWeight: typography.weights.bold,
     color: colors.neutral[50],
-    marginBottom: spacing.sm,
     textAlign: 'center',
+    letterSpacing: -1,
+    marginBottom: spacing.md,
   },
   subtitle: {
-    fontSize: typography.sizes.lg,
-    color: componentColors.glassmorphism.text,
+    fontSize: typography.sizes.xl,
+    color: 'rgba(255, 255, 255, 0.9)',
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 28,
+    fontWeight: typography.weights.medium,
+    maxWidth: 300,
   },
-  // Main Feature Card
-  mainCard: {
-    marginVertical: spacing.md, // Reduced from lg
-    padding: spacing.lg, // Reduced from xl
-    shadowColor: colors.shadow.dark,
+  
+  // Features Container
+  featuresContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    marginBottom: spacing.xxl,
+    paddingHorizontal: spacing.lg,
+  },
+  featureRow: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  featureIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  featureText: {
+    fontSize: typography.sizes.sm,
+    color: colors.neutral[50],
+    fontWeight: typography.weights.medium,
+    textAlign: 'center',
+  },
+  
+  // Call to Action
+  ctaContainer: {
+    alignItems: 'center',
+  },
+  primaryButton: {
+    backgroundColor: colors.neutral[50],
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xxl,
+    borderRadius: 25,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: LAYOUT.SHADOW_COLOR,
     shadowOffset: {
       width: 0,
       height: 8,
     },
     shadowOpacity: 0.3,
     shadowRadius: 16,
-    elevation: 8,
-    maxWidth: 320, // Limit maximum width
-    alignSelf: 'center', // Center the card
-  },
-  featuresGrid: {
-    alignItems: 'center',
-  },
-  featureItem: {
-    alignItems: 'center',
-    marginBottom: spacing.lg, // Reduced from xl
-    maxWidth: 260, // Reduced from 280
-  },
-  featureIconContainer: {
-    width: 48, // Reduced from 56
-    height: 48, // Reduced from 56
-    borderRadius: 24, // Reduced from 28
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: spacing.xs, // Close to title
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
-    shadowColor: colors.neutral[50],
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  featureTitle: {
-    fontSize: typography.sizes.md, // Reduced from lg
-    fontWeight: typography.weights.bold,
-    color: colors.neutral[50],
-    marginBottom: spacing.xs, // Reduced from sm
-    textAlign: 'center',
-  },
-  featureDescription: {
-    fontSize: typography.sizes.xs, // Reduced from sm
-    color: componentColors.glassmorphism.text,
-    textAlign: 'center',
-    lineHeight: 16, // Reduced from 20
-    opacity: 0.8,
-  },
-  footerTextContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: spacing.lg,
-  },
-  footerText: {
-    color: colors.neutral[50],
-    fontSize: typography.sizes.md,
-  },
-  
-  // Footer
-  footer: {
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xl,
-    paddingTop: spacing.md,
-  },
-  primaryButton: {
-    backgroundColor: colors.neutral[50],
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    borderRadius: 16,
-    alignItems: 'center',
-    shadowColor: LAYOUT.SHADOW_COLOR,
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    elevation: 12,
+    marginBottom: spacing.lg,
+    minWidth: 200,
   },
   primaryButtonText: {
     color: colors.secondary.teal[600],
     fontSize: typography.sizes.lg,
     fontWeight: typography.weights.bold,
+    marginRight: spacing.sm,
   },
-  signInLinkText: {
+  buttonIcon: {
+    marginLeft: spacing.xs,
+  },
+  signInButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  signInText: {
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: typography.sizes.md,
+  },
+  signInLink: {
     color: componentColors.link.primary,
     fontWeight: typography.weights.bold,
     fontSize: typography.sizes.md,
