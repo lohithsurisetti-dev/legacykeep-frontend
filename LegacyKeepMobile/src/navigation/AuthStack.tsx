@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 import { AuthStackParamList, ROUTES } from './types';
 
 // Import screens (we'll create these one by one)
@@ -36,6 +36,21 @@ const AuthStack: React.FC = () => {
         headerShown: false, // We'll handle headers in individual screens
         gestureEnabled: true,
         cardStyle: { backgroundColor: 'transparent' },
+        ...TransitionPresets.SlideFromRightIOS,
+        cardStyleInterpolator: ({ current, layouts }) => {
+          return {
+            cardStyle: {
+              transform: [
+                {
+                  translateX: current.progress.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [layouts.screen.width, 0],
+                  }),
+                },
+              ],
+            },
+          };
+        },
       }}
     >
       <Stack.Screen
@@ -67,6 +82,7 @@ const AuthStack: React.FC = () => {
         component={RegistrationScreen}
         options={{
           title: 'Create Account',
+          ...TransitionPresets.SlideFromRightIOS,
         }}
       />
       
@@ -75,6 +91,7 @@ const AuthStack: React.FC = () => {
         component={PersonalDetailsScreen}
         options={{
           title: 'Personal Details',
+          ...TransitionPresets.SlideFromRightIOS,
         }}
       />
       
@@ -83,6 +100,7 @@ const AuthStack: React.FC = () => {
         component={LocationScreen}
         options={{
           title: 'Location',
+          ...TransitionPresets.SlideFromRightIOS,
         }}
       />
       
@@ -91,6 +109,7 @@ const AuthStack: React.FC = () => {
         component={OtpVerificationScreen}
         options={{
           title: 'Verify Account',
+          ...TransitionPresets.SlideFromRightIOS,
         }}
       />
       

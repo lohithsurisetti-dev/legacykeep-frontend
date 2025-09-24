@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, memo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { AuthStackScreenProps } from '../../navigation/types';
 import { ROUTES } from '../../navigation/types';
-import { colors, typography, spacing, gradients } from '../../constants';
+import { colors, typography, spacing, gradients, LAYOUT } from '../../constants';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useRegistration } from '../../contexts/RegistrationContext';
 import { validateEmail, validatePassword, validateUsername, validateEmailOrPhone } from '../../utils/validation';
@@ -38,7 +38,7 @@ interface FormErrors {
   general?: string;
 }
 
-const RegistrationScreen: React.FC<Props> = () => {
+const RegistrationScreen: React.FC<Props> = memo(() => {
   const navigation = useNavigation();
   const { t } = useLanguage();
   const { data, updateData, canProceedToNext, submitRegistration } = useRegistration();
@@ -108,14 +108,14 @@ const RegistrationScreen: React.FC<Props> = () => {
     };
   }, [formData.username]);
 
-  const handleInputChange = (field: keyof FormData, value: string | boolean) => {
+  const handleInputChange = useCallback((field: keyof FormData, value: string | boolean) => {
     // Update via the custom setFormData function that syncs with context
     setFormData({ [field]: value });
     // Clear error when user starts typing
     if (errors[field as keyof FormErrors]) {
       setErrors(prev => ({ ...prev, [field as keyof FormErrors]: undefined }));
     }
-  };
+  }, [setFormData, errors]);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -152,7 +152,7 @@ const RegistrationScreen: React.FC<Props> = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleCreateAccount = async () => {
+  const handleCreateAccount = useCallback(async () => {
     if (!validateForm()) {
       return;
     }
@@ -180,15 +180,16 @@ const RegistrationScreen: React.FC<Props> = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [validateForm, canProceedToNext, updateData, formData.username, formData.password, navigation]);
 
-  const handleSignIn = () => {
+  const handleSignIn = useCallback(() => {
     (navigation as any).navigate(ROUTES.LOGIN);
-  };
+  }, [navigation]);
 
   return (
     <RegistrationLayout
       subtitle={t('auth.registration.subtitle')}
+      showBackButton={false}
       currentStep={1}
       totalSteps={5}
       primaryButtonText={t('auth.registration.sendVerificationButton')}
@@ -279,7 +280,8 @@ const RegistrationScreen: React.FC<Props> = () => {
                   secureTextEntry
                   autoCapitalize="none"
                   autoCorrect={false}
-                  autoComplete="password-new"
+                  autoComplete="off"
+                  textContentType="none"
                 />
               </View>
               
@@ -324,11 +326,11 @@ const RegistrationScreen: React.FC<Props> = () => {
       </View>
     </RegistrationLayout>
   );
-};
+});
 
 const styles = StyleSheet.create({
   form: {
-    width: '100%',
+    width: LAYOUT.FULL_WIDTH,
   },
   nameRow: {
     flexDirection: 'row',
@@ -381,7 +383,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 12,
     top: '50%',
-    transform: [{ translateY: -15 }],
+    transform: [{ translateY: -3 }],
   },
   usernameStatusText: {
     fontSize: typography.sizes.xs,
@@ -456,7 +458,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   strengthGradient: {
-    height: '100%',
+    height: LAYOUT.FULL_HEIGHT,
     borderRadius: 3,
   },
   strengthLabel: {
@@ -474,8 +476,8 @@ const styles = StyleSheet.create({
   createButton: {
     height: 48, // Match login button height
     borderRadius: 8, // Match login button border radius
-    width: '100%',
-    shadowColor: '#000',
+    width: LAYOUT.FULL_WIDTH,
+    shadowColor: LAYOUT.SHADOW_COLOR,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -495,6 +497,8 @@ const styles = StyleSheet.create({
     fontSize: typography.sizes.md,
   },
 });
+
+RegistrationScreen.displayName = 'RegistrationScreen';
 
 export default RegistrationScreen;
  

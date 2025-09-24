@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo, useMemo, useEffect, useRef } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import RegistrationHeader from './RegistrationHeader';
 import RegistrationFooter from './RegistrationFooter';
@@ -31,7 +31,7 @@ interface RegistrationLayoutProps {
   scrollable?: boolean;
 }
 
-const RegistrationLayout: React.FC<RegistrationLayoutProps> = ({
+const RegistrationLayout: React.FC<RegistrationLayoutProps> = memo(({
   title,
   subtitle,
   showBackButton = true,
@@ -49,15 +49,23 @@ const RegistrationLayout: React.FC<RegistrationLayoutProps> = ({
   children,
   scrollable = true,
 }) => {
-  const ContentWrapper = scrollable ? ScrollView : View;
-  const contentProps = scrollable 
+  const ContentWrapper = useMemo(() => scrollable ? ScrollView : View, [scrollable]);
+  const contentProps = useMemo(() => scrollable 
     ? { contentContainerStyle: styles.scrollContent }
-    : { style: styles.content };
+    : { style: styles.content }, [scrollable]);
+
+  // Add cleanup effect for better navigation performance
+  useEffect(() => {
+    return () => {
+      // Cleanup any pending operations when component unmounts
+    };
+  }, []);
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      removeClippedSubviews={true}
     >
       <ContentWrapper {...contentProps}>
         <View style={styles.wrapper}>
@@ -94,12 +102,18 @@ const RegistrationLayout: React.FC<RegistrationLayoutProps> = ({
       />
     </KeyboardAvoidingView>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: colors.background.primary,
+    // Add these properties to prevent screen overlap
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   scrollContent: {
     flexGrow: 1,
@@ -116,5 +130,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+RegistrationLayout.displayName = 'RegistrationLayout';
 
 export default RegistrationLayout;

@@ -4,7 +4,7 @@
  * Collects user's date of birth and gender information
  */
 
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useMemo, memo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -15,7 +15,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { AuthStackScreenProps } from '../../navigation/types';
 import { ROUTES } from '../../navigation/types';
-import { colors, typography, spacing, gradients } from '../../constants';
+import { colors, typography, spacing, gradients, LAYOUT } from '../../constants';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useRegistration } from '../../contexts/RegistrationContext';
 import { RegistrationLayout } from '../../components/registration';
@@ -36,7 +36,7 @@ interface PersonalDetailsFormErrors {
   gender?: string;
 }
 
-const PersonalDetailsScreen: React.FC<Props> = () => {
+const PersonalDetailsScreen: React.FC<Props> = memo(() => {
   const navigation = useNavigation();
   const { t } = useLanguage();
   const { data, updateData, canProceedToNext } = useRegistration();
@@ -67,13 +67,13 @@ const PersonalDetailsScreen: React.FC<Props> = () => {
     if (showDatePicker) {
       Animated.timing(datePickerAnimation, {
         toValue: 1,
-        duration: 300,
+        duration: 200, // Reduced duration for faster animation
         useNativeDriver: true,
       }).start();
     } else {
       Animated.timing(datePickerAnimation, {
         toValue: 0,
-        duration: 300,
+        duration: 150, // Reduced duration for faster animation
         useNativeDriver: true,
       }).start();
     }
@@ -102,7 +102,7 @@ const PersonalDetailsScreen: React.FC<Props> = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleInputChange = (field: keyof PersonalDetailsFormData, value: any) => {
+  const handleInputChange = useCallback((field: keyof PersonalDetailsFormData, value: any) => {
     console.log('handleInputChange called:', field, value);
     const newData = { ...formData, [field]: value };
     setFormData(newData);
@@ -112,16 +112,16 @@ const PersonalDetailsScreen: React.FC<Props> = () => {
     
     // Validate only the touched field
     validateForm(newData, false);
-  };
+  }, [formData, setFormData]);
 
-  const handleDateChange = (event: any, selectedDate?: Date) => {
+  const handleDateChange = useCallback((event: any, selectedDate?: Date) => {
     setShowDatePicker(false);
     if (selectedDate) {
       handleInputChange('dateOfBirth', selectedDate);
     }
-  };
+  }, [handleInputChange]);
 
-  const handleContinue = async () => {
+  const handleContinue = useCallback(async () => {
     if (!validateForm(formData, true)) {
       return;
     }
@@ -144,11 +144,11 @@ const PersonalDetailsScreen: React.FC<Props> = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [formData, canProceedToNext, data.dateOfBirth, data.gender, navigation]);
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     (navigation as any).goBack();
-  };
+  }, [navigation]);
 
   const formatDate = (date: Date) => {
     // Get current language from i18n context
@@ -190,8 +190,9 @@ const PersonalDetailsScreen: React.FC<Props> = () => {
               <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>{t('auth.personalDetails.genderLabel')}</Text>
                 <View style={styles.genderContainer}>
-                  {genderOptions.map((option) => (
-                    formData.gender === option.value ? (
+                  {genderOptions.map((option) => {
+                    const isSelected = formData.gender === option.value;
+                    return isSelected ? (
                       <LinearGradient
                         key={option.value}
                         colors={gradients.peacock}
@@ -222,8 +223,8 @@ const PersonalDetailsScreen: React.FC<Props> = () => {
                           {option.label}
                         </Text>
                       </TouchableOpacity>
-                    )
-                  ))}
+                    );
+                  })}
                 </View>
               </View>
 
@@ -272,10 +273,13 @@ const PersonalDetailsScreen: React.FC<Props> = () => {
                       style={styles.datePicker}
                     />
                     <TouchableOpacity
+                      style={styles.selectButton}
                       onPress={() => setShowDatePicker(false)}
-                      style={responsiveStyles.datePickerButton}
+                      activeOpacity={0.7}
                     >
-                      <Text style={styles.doneText}>Done</Text>
+                      <Text style={styles.doneText}>
+                        Select
+                      </Text>
                     </TouchableOpacity>
                   </Animated.View>
                 </View>
@@ -283,7 +287,7 @@ const PersonalDetailsScreen: React.FC<Props> = () => {
       </View>
     </RegistrationLayout>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -334,7 +338,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   form: {
-    width: '100%',
+    width: LAYOUT.FULL_WIDTH,
   },
   inputContainer: {
     marginBottom: spacing.lg,
@@ -367,7 +371,7 @@ const styles = StyleSheet.create({
   },
   genderOption: {
     flex: 1,
-    minWidth: '45%',
+    minWidth: LAYOUT.GENDER_OPTION_MIN_WIDTH,
     height: 48, // Fixed height to match selected options
     borderWidth: 1,
     borderColor: colors.neutral[300],
@@ -380,7 +384,7 @@ const styles = StyleSheet.create({
   },
   genderOptionGradientWrapper: {
     flex: 1,
-    minWidth: '45%',
+    minWidth: LAYOUT.GENDER_OPTION_MIN_WIDTH,
     borderRadius: 12,
     padding: 2, // This creates the border width
     height: 48, // Match the height of unselected options
@@ -416,7 +420,7 @@ const styles = StyleSheet.create({
   continueButton: {
     height: 48,
     borderRadius: 8,
-    width: '100%',
+    width: LAYOUT.FULL_WIDTH,
   },
   signInContainer: {
     flexDirection: 'row',
@@ -430,35 +434,41 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   datePickerContainer: {
-    minHeight: 280, // Use minHeight instead of fixed height
-    maxHeight: 320,
+    minHeight: 100, // Further reduced
+    maxHeight: 120, // Further reduced
     overflow: 'visible', // Allow content to be visible
     alignItems: 'center',
     justifyContent: 'flex-start', // Start from top instead of center
-    paddingVertical: spacing.md,
+    paddingVertical: 0, // No padding to move it closer
+    marginTop: -spacing.sm, // Move it up closer to date input
   },
   inlineDatePicker: {
     backgroundColor: 'transparent',
     borderRadius: 12,
-    padding: spacing.md,
+    padding: spacing.sm, // Reduced from md
     alignItems: 'center',
     justifyContent: 'center',
   },
   datePicker: {
-    height: 200,
-    width: '100%',
+    height: 60, // Much smaller
+    width: LAYOUT.FULL_WIDTH,
+  },
+  selectButton: {
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.md,
+    borderRadius: 8,
+    backgroundColor: colors.neutral[100],
+    marginTop: spacing.xs,
   },
   doneText: {
-    fontSize: typography.sizes.lg,
+    fontSize: typography.sizes.md, // Bigger text
     fontWeight: typography.weights.medium,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    backgroundColor: colors.primary[500],
-    color: colors.neutral[50],
-    borderRadius: 8,
-    marginTop: spacing.md,
+    color: colors.neutral[600], // Grey color
     textAlign: 'center',
+    textTransform: 'uppercase', // All caps
   },
 });
+
+PersonalDetailsScreen.displayName = 'PersonalDetailsScreen';
 
 export default PersonalDetailsScreen;

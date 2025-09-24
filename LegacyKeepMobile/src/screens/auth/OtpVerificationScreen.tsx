@@ -17,7 +17,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { AuthStackScreenProps } from '../../navigation/types';
 import { ROUTES } from '../../navigation/types';
-import { colors, typography, spacing, gradients } from '../../constants';
+import { colors, typography, spacing, gradients, LAYOUT } from '../../constants';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRegistration } from '../../contexts/RegistrationContext';
@@ -374,7 +374,7 @@ const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
 
 const styles = StyleSheet.create({
   form: {
-    width: '100%',
+    width: LAYOUT.FULL_WIDTH,
   },
   inputContainer: {
     alignItems: 'center',
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
     marginBottom: spacing.sm,
-    width: '100%',
+    width: LAYOUT.FULL_WIDTH,
     paddingHorizontal: spacing.lg,
   },
   otpInputWrapper: {
@@ -423,8 +423,8 @@ const styles = StyleSheet.create({
     color: colors.neutral[900],
     backgroundColor: colors.neutral[50],
     textAlign: 'center',
-    width: '100%',
-    height: '100%',
+    width: LAYOUT.FULL_WIDTH,
+    height: LAYOUT.FULL_HEIGHT,
   },
   inputError: {
     borderColor: colors.error[500],
@@ -432,7 +432,7 @@ const styles = StyleSheet.create({
   resendSection: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: '100%',
+    width: LAYOUT.FULL_WIDTH,
   },
   resendRow: {
     flexDirection: 'row',

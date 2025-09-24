@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -23,7 +23,7 @@ interface EmailPhoneFormErrors {
   general?: string;
 }
 
-const EmailPhoneScreen: React.FC = () => {
+const EmailPhoneScreen: React.FC = memo(() => {
   const navigation = useNavigation();
   const { t } = useLanguage();
   const { setEmailOrPhone, data, submitRegistration } = useRegistration();
@@ -42,15 +42,15 @@ const EmailPhoneScreen: React.FC = () => {
   };
 
 
-  const handleInputChange = (value: string) => {
+  const handleInputChange = useCallback((value: string) => {
     setFormData({ emailOrPhone: value });
     // Clear errors when user starts typing
     if (errors.emailOrPhone) {
       setErrors({});
     }
-  };
+  }, [errors.emailOrPhone]);
 
-  const handleContinue = async () => {
+  const handleContinue = useCallback(async () => {
     const { emailOrPhone } = formData;
 
     // Validate format first
@@ -100,7 +100,7 @@ const EmailPhoneScreen: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [formData, setEmailOrPhone, navigation, t]);
 
   return (
     <RegistrationLayout
@@ -144,7 +144,7 @@ const EmailPhoneScreen: React.FC = () => {
       </View>
     </RegistrationLayout>
   );
-};
+});
 
 const styles = StyleSheet.create({
   form: {
@@ -190,5 +190,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+
+EmailPhoneScreen.displayName = 'EmailPhoneScreen';
 
 export default EmailPhoneScreen;

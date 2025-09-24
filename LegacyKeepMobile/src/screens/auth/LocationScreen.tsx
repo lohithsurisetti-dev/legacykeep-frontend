@@ -17,7 +17,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { AuthStackScreenProps } from '../../navigation/types';
 import { ROUTES } from '../../navigation/types';
-import { colors, typography, spacing } from '../../constants';
+import { colors, typography, spacing, LAYOUT } from '../../constants';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useRegistration } from '../../contexts/RegistrationContext';
 import { BackButton, GradientButton, ProgressTracker, GradientText } from '../../components/ui';
@@ -207,7 +207,7 @@ const LocationScreen: React.FC<Props> = () => {
 
 const styles = StyleSheet.create({
   form: {
-    width: '100%',
+    width: LAYOUT.FULL_WIDTH,
   },
   inputContainer: {
     marginBottom: spacing.lg,

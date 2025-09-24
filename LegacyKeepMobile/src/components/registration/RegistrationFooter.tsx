@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { GradientButton } from '../ui';
+import { GradientButton, GradientText } from '../ui';
 import { colors, spacing, typography } from '../../constants';
 
 interface RegistrationFooterProps {
@@ -39,7 +39,13 @@ const RegistrationFooter: React.FC<RegistrationFooterProps> = ({
         <View style={styles.secondaryContainer}>
           <Text style={styles.secondaryText}>{secondaryText}</Text>
           <TouchableOpacity onPress={onSecondaryPress} activeOpacity={0.7}>
-            <Text style={styles.secondaryLink}>{secondaryLinkText}</Text>
+            <GradientText
+              gradient="peacock"
+              fontSize="md"
+              fontWeight="bold"
+            >
+              {secondaryLinkText}
+            </GradientText>
           </TouchableOpacity>
         </View>
       )}
@@ -68,11 +74,6 @@ const styles = StyleSheet.create({
   secondaryText: {
     fontSize: typography.sizes.md,
     color: colors.neutral[600],
-  },
-  secondaryLink: {
-    fontSize: typography.sizes.md,
-    color: colors.primary[500],
-    fontWeight: typography.weights.bold,
   },
 });
 

@@ -13,6 +13,9 @@ export type { TextStyle, FontSize, FontWeight } from './typography';
 export { spacing, semanticSpacing, borderRadius, shadows } from './spacing';
 export type { Spacing, BorderRadius, Shadow } from './spacing';
 
+export { LAYOUT } from './layout';
+export type { LayoutConstants } from './layout';
+
 // App Configuration
 export const APP_CONFIG = {
   name: 'LegacyKeep',

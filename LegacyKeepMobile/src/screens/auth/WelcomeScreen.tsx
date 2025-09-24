@@ -19,7 +19,7 @@ import { GradientBackground, GlassmorphismContainer, GradientButton } from '../.
 import { useNavigation } from '@react-navigation/native';
 import { AuthStackScreenProps } from '../../navigation/types';
 import { ROUTES } from '../../navigation/types';
-import { colors, typography, spacing, gradients } from '../../constants';
+import { colors, typography, spacing, gradients, LAYOUT } from '../../constants';
 import { componentColors, brandColors } from '../../constants/designSystem';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { getResponsiveLayout, getResponsiveComponentSizes } from '../../utils/responsive';
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     borderRadius: 16,
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: LAYOUT.SHADOW_COLOR,
     shadowOffset: {
       width: 0,
       height: 4,
