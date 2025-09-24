@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Animated } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { AuthProvider, useAuth } from './src/contexts/AuthContext';
-import { LanguageProvider } from './src/contexts/LanguageContext';
-import { ThemeProvider } from './src/contexts/ThemeContext';
-import { RegistrationProvider } from './src/contexts/RegistrationContext';
-import { RootNavigator } from './src/navigation';
-import SplashScreen from './src/components/SplashScreen';
-import './src/i18n'; // Initialize i18n';
+import { AuthProvider, useAuth } from './src/app/providers/AuthContext';
+import { LanguageProvider } from './src/app/providers/LanguageContext';
+import { ThemeProvider } from './src/app/providers/ThemeContext';
+import { RegistrationProvider } from './src/app/providers/RegistrationContext';
+import { RootNavigator } from './src/app/navigation';
+import SplashScreen from './src/shared/components/ui/SplashScreen';
+import './src/shared/constants'; // Initialize i18n';
 
 // Wrapper component to handle the auth context dependency
 const AppWithAuth: React.FC = () => {
