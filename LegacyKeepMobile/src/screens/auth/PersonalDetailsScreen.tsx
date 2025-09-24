@@ -434,8 +434,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   datePickerContainer: {
-    minHeight: 100, // Further reduced
-    maxHeight: 120, // Further reduced
+    minHeight: 50, // Even smaller
+    maxHeight: 60, // Even smaller
     overflow: 'visible', // Allow content to be visible
     alignItems: 'center',
     justifyContent: 'flex-start', // Start from top instead of center
@@ -445,19 +445,17 @@ const styles = StyleSheet.create({
   inlineDatePicker: {
     backgroundColor: 'transparent',
     borderRadius: 12,
-    padding: spacing.sm, // Reduced from md
+    padding: spacing.xs, // Even smaller padding
     alignItems: 'center',
     justifyContent: 'center',
   },
   datePicker: {
-    height: 60, // Much smaller
+    height: 30, // Even smaller
     width: LAYOUT.FULL_WIDTH,
   },
   selectButton: {
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.md,
-    borderRadius: 8,
-    backgroundColor: colors.neutral[100],
     marginTop: spacing.xs,
   },
   doneText: {
@@ -465,7 +463,6 @@ const styles = StyleSheet.create({
     fontWeight: typography.weights.medium,
     color: colors.neutral[600], // Grey color
     textAlign: 'center',
-    textTransform: 'uppercase', // All caps
   },
 });
 
