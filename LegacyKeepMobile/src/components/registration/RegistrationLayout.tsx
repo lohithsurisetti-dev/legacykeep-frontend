@@ -1,5 +1,5 @@
 import React, { memo, useMemo, useEffect, useRef } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Keyboard } from 'react-native';
 import RegistrationHeader from './RegistrationHeader';
 import RegistrationFooter from './RegistrationFooter';
 import ProgressTracker from '../ui/ProgressTracker';
@@ -49,58 +49,80 @@ const RegistrationLayout: React.FC<RegistrationLayoutProps> = memo(({
   children,
   scrollable = true,
 }) => {
-  const ContentWrapper = useMemo(() => scrollable ? ScrollView : View, [scrollable]);
-  const contentProps = useMemo(() => scrollable 
-    ? { contentContainerStyle: styles.scrollContent }
-    : { style: styles.content }, [scrollable]);
+  const [keyboardVisible, setKeyboardVisible] = React.useState(false);
 
-  // Add cleanup effect for better navigation performance
+  // Listen for keyboard events
   useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false);
+    });
+
     return () => {
-      // Cleanup any pending operations when component unmounts
+      keyboardDidShowListener?.remove();
+      keyboardDidHideListener?.remove();
     };
   }, []);
 
+  const ContentWrapper = useMemo(() => scrollable ? ScrollView : View, [scrollable]);
+  const contentProps = useMemo(() => scrollable 
+    ? { 
+        contentContainerStyle: [
+          styles.scrollContent,
+          keyboardVisible && styles.scrollContentKeyboard
+        ]
+      }
+    : { style: styles.content }, [scrollable, keyboardVisible]);
+
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      removeClippedSubviews={true}
-    >
-      <ContentWrapper {...contentProps}>
-        <View style={styles.wrapper}>
-          {/* Header */}
-          <RegistrationHeader
-            title={title}
-            subtitle={subtitle}
-            showBackButton={showBackButton}
-            onBackPress={onBackPress}
-          />
+    <View style={styles.container}>
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoidingView}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        <ContentWrapper {...contentProps}>
+          <View style={styles.wrapper}>
+            {/* Header */}
+            <RegistrationHeader
+              title={title}
+              subtitle={subtitle}
+              showBackButton={showBackButton}
+              onBackPress={onBackPress}
+            />
 
-          {/* Progress Tracker */}
-          {currentStep && totalSteps && (
-            <ProgressTracker currentStep={currentStep} totalSteps={totalSteps} />
-          )}
+            {/* Progress Tracker */}
+            {currentStep && totalSteps && (
+              <ProgressTracker currentStep={currentStep} totalSteps={totalSteps} />
+            )}
 
-          {/* Content */}
-          <View style={styles.content}>
-            {children}
+            {/* Content */}
+            <View style={styles.content}>
+              {children}
+            </View>
           </View>
-        </View>
-      </ContentWrapper>
+        </ContentWrapper>
+      </KeyboardAvoidingView>
 
-      {/* Footer */}
-      <RegistrationFooter
-        primaryButtonText={primaryButtonText}
-        onPrimaryPress={onPrimaryPress}
-        primaryButtonLoading={primaryButtonLoading}
-        primaryButtonDisabled={primaryButtonDisabled}
-        secondaryText={secondaryText}
-        secondaryLinkText={secondaryLinkText}
-        onSecondaryPress={onSecondaryPress}
-        showSecondary={showSecondary}
-      />
-    </KeyboardAvoidingView>
+      {/* Footer - Always at bottom, but adjusts for keyboard */}
+      <View style={[
+        styles.footerContainer,
+        keyboardVisible && styles.footerContainerKeyboard
+      ]}>
+        <RegistrationFooter
+          primaryButtonText={primaryButtonText}
+          onPrimaryPress={onPrimaryPress}
+          primaryButtonLoading={primaryButtonLoading}
+          primaryButtonDisabled={primaryButtonDisabled}
+          secondaryText={secondaryText}
+          secondaryLinkText={secondaryLinkText}
+          onSecondaryPress={onSecondaryPress}
+          showSecondary={showSecondary}
+        />
+      </View>
+    </View>
   );
 });
 
@@ -108,26 +130,35 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background.primary,
-    // Add these properties to prevent screen overlap
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+  },
+  keyboardAvoidingView: {
+    flex: 1,
   },
   scrollContent: {
     flexGrow: 1,
     paddingBottom: 20,
   },
+  scrollContentKeyboard: {
+    paddingBottom: 100, // Extra space when keyboard is visible
+  },
   wrapper: {
     flex: 1,
     paddingHorizontal: 24,
     paddingTop: 60,
-    paddingBottom: 40,
+    paddingBottom: 20, // Reduced bottom padding
   },
   content: {
     flex: 1,
     justifyContent: 'center',
+  },
+  footerContainer: {
+    backgroundColor: colors.background.primary,
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    paddingBottom: 34, // Safe area bottom
+  },
+  footerContainerKeyboard: {
+    paddingBottom: 16, // Reduced padding when keyboard is visible
   },
 });
 

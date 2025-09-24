@@ -150,9 +150,9 @@ const PersonalDetailsScreen: React.FC<Props> = memo(() => {
     (navigation as any).goBack();
   }, [navigation]);
 
-  const formatDate = (date: Date) => {
-    // Get current language from i18n context
-    const { currentLanguage } = useLanguage();
+  const { currentLanguage } = useLanguage();
+  
+  const formatDate = useCallback((date: Date) => {
     const locale = currentLanguage === 'es' ? 'es-ES' : 
                    currentLanguage === 'fr' ? 'fr-FR' :
                    currentLanguage === 'de' ? 'de-DE' :
@@ -164,7 +164,7 @@ const PersonalDetailsScreen: React.FC<Props> = memo(() => {
       month: 'long',
       day: 'numeric',
     });
-  };
+  }, [currentLanguage]);
 
   const genderOptions = useMemo(() => [
     { value: 'male', label: t('auth.personalDetails.genderOptions.male') },

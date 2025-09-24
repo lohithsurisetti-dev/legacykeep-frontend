@@ -4,7 +4,7 @@
  * Handles user authentication with email/username and password
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import {
   Platform,
   TouchableOpacity,
   TextInput,
+  Keyboard,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { GradientBackground, GlassmorphismContainer, LoginButton } from '../../components/ui';
@@ -57,6 +58,22 @@ const LoginScreen: React.FC<Props> = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isFormValid, setIsFormValid] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+  // Listen for keyboard events
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false);
+    });
+
+    return () => {
+      keyboardDidShowListener?.remove();
+      keyboardDidHideListener?.remove();
+    };
+  }, []);
 
   // Validate form - only show errors for touched fields or when validating all
   const validateForm = (data: LoginFormData, validateAll: boolean = false): boolean => {
@@ -175,127 +192,135 @@ const LoginScreen: React.FC<Props> = () => {
         <KeyboardAvoidingView
           style={styles.keyboardAvoidingView}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
         >
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.title}>LegacyKeep</Text>
-            <Text style={styles.subtitle}>{t('auth.login.subtitle')}</Text>
-          </View>
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={[
+              styles.scrollContent,
+              keyboardVisible && styles.scrollContentKeyboard
+            ]}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Header */}
+            <View style={styles.header}>
+              <Text style={styles.title}>LegacyKeep</Text>
+              <Text style={styles.subtitle}>{t('auth.login.subtitle')}</Text>
+            </View>
 
-          {/* Form Container with Glassmorphism - Centered */}
-          <View style={styles.formWrapper}>
-            <GlassmorphismContainer style={styles.formContainer}>
-              {/* General Error */}
-              {errors.general && (
-                <View style={styles.errorContainer}>
-                  <Text style={styles.errorText}>{errors.general}</Text>
-                </View>
-              )}
-
-              {/* Email/Phone/Username Input */}
-              <View style={styles.inputContainer}>
-                <View style={styles.floatingLabelContainer}>
-                  <Text 
-                    style={[
-                      styles.floatingLabel,
-                      formData.emailOrUsername ? styles.floatingLabelActive : styles.floatingLabelInactive
-                    ]}
-                    pointerEvents="none"
-                  >
-                    {t('auth.login.credentialsLabel')}
-                  </Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder=""
-                    placeholderTextColor="rgba(255, 255, 255, 0.7)"
-                    value={formData.emailOrUsername}
-                    onChangeText={(value) => handleInputChange('emailOrUsername', value)}
-                    keyboardType="default"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    autoComplete="email"
-                    pointerEvents="auto"
-                    editable={true}
-                  />
-                </View>
-                {errors.emailOrUsername && (
-                  <Text style={styles.inputError}>{errors.emailOrUsername}</Text>
+            {/* Form Container with Glassmorphism - Centered */}
+            <View style={styles.formWrapper}>
+              <GlassmorphismContainer style={styles.formContainer}>
+                {/* General Error */}
+                {errors.general && (
+                  <View style={styles.errorContainer}>
+                    <Text style={styles.errorText}>{errors.general}</Text>
+                  </View>
                 )}
-              </View>
 
-              {/* Password Input */}
-              <View style={styles.inputContainer}>
-                <View style={styles.floatingLabelContainer}>
-                  <Text 
-                    style={[
-                      styles.floatingLabel,
-                      formData.password ? styles.floatingLabelActive : styles.floatingLabelInactive
-                    ]}
-                    pointerEvents="none"
-                  >
-                    {t('auth.login.passwordLabel')}
-                  </Text>
-                  <View style={styles.passwordInputWrapper}>
+                {/* Email/Phone/Username Input */}
+                <View style={styles.inputContainer}>
+                  <View style={styles.floatingLabelContainer}>
+                    <Text 
+                      style={[
+                        styles.floatingLabel,
+                        formData.emailOrUsername ? styles.floatingLabelActive : styles.floatingLabelInactive
+                      ]}
+                      pointerEvents="none"
+                    >
+                      {t('auth.login.credentialsLabel')}
+                    </Text>
                     <TextInput
-                      style={styles.passwordInput}
+                      style={styles.input}
                       placeholder=""
                       placeholderTextColor="rgba(255, 255, 255, 0.7)"
-                      value={formData.password}
-                      onChangeText={(value) => handleInputChange('password', value)}
-                      secureTextEntry={!showPassword}
-                      autoComplete="current-password"
+                      value={formData.emailOrUsername}
+                      onChangeText={(value) => handleInputChange('emailOrUsername', value)}
+                      keyboardType="default"
+                      autoCapitalize="none"
                       autoCorrect={false}
+                      autoComplete="email"
                       pointerEvents="auto"
                       editable={true}
                     />
-                    <TouchableOpacity
-                      style={styles.eyeIcon}
-                      onPress={() => setShowPassword(!showPassword)}
-                      activeOpacity={0.7}
-                    >
-                      <Ionicons
-                        name={showPassword ? 'eye-off' : 'eye'}
-                        size={20}
-                        color="rgba(255, 255, 255, 0.7)"
-                      />
-                    </TouchableOpacity>
                   </View>
+                  {errors.emailOrUsername && (
+                    <Text style={styles.inputError}>{errors.emailOrUsername}</Text>
+                  )}
                 </View>
-                {errors.password && (
-                  <Text style={styles.inputError}>{errors.password}</Text>
-                )}
-              </View>
 
-              {/* Login Button */}
-              <LoginButton
-                title={t('auth.login.loginButton')}
-                onPress={handleLogin}
-                disabled={isLoading}
-                loading={isLoading}
-                style={styles.loginButton}
-                fontSize="lg"
-              />
+                {/* Password Input */}
+                <View style={styles.inputContainer}>
+                  <View style={styles.floatingLabelContainer}>
+                    <Text 
+                      style={[
+                        styles.floatingLabel,
+                        formData.password ? styles.floatingLabelActive : styles.floatingLabelInactive
+                      ]}
+                      pointerEvents="none"
+                    >
+                      {t('auth.login.passwordLabel')}
+                    </Text>
+                    <View style={styles.passwordInputWrapper}>
+                      <TextInput
+                        style={styles.passwordInput}
+                        placeholder=""
+                        placeholderTextColor="rgba(255, 255, 255, 0.7)"
+                        value={formData.password}
+                        onChangeText={(value) => handleInputChange('password', value)}
+                        secureTextEntry={!showPassword}
+                        autoComplete="current-password"
+                        autoCorrect={false}
+                        pointerEvents="auto"
+                        editable={true}
+                      />
+                      <TouchableOpacity
+                        style={styles.eyeIcon}
+                        onPress={() => setShowPassword(!showPassword)}
+                        activeOpacity={0.7}
+                      >
+                        <Ionicons
+                          name={showPassword ? 'eye-off' : 'eye'}
+                          size={20}
+                          color="rgba(255, 255, 255, 0.7)"
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                  {errors.password && (
+                    <Text style={styles.inputError}>{errors.password}</Text>
+                  )}
+                </View>
 
-              {/* Forgot Password Link */}
-              <TouchableOpacity
-                style={styles.forgotPasswordContainer}
-                onPress={handleForgotPassword}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.forgotPasswordText}>{t('auth.login.forgotPassword')}</Text>
-              </TouchableOpacity>
-            </GlassmorphismContainer>
-          </View>
-        </ScrollView>
+                {/* Login Button */}
+                <LoginButton
+                  title={t('auth.login.loginButton')}
+                  onPress={handleLogin}
+                  disabled={isLoading}
+                  loading={isLoading}
+                  style={styles.loginButton}
+                  fontSize="lg"
+                />
 
-        {/* Footer - Fixed at bottom */}
-        <View style={styles.footer}>
+                {/* Forgot Password Link */}
+                <TouchableOpacity
+                  style={styles.forgotPasswordContainer}
+                  onPress={handleForgotPassword}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.forgotPasswordText}>{t('auth.login.forgotPassword')}</Text>
+                </TouchableOpacity>
+              </GlassmorphismContainer>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+
+        {/* Footer - Fixed at bottom, adjusts for keyboard */}
+        <View style={[
+          styles.footer,
+          keyboardVisible && styles.footerKeyboard
+        ]}>
           {/* Social Login Section */}
           <View style={styles.socialSection}>
             <View style={styles.divider}>
@@ -348,7 +373,6 @@ const LoginScreen: React.FC<Props> = () => {
             </TouchableOpacity>
           </View>
       </View>
-        </KeyboardAvoidingView>
     </SafeAreaView>
     </GradientBackground>
   );
@@ -373,13 +397,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexGrow: 1,
   },
+  scrollContentKeyboard: {
+    paddingBottom: 100, // Extra space when keyboard is visible
+  },
   header: {
     alignItems: 'center',
     marginBottom: spacing.md,
     marginTop: spacing.lg,
   },
   title: {
-    fontSize: typography.sizes['5xl'],
+    fontSize: typography.sizes['4xl'], // Reduced from 5xl to match registration screens
     fontWeight: typography.weights.bold,
     color: colors.neutral[50],
     marginBottom: spacing.sm,
@@ -396,6 +423,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
+    minHeight: 300, // Ensure minimum height for better centering
   },
   formContainer: {
     width: '100%',
@@ -526,7 +554,8 @@ const styles = StyleSheet.create({
   socialButtons: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: spacing.md,
+    alignItems: 'center',
+    gap: spacing.sm, // Reduced gap for better spacing
   },
   socialButton: {
     width: 48,
@@ -545,6 +574,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 4,
+    marginHorizontal: spacing.xs, // Add horizontal margin for better spacing
   },
   socialButtonIcon: {
     fontSize: 20,
@@ -556,6 +586,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.xl,
     backgroundColor: 'transparent',
+  },
+  footerKeyboard: {
+    paddingVertical: spacing.md, // Reduced padding when keyboard is visible
   },
   footerTextContainer: {
     flexDirection: 'row',
