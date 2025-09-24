@@ -21,6 +21,7 @@ import { colors, typography, spacing } from '../../constants';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useRegistration } from '../../contexts/RegistrationContext';
 import { BackButton, GradientButton, ProgressTracker, GradientText } from '../../components/ui';
+import { RegistrationLayout } from '../../components/registration';
 
 type Props = AuthStackScreenProps<typeof ROUTES.LOCATION>;
 
@@ -149,143 +150,62 @@ const LocationScreen: React.FC<Props> = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        {/* Back Button */}
-        <BackButton onPress={handleBack} style={styles.backButton} />
-        
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.title}>LegacyKeep</Text>
-            <Text style={styles.subtitle}>{t('auth.location.subtitle')}</Text>
-          </View>
-
-          {/* Progress Indicator */}
-          <ProgressTracker currentStep={3} totalSteps={4} />
-
-          {/* Form */}
-          <View style={styles.formContainer}>
-            <View style={styles.form}>
-              {/* City Field */}
-              <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>{t('auth.location.cityLabel')}</Text>
-                <TextInput
-                  style={[styles.input, errors.city && styles.inputError]}
-                  placeholder={t('auth.location.cityPlaceholder')}
-                  placeholderTextColor={colors.neutral[500]}
-                  value={formData.city}
-                  onChangeText={(value) => handleInputChange('city', value)}
-                  autoCapitalize="words"
-                />
-              </View>
-
-              {/* State Field */}
-              <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>{t('auth.location.stateLabel')}</Text>
-                <TextInput
-                  style={[styles.input, errors.state && styles.inputError]}
-                  placeholder={t('auth.location.statePlaceholder')}
-                  placeholderTextColor={colors.neutral[500]}
-                  value={formData.state}
-                  onChangeText={(value) => handleInputChange('state', value)}
-                  autoCapitalize="words"
-                />
-              </View>
-
-              {/* Country Field */}
-              <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>{t('auth.location.countryLabel')}</Text>
-                <TextInput
-                  style={[styles.input, errors.country && styles.inputError]}
-                  placeholder={t('auth.location.countryPlaceholder')}
-                  placeholderTextColor={colors.neutral[500]}
-                  value={formData.country}
-                  onChangeText={(value) => handleInputChange('country', value)}
-                  autoCapitalize="words"
-                />
-              </View>
-
-
-            </View>
-          </View>
-        </ScrollView>
-
-        {/* Footer */}
-        <View style={styles.footer}>
-          <GradientButton
-            title="Continue"
-            onPress={handleGenerateOtp}
-            disabled={isLoading}
-            gradient="horizontal"
-            style={styles.continueButton}
+    <RegistrationLayout
+      subtitle={t('auth.location.subtitle')}
+      onBackPress={handleBack}
+      currentStep={3}
+      totalSteps={5}
+      primaryButtonText="Continue"
+      onPrimaryPress={handleGenerateOtp}
+      primaryButtonLoading={isLoading}
+      primaryButtonDisabled={isLoading}
+      onSecondaryPress={() => (navigation as any).navigate(ROUTES.LOGIN)}
+    >
+      <View style={styles.form}>
+        {/* City Field */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>{t('auth.location.cityLabel')}</Text>
+          <TextInput
+            style={[styles.input, errors.city && styles.inputError]}
+            placeholder=""
+            placeholderTextColor={colors.neutral[500]}
+            value={formData.city}
+            onChangeText={(value) => handleInputChange('city', value)}
+            autoCapitalize="words"
           />
-          
-          {/* Already have account - below generate OTP button */}
-          <View style={styles.signInContainer}>
-            <Text style={styles.footerText}>{t('auth.location.alreadyHaveAccount')} </Text>
-            <TouchableOpacity onPress={() => (navigation as any).navigate(ROUTES.LOGIN)} activeOpacity={0.7}>
-              <GradientText
-                gradient="peacock"
-                fontSize="md"
-                fontWeight="bold"
-              >
-                {t('auth.location.signIn')}
-              </GradientText>
-            </TouchableOpacity>
-          </View>
         </View>
-      </SafeAreaView>
-    </View>
+
+        {/* State Field */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>{t('auth.location.stateLabel')}</Text>
+          <TextInput
+            style={[styles.input, errors.state && styles.inputError]}
+            placeholder=""
+            placeholderTextColor={colors.neutral[500]}
+            value={formData.state}
+            onChangeText={(value) => handleInputChange('state', value)}
+            autoCapitalize="words"
+          />
+        </View>
+
+        {/* Country Field */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>{t('auth.location.countryLabel')}</Text>
+          <TextInput
+            style={[styles.input, errors.country && styles.inputError]}
+            placeholder=""
+            placeholderTextColor={colors.neutral[500]}
+            value={formData.country}
+            onChangeText={(value) => handleInputChange('country', value)}
+            autoCapitalize="words"
+          />
+        </View>
+      </View>
+    </RegistrationLayout>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.neutral[50],
-  },
-  safeArea: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
-    flexGrow: 1,
-  },
-  backButton: {
-    position: 'absolute',
-    top: spacing.xl + spacing.sm,
-    left: spacing.lg,
-    zIndex: 10,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  title: {
-    fontSize: typography.sizes['5xl'],
-    fontWeight: typography.weights.bold,
-    color: colors.neutral[900],
-    textAlign: 'center',
-    marginBottom: spacing.sm,
-  },
-  subtitle: {
-    fontSize: typography.sizes.lg,
-    color: colors.neutral[600],
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  formContainer: {
-    marginBottom: spacing.lg,
-  },
   form: {
     width: '100%',
   },
@@ -310,28 +230,6 @@ const styles = StyleSheet.create({
   },
   inputError: {
     borderColor: colors.error[500],
-  },
-  footer: {
-    alignItems: 'center',
-    marginTop: spacing.lg,
-    marginBottom: spacing.xl,
-    paddingHorizontal: spacing.lg,
-  },
-  continueButton: {
-    height: 48,
-    borderRadius: 8,
-    width: '100%',
-  },
-  signInContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: spacing.lg,
-  },
-  footerText: {
-    fontSize: typography.sizes.md,
-    color: colors.neutral[600],
-    textAlign: 'center',
   },
 });
 

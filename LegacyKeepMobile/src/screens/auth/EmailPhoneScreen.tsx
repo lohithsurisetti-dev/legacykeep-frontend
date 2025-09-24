@@ -3,22 +3,16 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { useTheme } from '../../contexts/ThemeContext';
 import { useRegistration } from '../../contexts/RegistrationContext';
 import { authService } from '../../services';
 import { ROUTES } from '../../navigation/types';
-import { GradientButton, BackButton } from '../../components/ui';
+import { RegistrationLayout } from '../../components/registration';
 import { validateEmailOrPhone } from '../../utils/validation';
-import { spacing, typography } from '../../constants';
+import { colors, spacing, typography } from '../../constants';
 
 interface EmailPhoneFormData {
   emailOrPhone: string;
@@ -32,7 +26,6 @@ interface EmailPhoneFormErrors {
 const EmailPhoneScreen: React.FC = () => {
   const navigation = useNavigation();
   const { t } = useLanguage();
-  const { colors } = useTheme();
   const { setEmailOrPhone, data, submitRegistration } = useRegistration();
 
   const [formData, setFormData] = useState<EmailPhoneFormData>({
@@ -109,181 +102,93 @@ const EmailPhoneScreen: React.FC = () => {
     }
   };
 
-  const styles = createStyles(colors);
-
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <RegistrationLayout
+      subtitle="Verify your account"
+      onBackPress={() => navigation.goBack()}
+      currentStep={4}
+      totalSteps={5}
+      primaryButtonText={isLoading ? t('auth.emailPhone.sendingOtp') : 'Send OTP'}
+      onPrimaryPress={handleContinue}
+      primaryButtonLoading={isLoading}
+      primaryButtonDisabled={isLoading || isValidating}
+      onSecondaryPress={() => (navigation as any).navigate(ROUTES.LOGIN)}
     >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.content}>
-          <BackButton onPress={() => navigation.goBack()} />
-          
-          <View style={styles.header}>
-            <Text style={styles.title}>LegacyKeep</Text>
-            <Text style={styles.subtitle}>Verify your account to complete registration</Text>
-          </View>
-
-          <View style={styles.form}>
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={[
-                  styles.input,
-                  errors.emailOrPhone && styles.inputError,
-                ]}
-                value={formData.emailOrPhone}
-                onChangeText={handleInputChange}
-                placeholder={t('auth.emailPhone.emailOrPhonePlaceholder')}
-                placeholderTextColor={colors.textSecondary}
-                keyboardType={isEmail(formData.emailOrPhone) ? 'email-address' : 'phone-pad'}
-                autoCapitalize="none"
-                autoCorrect={false}
-                autoComplete={isEmail(formData.emailOrPhone) ? 'email' : 'tel'}
-              />
-              {errors.emailOrPhone && (
-                <Text style={styles.errorText}>{errors.emailOrPhone}</Text>
-              )}
-            </View>
-
-            {errors.general && (
-              <View style={styles.generalErrorContainer}>
-                <Text style={styles.generalErrorText}>{errors.general}</Text>
-              </View>
-            )}
-          </View>
+      <View style={styles.form}>
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>Email or Phone</Text>
+          <TextInput
+            style={[
+              styles.input,
+              errors.emailOrPhone && styles.inputError,
+            ]}
+            value={formData.emailOrPhone}
+            onChangeText={handleInputChange}
+            placeholder=""
+            placeholderTextColor={colors.neutral[500]}
+            keyboardType={isEmail(formData.emailOrPhone) ? 'email-address' : 'phone-pad'}
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete={isEmail(formData.emailOrPhone) ? 'email' : 'tel'}
+          />
+          {errors.emailOrPhone && (
+            <Text style={styles.errorText}>{errors.emailOrPhone}</Text>
+          )}
         </View>
-      </ScrollView>
 
-      {/* Footer with Continue Button */}
-      <View style={styles.footer}>
-            <GradientButton
-              title={
-                isLoading
-                  ? t('auth.emailPhone.sendingOtp')
-                  : 'Send OTP'
-              }
-          onPress={handleContinue}
-          disabled={isLoading || isValidating}
-          loading={isLoading}
-          gradient="horizontal"
-          style={styles.continueButton}
-        />
-        
-        <View style={styles.signInContainer}>
-          <Text style={styles.footerText}>Already have an account? </Text>
-          <TouchableOpacity onPress={() => (navigation as any).navigate(ROUTES.LOGIN)}>
-            <Text style={styles.signInLink}>Sign In</Text>
-          </TouchableOpacity>
-        </View>
+        {errors.general && (
+          <View style={styles.generalErrorContainer}>
+            <Text style={styles.generalErrorText}>{errors.general}</Text>
+          </View>
+        )}
       </View>
-    </KeyboardAvoidingView>
+    </RegistrationLayout>
   );
 };
 
-const createStyles = (colors: any) =>
-  StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    scrollContainer: {
-      flexGrow: 1,
-      paddingBottom: 100, // Space for footer
-    },
-    content: {
-      flex: 1,
-      paddingHorizontal: 24,
-      paddingTop: 60,
-      paddingBottom: 40,
-    },
-    header: {
-      marginBottom: 40,
-      alignItems: 'center',
-    },
-    title: {
-      fontSize: 28,
-      fontWeight: '700',
-      color: colors.text,
-      marginBottom: 8,
-      textAlign: 'center',
-    },
-    subtitle: {
-      fontSize: 16,
-      color: colors.textSecondary,
-      textAlign: 'center',
-      lineHeight: 24,
-    },
-    form: {
-      flex: 1,
-      justifyContent: 'center',
-      marginTop: 0,
-    },
-    inputContainer: {
-      marginBottom: 24,
-    },
-    label: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: colors.text,
-      marginBottom: 8,
-    },
-    input: {
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: 12,
-      paddingHorizontal: 16,
-      paddingVertical: 16,
-      fontSize: 16,
-      color: colors.text,
-      backgroundColor: colors.surfaceSecondary,
-    },
-    inputError: {
-      borderColor: colors.error,
-    },
-    errorText: {
-      color: colors.error,
-      fontSize: 14,
-      marginTop: 8,
-    },
-    generalErrorContainer: {
-      backgroundColor: colors.errorBackground,
-      padding: 12,
-      borderRadius: 8,
-      marginBottom: 24,
-    },
-    generalErrorText: {
-      color: colors.error,
-      fontSize: 14,
-      textAlign: 'center',
-    },
-    footer: {
-      alignItems: 'center',
-      marginTop: spacing.lg,
-      marginBottom: spacing.xl,
-      paddingHorizontal: spacing.lg,
-    },
-    continueButton: {
-      height: 48,
-      borderRadius: 8,
-      width: '100%',
-    },
-    signInContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginTop: spacing.lg,
-    },
-    footerText: {
-      fontSize: typography.sizes.md,
-      color: colors.textSecondary,
-      textAlign: 'center',
-    },
-    signInLink: {
-      fontSize: 14,
-      color: colors.primary,
-      fontWeight: '600',
-    },
-  });
+const styles = StyleSheet.create({
+  form: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  inputContainer: {
+    marginBottom: 24,
+  },
+  inputLabel: {
+    fontSize: typography.sizes.md,
+    fontWeight: typography.weights.medium,
+    color: colors.neutral[700],
+    marginBottom: spacing.sm,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: colors.neutral[400],
+    borderRadius: 12,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 14,
+    fontSize: typography.sizes.md,
+    color: colors.neutral[900],
+    backgroundColor: colors.neutral[50],
+  },
+  inputError: {
+    borderColor: colors.error[500],
+  },
+  errorText: {
+    color: colors.error[500],
+    fontSize: typography.sizes.sm,
+    marginTop: spacing.xs,
+  },
+  generalErrorContainer: {
+    backgroundColor: colors.error[50],
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 24,
+  },
+  generalErrorText: {
+    color: colors.error[500],
+    fontSize: 14,
+    textAlign: 'center',
+  },
+});
 
 export default EmailPhoneScreen;

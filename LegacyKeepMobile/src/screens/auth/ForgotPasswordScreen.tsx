@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.lg,
   },
   title: {
-    fontSize: typography.sizes['5xl'],
+    fontSize: typography.sizes['4xl'],
     fontWeight: typography.weights.bold,
     color: colors.neutral[900],
     textAlign: 'center',

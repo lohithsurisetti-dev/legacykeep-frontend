@@ -3,10 +3,7 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
-  ScrollView,
   TouchableOpacity,
-  StatusBar,
   TextInput,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -17,9 +14,8 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { useRegistration } from '../../contexts/RegistrationContext';
 import { validateEmail, validatePassword, validateUsername, validateEmailOrPhone } from '../../utils/validation';
 import { authService } from '../../services';
-import GradientButton from '../../components/ui/GradientButton';
+import { RegistrationLayout } from '../../components/registration';
 import GradientText from '../../components/ui/GradientText';
-import ProgressTracker from '../../components/ui/ProgressTracker';
 import { LinearGradient } from 'expo-linear-gradient';
 
 type Props = AuthStackScreenProps<typeof ROUTES.REGISTRATION>;
@@ -28,7 +24,10 @@ interface FormData {
   firstName: string;
   lastName: string;
   username: string;
+  email: string;
   password: string;
+  confirmPassword: string;
+  acceptTerms: boolean;
 }
 
 interface FormErrors {
@@ -49,7 +48,10 @@ const RegistrationScreen: React.FC<Props> = () => {
     firstName: data.firstName,
     lastName: data.lastName,
     username: data.username,
+    email: data.email,
     password: data.password,
+    confirmPassword: data.password, // Use same password for confirmation
+    acceptTerms: data.acceptTerms,
   };
 
   const setFormData = (updates: Partial<FormData>) => {
@@ -185,34 +187,32 @@ const RegistrationScreen: React.FC<Props> = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.neutral[50]} />
-      <SafeAreaView style={styles.safeArea}>
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.title}>LegacyKeep</Text>
-            <Text style={styles.subtitle}>
-              {t('auth.registration.subtitle')}
-            </Text>
-          </View>
-
-              {/* Progress Indicator */}
-              <ProgressTracker currentStep={1} totalSteps={4} />
-
-          {/* Registration Form */}
-          <View style={styles.formContainer}>
-            <View style={styles.form}>
+    <RegistrationLayout
+      subtitle={t('auth.registration.subtitle')}
+      currentStep={1}
+      totalSteps={5}
+      primaryButtonText={t('auth.registration.sendVerificationButton')}
+      onPrimaryPress={handleCreateAccount}
+      primaryButtonLoading={isLoading}
+      primaryButtonDisabled={
+        !formData.firstName || 
+        !formData.lastName || 
+        !formData.username || 
+        !formData.password || 
+        usernameStatus === 'checking' || 
+        usernameStatus === 'taken' || 
+        (formData.username.length >= 3 && usernameStatus !== 'available')
+      }
+      onSecondaryPress={handleSignIn}
+    >
+      <View style={styles.form}>
               {/* Name Fields */}
               <View style={styles.nameRow}>
                 <View style={styles.nameFieldContainer}>
+                  <Text style={styles.inputLabel}>First Name</Text>
                   <TextInput
                     style={[styles.nameInput, errors.firstName && styles.inputError]}
-                    placeholder={t('auth.registration.firstNamePlaceholder')}
+                    placeholder=""
                     value={formData.firstName}
                     onChangeText={(value) => handleInputChange('firstName', value)}
                     autoCapitalize="words"
@@ -221,9 +221,10 @@ const RegistrationScreen: React.FC<Props> = () => {
                   />
                 </View>
                 <View style={styles.nameFieldContainer}>
+                  <Text style={styles.inputLabel}>Last Name</Text>
                   <TextInput
                     style={[styles.nameInput, errors.lastName && styles.inputError]}
-                    placeholder={t('auth.registration.lastNamePlaceholder')}
+                    placeholder=""
                     value={formData.lastName}
                     onChangeText={(value) => handleInputChange('lastName', value)}
                     autoCapitalize="words"
@@ -235,13 +236,14 @@ const RegistrationScreen: React.FC<Props> = () => {
 
               {/* Username Field */}
               <View style={styles.usernameContainer}>
+                <Text style={styles.inputLabel}>Username</Text>
                 <TextInput
                   style={[
                     styles.input, 
                     errors.username && styles.inputError,
                     usernameStatus === 'taken' && styles.inputError
                   ]}
-                  placeholder={t('auth.registration.usernamePlaceholder')}
+                  placeholder=""
                   value={formData.username}
                   onChangeText={(value) => handleInputChange('username', value)}
                   autoCapitalize="none"
@@ -267,16 +269,19 @@ const RegistrationScreen: React.FC<Props> = () => {
 
 
               {/* Password Field */}
-              <TextInput
-                style={[styles.input, errors.password && styles.inputError]}
-                placeholder={t('auth.registration.passwordPlaceholder')}
-                value={formData.password}
-                onChangeText={(value) => handleInputChange('password', value)}
-                secureTextEntry
-                autoCapitalize="none"
-                autoCorrect={false}
-                autoComplete="password-new"
-              />
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputLabel}>Password</Text>
+                <TextInput
+                  style={[styles.input, errors.password && styles.inputError]}
+                  placeholder=""
+                  value={formData.password}
+                  onChangeText={(value) => handleInputChange('password', value)}
+                  secureTextEntry
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  autoComplete="password-new"
+                />
+              </View>
               
               {/* Password Strength Indicator - Only show when user starts typing */}
               {formData.password.length > 0 && (
@@ -316,104 +321,12 @@ const RegistrationScreen: React.FC<Props> = () => {
                   </Text>
                 </View>
               )}
-
-
-
-            </View>
-          </View>
-        </ScrollView>
-
-        {/* Footer */}
-        <View style={styles.footer}>
-          {/* Terms Agreement Text */}
-          <Text style={styles.agreementText}>
-            By clicking Continue, you agree to our{' '}
-            <GradientText
-              gradient="peacock"
-              fontSize="sm"
-              fontWeight="medium"
-            >
-              Terms of Service
-            </GradientText>
-            {' '}and{' '}
-            <GradientText
-              gradient="peacock"
-              fontSize="sm"
-              fontWeight="medium"
-            >
-              Privacy Policy
-            </GradientText>
-          </Text>
-          
-          <GradientButton
-            title={t('auth.registration.sendVerificationButton')}
-            onPress={handleCreateAccount}
-            disabled={isLoading || 
-                     !formData.password || 
-                     formData.password.length < 8 ||
-                     usernameStatus === 'checking' || 
-                     usernameStatus === 'taken' || 
-                     (formData.username.length >= 3 && usernameStatus !== 'available')}
-            loading={isLoading}
-            gradient="horizontal"
-            style={styles.createButton}
-          />
-          
-          {/* Already have account - below continue button */}
-          <View style={styles.signInContainer}>
-            <Text style={styles.footerText}>{t('auth.registration.alreadyHaveAccount')} </Text>
-            <TouchableOpacity onPress={handleSignIn} activeOpacity={0.7}>
-              <GradientText
-                gradient="peacock"
-                fontSize="md"
-                fontWeight="bold"
-              >
-                {t('auth.registration.signInLink')}
-              </GradientText>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </SafeAreaView>
-    </View>
+      </View>
+    </RegistrationLayout>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.neutral[50], // bg-gray-50
-  },
-  safeArea: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
-    flexGrow: 1,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  title: {
-    fontSize: typography.sizes['5xl'],
-    fontWeight: typography.weights.bold,
-    color: colors.neutral[900],
-    textAlign: 'center',
-    marginBottom: spacing.sm,
-  },
-  subtitle: {
-    fontSize: typography.sizes.lg,
-    color: colors.neutral[600],
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  formContainer: {
-    marginBottom: spacing.xl,
-  },
   form: {
     width: '100%',
   },
@@ -434,6 +347,15 @@ const styles = StyleSheet.create({
     fontSize: typography.sizes.md, // text-base
     color: colors.neutral[900], // text-gray-900
     backgroundColor: colors.neutral[50], // bg-gray-50
+  },
+  inputContainer: {
+    marginBottom: spacing.lg,
+  },
+  inputLabel: {
+    fontSize: typography.sizes.md,
+    fontWeight: typography.weights.medium,
+    color: colors.neutral[700],
+    marginBottom: spacing.sm,
   },
   input: {
     borderWidth: 1,

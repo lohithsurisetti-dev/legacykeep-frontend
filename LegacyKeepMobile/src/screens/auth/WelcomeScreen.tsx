@@ -22,6 +22,8 @@ import { ROUTES } from '../../navigation/types';
 import { colors, typography, spacing, gradients } from '../../constants';
 import { componentColors, brandColors } from '../../constants/designSystem';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { getResponsiveLayout, getResponsiveComponentSizes } from '../../utils/responsive';
+import { responsiveStyles } from '../../styles/responsiveStyles';
 
 type Props = AuthStackScreenProps<typeof ROUTES.WELCOME>;
 
@@ -42,7 +44,7 @@ const WelcomeScreen: React.FC<Props> = () => {
       <SafeAreaView style={styles.safeArea}>
         <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
         
-        <View style={styles.content}>
+        <View style={[styles.content, responsiveStyles.centeredContent]}>
           {/* Hero Section */}
           <View style={styles.hero}>
             <Text style={styles.logo}>{t('auth.welcome.title')}</Text>
@@ -57,7 +59,7 @@ const WelcomeScreen: React.FC<Props> = () => {
               {/* Connect Feature */}
               <View style={styles.featureItem}>
                 <View style={styles.featureIconContainer}>
-                  <Ionicons name="people" size={24} color={colors.neutral[50]} />
+                  <Ionicons name="people" size={20} color={colors.neutral[50]} />
                 </View>
                 <Text style={styles.featureTitle}>{t('auth.welcome.features.connect.title')}</Text>
                 <Text style={styles.featureDescription}>{t('auth.welcome.features.connect.description')}</Text>
@@ -66,7 +68,7 @@ const WelcomeScreen: React.FC<Props> = () => {
               {/* Preserve Feature */}
               <View style={styles.featureItem}>
                 <View style={styles.featureIconContainer}>
-                  <Ionicons name="shield-checkmark" size={24} color={colors.neutral[50]} />
+                  <Ionicons name="shield-checkmark" size={20} color={colors.neutral[50]} />
                 </View>
                 <Text style={styles.featureTitle}>{t('auth.welcome.features.preserve.title')}</Text>
                 <Text style={styles.featureDescription}>{t('auth.welcome.features.preserve.description')}</Text>
@@ -75,7 +77,7 @@ const WelcomeScreen: React.FC<Props> = () => {
               {/* Discover Feature */}
               <View style={styles.featureItem}>
                 <View style={styles.featureIconContainer}>
-                  <Ionicons name="compass" size={24} color={colors.neutral[50]} />
+                  <Ionicons name="compass" size={20} color={colors.neutral[50]} />
                 </View>
                 <Text style={styles.featureTitle}>{t('auth.welcome.features.discover.title')}</Text>
                 <Text style={styles.featureDescription}>{t('auth.welcome.features.discover.description')}</Text>
@@ -83,8 +85,8 @@ const WelcomeScreen: React.FC<Props> = () => {
             </View>
           </GlassmorphismContainer>
 
-          {/* Action Buttons */}
-          <View style={styles.actions}>
+          {/* Footer with Primary Button */}
+          <View style={styles.footer}>
             <TouchableOpacity
               style={styles.primaryButton}
               onPress={handleGetStarted}
@@ -93,15 +95,13 @@ const WelcomeScreen: React.FC<Props> = () => {
               <Text style={styles.primaryButtonText}>{t('auth.welcome.getStartedButton')}</Text>
             </TouchableOpacity>
             
-            <GlassmorphismContainer style={styles.secondaryButton}>
-              <TouchableOpacity
-                onPress={handleSignIn}
-                activeOpacity={0.7}
-                style={styles.secondaryButtonInner}
-              >
-                <Text style={styles.secondaryButtonText}>{t('auth.welcome.signInButton')}</Text>
+            {/* Sign In Link */}
+            <View style={styles.footerTextContainer}>
+              <Text style={styles.footerText}>Already have an account? </Text>
+              <TouchableOpacity onPress={handleSignIn} activeOpacity={0.7}>
+                <Text style={styles.signInLinkText}>Sign in</Text>
               </TouchableOpacity>
-            </GlassmorphismContainer>
+            </View>
           </View>
         </View>
       </SafeAreaView>
@@ -120,37 +120,31 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: spacing.lg,
     justifyContent: 'space-between',
+    minHeight: '100%', // Ensure full height
   },
   // Hero Section
   hero: {
     alignItems: 'center',
-    marginTop: spacing.xxl,
-    paddingHorizontal: spacing.md,
+    marginBottom: spacing.md,
+    marginTop: 0,
   },
   logo: {
-    fontSize: typography.sizes['4xl'],
+    fontSize: typography.sizes['5xl'],
     fontWeight: typography.weights.bold,
     color: colors.neutral[50],
     marginBottom: spacing.sm,
-    textShadowColor: 'rgba(255, 255, 255, 0.3)',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 10,
-    letterSpacing: 1,
+    textAlign: 'center',
   },
   subtitle: {
-    fontSize: typography.sizes.xl,
-    fontWeight: typography.weights.semibold,
-    color: colors.neutral[100],
+    fontSize: typography.sizes.lg,
+    color: componentColors.glassmorphism.text,
     textAlign: 'center',
-    marginBottom: spacing.sm,
-    textShadowColor: 'rgba(255, 255, 255, 0.2)',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 8,
+    lineHeight: 22,
   },
   // Main Feature Card
   mainCard: {
-    marginVertical: spacing.lg,
-    padding: spacing.xl,
+    marginVertical: spacing.md, // Reduced from lg
+    padding: spacing.lg, // Reduced from xl
     shadowColor: colors.shadow.dark,
     shadowOffset: {
       width: 0,
@@ -159,19 +153,21 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 16,
     elevation: 8,
+    maxWidth: 320, // Limit maximum width
+    alignSelf: 'center', // Center the card
   },
   featuresGrid: {
     alignItems: 'center',
   },
   featureItem: {
     alignItems: 'center',
-    marginBottom: spacing.xl, // More space between features
-    maxWidth: 280,
+    marginBottom: spacing.lg, // Reduced from xl
+    maxWidth: 260, // Reduced from 280
   },
   featureIconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 48, // Reduced from 56
+    height: 48, // Reduced from 56
+    borderRadius: 24, // Reduced from 28
     backgroundColor: 'rgba(255, 255, 255, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -188,30 +184,41 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   featureTitle: {
-    fontSize: typography.sizes.lg,
+    fontSize: typography.sizes.md, // Reduced from lg
     fontWeight: typography.weights.bold,
     color: colors.neutral[50],
-    marginBottom: spacing.sm, // Space before description
+    marginBottom: spacing.xs, // Reduced from sm
     textAlign: 'center',
   },
   featureDescription: {
-    fontSize: typography.sizes.sm,
+    fontSize: typography.sizes.xs, // Reduced from sm
     color: componentColors.glassmorphism.text,
     textAlign: 'center',
-    lineHeight: 20,
+    lineHeight: 16, // Reduced from 20
     opacity: 0.8,
   },
-  // Action Buttons
-  actions: {
-    marginBottom: spacing.xl,
-    paddingHorizontal: spacing.md,
+  footerTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: spacing.lg,
+  },
+  footerText: {
+    color: colors.neutral[50],
+    fontSize: typography.sizes.md,
+  },
+  
+  // Footer
+  footer: {
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.xl,
+    paddingTop: spacing.md,
   },
   primaryButton: {
     backgroundColor: colors.neutral[50],
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.lg,
     borderRadius: 16,
-    marginBottom: spacing.lg,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
@@ -227,26 +234,10 @@ const styles = StyleSheet.create({
     fontSize: typography.sizes.lg,
     fontWeight: typography.weights.bold,
   },
-  secondaryButton: {
-    borderRadius: 16,
-    shadowColor: colors.shadow.dark,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  secondaryButtonInner: {
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    alignItems: 'center',
-  },
-  secondaryButtonText: {
-    color: colors.neutral[50],
-    fontSize: typography.sizes.lg,
-    fontWeight: typography.weights.semibold,
+  signInLinkText: {
+    color: componentColors.link.primary,
+    fontWeight: typography.weights.bold,
+    fontSize: typography.sizes.md,
   },
 });
 

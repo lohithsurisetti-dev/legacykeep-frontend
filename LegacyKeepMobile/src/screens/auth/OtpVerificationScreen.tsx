@@ -23,7 +23,10 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useRegistration } from '../../contexts/RegistrationContext';
 import { authService } from '../../services';
 import { BackButton, GradientButton, ProgressTracker, GradientText } from '../../components/ui';
+import { RegistrationLayout } from '../../components/registration';
 import { LinearGradient } from 'expo-linear-gradient';
+import { getResponsiveLayout, getResponsiveComponentSizes } from '../../utils/responsive';
+import { responsiveStyles } from '../../styles/responsiveStyles';
 
 type Props = AuthStackScreenProps<typeof ROUTES.OTP_VERIFICATION>;
 
@@ -270,181 +273,108 @@ const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        {/* Back Button */}
-        <BackButton onPress={handleBack} style={styles.backButton} />
-        
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.title}>LegacyKeep</Text>
-            <Text style={styles.subtitle}>{getSubtitle()}</Text>
-          </View>
-
-          {/* Progress Indicator - Only show for registration flow */}
-          {purpose === 'registration' && (
-            <ProgressTracker currentStep={4} totalSteps={4} />
-          )}
-
-          {/* Form */}
-          <View style={styles.formContainer}>
-            <View style={styles.form}>
-              {/* OTP Input Fields */}
-              <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>{t('auth.otpVerification.otpLabel')}</Text>
-                <Text style={styles.helperText}>{getDescription()}</Text>
-                <View style={styles.otpContainer}>
-                  {formData.otp.map((digit, index) => (
-                    <View key={index} style={styles.otpInputWrapper}>
-                      {digit ? (
-                        <LinearGradient
-                          colors={gradients.peacock}
-                          start={{ x: 0, y: 0 }}
-                          end={{ x: 1, y: 1 }}
-                          style={styles.otpGradientWrapper}
-                        >
-                          <TextInput
-                            ref={(ref) => {
-                              if (ref) otpInputRefs.current[index] = ref;
-                            }}
-                            style={styles.otpInput}
-                            value={digit}
-                            onChangeText={(value) => handleOtpChange(value, index)}
-                            keyboardType="numeric"
-                            maxLength={1}
-                            textAlign="center"
-                            autoFocus={index === 0}
-                          />
-                        </LinearGradient>
-                      ) : (
-                        <TextInput
-                          ref={(ref) => {
-                            if (ref) otpInputRefs.current[index] = ref;
-                          }}
-                          style={[
-                            styles.otpInput,
-                            errors.otp && styles.inputError
-                          ]}
-                          value={digit}
-                          onChangeText={(value) => handleOtpChange(value, index)}
-                          keyboardType="numeric"
-                          maxLength={1}
-                          textAlign="center"
-                          autoFocus={index === 0}
-                        />
-                      )}
-                    </View>
-                  ))}
-                </View>
-              </View>
-
-              {/* Resend Code */}
-              <View style={styles.resendSection}>
-                <View style={styles.resendRow}>
-                  <Text style={styles.resendLabel}>Didn't receive it? </Text>
-                  <TouchableOpacity 
-                    onPress={handleResendCode}
-                    disabled={resendCooldown > 0}
-                    activeOpacity={0.7}
-                    style={styles.resendButton}
+    <RegistrationLayout
+      subtitle={getSubtitle()}
+      onBackPress={handleBack}
+      currentStep={5}
+      totalSteps={5}
+      primaryButtonText={getButtonText()}
+      onPrimaryPress={handleVerify}
+      primaryButtonLoading={purpose === 'registration' ? isLoading : false}
+      primaryButtonDisabled={isLoading}
+      onSecondaryPress={() => (navigation as any).navigate(ROUTES.LOGIN)}
+    >
+      <View style={styles.form}>
+        {/* OTP Input Fields */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>{t('auth.otpVerification.otpLabel')}</Text>
+          <Text style={styles.helperText}>{getDescription()}</Text>
+          <View style={styles.otpContainer}>
+            {formData.otp.map((digit, index) => (
+              <View key={index} style={styles.otpInputWrapper}>
+                {digit ? (
+                  <LinearGradient
+                    colors={gradients.peacock}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.otpGradientWrapper}
                   >
-                    {resendCooldown > 0 ? (
-                      <Text style={styles.resendTextDisabled}>
-                        Resend in {resendCooldown}s
-                      </Text>
-                    ) : (
-                      <GradientText
-                        gradient="peacock"
-                        fontSize="md"
-                        fontWeight="semibold"
-                      >
-                        Resend
-                      </GradientText>
-                    )}
-                  </TouchableOpacity>
-                </View>
-                
-                {/* Resend Error Message */}
-                {errors.resend && (
-                  <View style={styles.errorContainer}>
-                    <Text style={styles.errorText}>{errors.resend}</Text>
-                  </View>
+                    <TextInput
+                      ref={(ref) => {
+                        if (ref) otpInputRefs.current[index] = ref;
+                      }}
+                      style={styles.otpInput}
+                      value={digit}
+                      onChangeText={(value) => handleOtpChange(value, index)}
+                      keyboardType="numeric"
+                      maxLength={1}
+                      textAlign="center"
+                      autoFocus={index === 0}
+                    />
+                  </LinearGradient>
+                ) : (
+                  <TextInput
+                    ref={(ref) => {
+                      if (ref) otpInputRefs.current[index] = ref;
+                    }}
+                    style={[
+                      styles.otpInput,
+                      errors.otp && styles.inputError
+                    ]}
+                    value={digit}
+                    onChangeText={(value) => handleOtpChange(value, index)}
+                    keyboardType="numeric"
+                    maxLength={1}
+                    textAlign="center"
+                    autoFocus={index === 0}
+                  />
                 )}
               </View>
-            </View>
+            ))}
           </View>
-        </ScrollView>
-
-        {/* Footer */}
-        <View style={styles.footer}>
-          <GradientButton
-            title={getButtonText()}
-            onPress={handleVerify}
-            disabled={isLoading}
-            loading={purpose === 'registration' ? isLoading : false}
-            gradient="horizontal"
-            style={styles.verifyButton}
-          />
         </View>
-      </SafeAreaView>
-    </View>
+
+        {/* Resend Code */}
+        <View style={styles.resendSection}>
+          <View style={styles.resendRow}>
+            <Text style={styles.resendLabel}>Didn't receive it? </Text>
+            <TouchableOpacity 
+              onPress={handleResendCode}
+              disabled={resendCooldown > 0}
+              activeOpacity={0.7}
+              style={styles.resendButton}
+            >
+              {resendCooldown > 0 ? (
+                <Text style={styles.resendTextDisabled}>
+                  Resend in {resendCooldown}s
+                </Text>
+              ) : (
+                <GradientText
+                  gradient="peacock"
+                  fontSize="md"
+                  fontWeight="semibold"
+                >
+                  Resend
+                </GradientText>
+              )}
+            </TouchableOpacity>
+          </View>
+          
+          {/* Resend Error Message */}
+          {errors.resend && (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>{errors.resend}</Text>
+            </View>
+          )}
+        </View>
+      </View>
+    </RegistrationLayout>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.neutral[50],
-  },
-  safeArea: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
-    flexGrow: 1,
-    alignItems: 'center',
-  },
-  backButton: {
-    position: 'absolute',
-    top: spacing.xl + spacing.sm,
-    left: spacing.lg,
-    zIndex: 10,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  title: {
-    fontSize: typography.sizes['5xl'],
-    fontWeight: typography.weights.bold,
-    color: colors.neutral[900],
-    textAlign: 'center',
-    marginBottom: spacing.sm,
-  },
-  subtitle: {
-    fontSize: typography.sizes.lg,
-    color: colors.neutral[600],
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  formContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-  },
   form: {
     width: '100%',
-    alignItems: 'center',
   },
   inputContainer: {
     alignItems: 'center',
@@ -470,10 +400,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
     marginBottom: spacing.sm,
+    width: '100%',
+    paddingHorizontal: spacing.lg,
   },
   otpInputWrapper: {
     width: 56,
     height: 56,
+    flex: 0,
   },
   otpGradientWrapper: {
     borderRadius: 16,
@@ -530,17 +463,6 @@ const styles = StyleSheet.create({
     fontSize: typography.sizes.sm,
     color: colors.error[500],
     textAlign: 'center',
-  },
-  footer: {
-    alignItems: 'center',
-    marginTop: spacing.lg,
-    marginBottom: spacing.xl,
-    paddingHorizontal: spacing.lg,
-  },
-  verifyButton: {
-    height: 48,
-    borderRadius: 8,
-    width: '100%',
   },
 });
 

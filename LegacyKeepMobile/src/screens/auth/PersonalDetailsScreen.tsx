@@ -9,8 +9,6 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
-  ScrollView,
   TouchableOpacity,
   Animated,
 } from 'react-native';
@@ -20,9 +18,11 @@ import { ROUTES } from '../../navigation/types';
 import { colors, typography, spacing, gradients } from '../../constants';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useRegistration } from '../../contexts/RegistrationContext';
-import { BackButton, GradientButton, ProgressTracker, GradientText } from '../../components/ui';
+import { RegistrationLayout } from '../../components/registration';
 import { LinearGradient } from 'expo-linear-gradient';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { getResponsiveComponentSizes, getResponsiveLayout } from '../../utils/responsive';
+import { responsiveStyles } from '../../styles/responsiveStyles';
 
 type Props = AuthStackScreenProps<typeof ROUTES.PERSONAL_DETAILS>;
 
@@ -174,29 +174,18 @@ const PersonalDetailsScreen: React.FC<Props> = () => {
   ], [t]);
 
   return (
-    <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        {/* Back Button */}
-        <BackButton onPress={handleBack} style={styles.backButton} />
-        
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-
-          {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.title}>LegacyKeep</Text>
-            <Text style={styles.subtitle}>{t('auth.personalDetails.subtitle')}</Text>
-          </View>
-
-          {/* Progress Indicator */}
-          <ProgressTracker currentStep={2} totalSteps={4} />
-
-          {/* Form */}
-          <View style={styles.formContainer}>
-            <View style={styles.form}>
+    <RegistrationLayout
+      subtitle={t('auth.personalDetails.subtitle')}
+      onBackPress={handleBack}
+      currentStep={2}
+      totalSteps={5}
+      primaryButtonText={t('auth.personalDetails.continueButton')}
+      onPrimaryPress={handleContinue}
+      primaryButtonLoading={isLoading}
+      primaryButtonDisabled={isLoading}
+      onSecondaryPress={() => (navigation as any).navigate(ROUTES.LOGIN)}
+    >
+      <View style={styles.form}>
               {/* Gender Field */}
               <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>{t('auth.personalDetails.genderLabel')}</Text>
@@ -254,7 +243,7 @@ const PersonalDetailsScreen: React.FC<Props> = () => {
                 </TouchableOpacity>
                 
                 {/* Date Picker Container - Always present to prevent layout shift */}
-                <View style={styles.datePickerContainer}>
+                <View style={[styles.datePickerContainer, responsiveStyles.datePickerContainer]}>
                   <Animated.View 
                     style={[
                       styles.inlineDatePicker,
@@ -284,44 +273,15 @@ const PersonalDetailsScreen: React.FC<Props> = () => {
                     />
                     <TouchableOpacity
                       onPress={() => setShowDatePicker(false)}
+                      style={responsiveStyles.datePickerButton}
                     >
                       <Text style={styles.doneText}>Done</Text>
                     </TouchableOpacity>
                   </Animated.View>
                 </View>
               </View>
-
-            </View>
-          </View>
-        </ScrollView>
-
-        {/* Footer */}
-        <View style={styles.footer}>
-          <GradientButton
-            title={t('auth.personalDetails.continueButton')}
-            onPress={handleContinue}
-            disabled={isLoading}
-            gradient="horizontal"
-            style={styles.continueButton}
-          />
-          
-          {/* Already have account - below continue button */}
-          <View style={styles.signInContainer}>
-            <Text style={styles.footerText}>{t('auth.personalDetails.alreadyHaveAccount')} </Text>
-            <TouchableOpacity onPress={() => (navigation as any).navigate(ROUTES.LOGIN)} activeOpacity={0.7}>
-              <GradientText
-                gradient="peacock"
-                fontSize="md"
-                fontWeight="bold"
-              >
-                {t('auth.personalDetails.signIn')}
-              </GradientText>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-      </SafeAreaView>
-    </View>
+      </View>
+    </RegistrationLayout>
   );
 };
 
@@ -352,7 +312,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   title: {
-    fontSize: typography.sizes['5xl'],
+    fontSize: typography.sizes['4xl'],
     fontWeight: typography.weights.bold,
     color: colors.neutral[900],
     textAlign: 'center',
@@ -470,10 +430,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   datePickerContainer: {
-    height: 320, // Increased height to accommodate button fully (200px picker + 120px for button and padding)
-    overflow: 'hidden',
+    minHeight: 280, // Use minHeight instead of fixed height
+    maxHeight: 320,
+    overflow: 'visible', // Allow content to be visible
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start', // Start from top instead of center
+    paddingVertical: spacing.md,
   },
   inlineDatePicker: {
     backgroundColor: 'transparent',
@@ -484,13 +446,18 @@ const styles = StyleSheet.create({
   },
   datePicker: {
     height: 200,
+    width: '100%',
   },
   doneText: {
     fontSize: typography.sizes.lg,
     fontWeight: typography.weights.medium,
-    color: colors.neutral[600],
-    textAlign: 'center',
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    backgroundColor: colors.primary[500],
+    color: colors.neutral[50],
+    borderRadius: 8,
     marginTop: spacing.md,
+    textAlign: 'center',
   },
 });
 
