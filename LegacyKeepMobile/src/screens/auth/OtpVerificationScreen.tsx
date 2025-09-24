@@ -84,6 +84,14 @@ const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   
   const otpInputRefs = useRef<TextInput[]>([]);
+  const hiddenInputRef = useRef<TextInput>(null);
+
+  // Blinking caret for active OTP box
+  const [caretVisible, setCaretVisible] = useState(true);
+  useEffect(() => {
+    const caretTimer = setInterval(() => setCaretVisible(prev => !prev), 500);
+    return () => clearInterval(caretTimer);
+  }, []);
 
   // Initialize refs array
   useEffect(() => {
@@ -166,6 +174,52 @@ const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
         otpInputRefs.current[index + 1]?.focus();
       }, 50);
     }
+    
+    // Clear error when user starts typing
+    if (errors.otp) {
+      setErrors(prev => ({ ...prev, otp: undefined }));
+    }
+  };
+
+  const handleOtpKeyPress = (key: string, index: number) => {
+    // Handle backspace key
+    if (key === 'Backspace') {
+      if (formData.otp[index] === '') {
+        // If current field is empty, move to previous field
+        if (index > 0) {
+          setTimeout(() => {
+            otpInputRefs.current[index - 1]?.focus();
+          }, 50);
+        }
+      } else {
+        // Clear current field
+        const newOtp = [...formData.otp];
+        newOtp[index] = '';
+        setFormData(prev => ({
+          ...prev,
+          otp: newOtp
+        }));
+      }
+    }
+  };
+
+  const handleOtpBoxPress = (index: number) => {
+    // Focus the hidden input when any OTP box is pressed
+    hiddenInputRef.current?.focus();
+  };
+
+  const handleHiddenInputChange = (value: string) => {
+    // Only allow numbers and limit to 6 digits
+    const numericValue = value.replace(/[^0-9]/g, '').slice(0, 6);
+    
+    // Convert to array format
+    const otpArray = numericValue.split('');
+    const paddedOtp = [...otpArray, ...Array(6 - otpArray.length).fill('')];
+    
+    setFormData(prev => ({
+      ...prev,
+      otp: paddedOtp
+    }));
     
     // Clear error when user starts typing
     if (errors.otp) {
@@ -272,12 +326,14 @@ const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
     }
   };
 
+  const isPasswordReset = purpose === 'password-reset';
+
   return (
     <RegistrationLayout
       subtitle={getSubtitle()}
       onBackPress={handleBack}
-      currentStep={5}
-      totalSteps={5}
+      currentStep={isPasswordReset ? 1 : 5}
+      totalSteps={isPasswordReset ? 2 : 5}
       primaryButtonText={getButtonText()}
       onPrimaryPress={handleVerify}
       primaryButtonLoading={purpose === 'registration' ? isLoading : false}
@@ -289,9 +345,28 @@ const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
         <View style={styles.inputContainer}>
           <Text style={styles.inputLabel}>{t('auth.otpVerification.otpLabel')}</Text>
           <Text style={styles.helperText}>{getDescription()}</Text>
+          
+          {/* Hidden input for OTP entry */}
+          <TextInput
+            ref={hiddenInputRef}
+            style={styles.hiddenInput}
+            value={formData.otp.join('')}
+            onChangeText={handleHiddenInputChange}
+            keyboardType="numeric"
+            maxLength={6}
+            autoFocus={true}
+            showSoftInputOnFocus={true}
+            selectTextOnFocus={true}
+          />
+          
           <View style={styles.otpContainer}>
             {formData.otp.map((digit, index) => (
-              <View key={index} style={styles.otpInputWrapper}>
+              <TouchableOpacity 
+                key={index} 
+                style={styles.otpInputWrapper}
+                onPress={() => handleOtpBoxPress(index)}
+                activeOpacity={0.7}
+              >
                 {digit ? (
                   <LinearGradient
                     colors={gradients.peacock}
@@ -299,37 +374,27 @@ const OtpVerificationScreen: React.FC<Props> = ({ route }) => {
                     end={{ x: 1, y: 1 }}
                     style={styles.otpGradientWrapper}
                   >
-                    <TextInput
-                      ref={(ref) => {
-                        if (ref) otpInputRefs.current[index] = ref;
-                      }}
-                      style={styles.otpInput}
-                      value={digit}
-                      onChangeText={(value) => handleOtpChange(value, index)}
-                      keyboardType="numeric"
-                      maxLength={1}
-                      textAlign="center"
-                      autoFocus={index === 0}
-                    />
+                    <View style={styles.otpInputFilled}>
+                      <Text style={styles.otpDigit}>{digit}</Text>
+                    </View>
                   </LinearGradient>
                 ) : (
-                  <TextInput
-                    ref={(ref) => {
-                      if (ref) otpInputRefs.current[index] = ref;
-                    }}
-                    style={[
-                      styles.otpInput,
-                      errors.otp && styles.inputError
-                    ]}
-                    value={digit}
-                    onChangeText={(value) => handleOtpChange(value, index)}
-                    keyboardType="numeric"
-                    maxLength={1}
-                    textAlign="center"
-                    autoFocus={index === 0}
-                  />
+                  <View style={[
+                    styles.otpInput,
+                    errors.otp && styles.inputError
+                  ]}>
+                    {/* Show blinking caret on the active (first empty) box */}
+                    {(() => {
+                      const firstEmptyIndex = formData.otp.findIndex(d => !d);
+                      const activeIndex = firstEmptyIndex === -1 ? formData.otp.length - 1 : firstEmptyIndex;
+                      if (activeIndex === index) {
+                        return <View style={[styles.caret, { opacity: caretVisible ? 1 : 0 }]} />;
+                      }
+                      return <Text style={styles.otpPlaceholder}>•</Text>;
+                    })()}
+                  </View>
                 )}
-              </View>
+              </TouchableOpacity>
             ))}
           </View>
         </View>
@@ -410,7 +475,7 @@ const styles = StyleSheet.create({
   },
   otpGradientWrapper: {
     borderRadius: 16,
-    padding: 1,
+    padding: 2, // This creates the border width
   },
   otpInput: {
     borderWidth: 1,
@@ -426,8 +491,43 @@ const styles = StyleSheet.create({
     width: LAYOUT.FULL_WIDTH,
     height: LAYOUT.FULL_HEIGHT,
   },
+  otpInputFilled: {
+    borderWidth: 0, // Remove border since gradient wrapper provides it
+    borderRadius: 14, // Slightly smaller to fit inside gradient wrapper
+    paddingVertical: 16,
+    paddingHorizontal: spacing.sm,
+    backgroundColor: colors.neutral[50], // White background
+    width: LAYOUT.FULL_WIDTH,
+    height: LAYOUT.FULL_HEIGHT,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   inputError: {
     borderColor: colors.error[500],
+  },
+  hiddenInput: {
+    position: 'absolute',
+    left: -9999,
+    opacity: 0,
+    height: 0,
+    width: 0,
+  },
+  otpDigit: {
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.bold,
+    color: colors.neutral[900], // Changed to dark color for visibility
+    textAlign: 'center',
+  },
+  otpPlaceholder: {
+    fontSize: typography.sizes.xl,
+    color: colors.neutral[300],
+    textAlign: 'center',
+  },
+  caret: {
+    width: 2,
+    height: 24,
+    backgroundColor: colors.neutral[700],
+    alignSelf: 'center',
   },
   resendSection: {
     alignItems: 'center',

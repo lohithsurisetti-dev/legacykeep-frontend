@@ -1,15 +1,26 @@
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TextInput } from 'react-native';
 import { colors, typography, spacing } from '../../constants';
+import { RegistrationLayout } from '../../components/registration';
 
 const PasswordResetScreen: React.FC = () => {
   return (
-    <SafeAreaView style={styles.container}>
+    <RegistrationLayout
+      subtitle="Set your new password"
+      currentStep={2}
+      totalSteps={2}
+      primaryButtonText="Update Password"
+      onPrimaryPress={() => {}}
+      primaryButtonDisabled={true}
+      onSecondaryPress={() => {}}
+    >
       <View style={styles.content}>
         <Text style={styles.title}>Password Reset</Text>
-        <Text style={styles.subtitle}>Coming soon...</Text>
+        <Text style={styles.subtitle}>Enter and confirm your new password</Text>
+        <TextInput style={styles.input} placeholder="New password" secureTextEntry />
+        <TextInput style={styles.input} placeholder="Confirm password" secureTextEntry />
       </View>
-    </SafeAreaView>
+    </RegistrationLayout>
   );
 };
 
@@ -21,7 +32,6 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
     paddingHorizontal: spacing.lg,
   },
   title: {
@@ -33,6 +43,15 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: typography.sizes.md,
     color: colors.neutral[600],
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: colors.neutral[300],
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: spacing.md,
+    marginTop: spacing.md,
+    backgroundColor: colors.neutral[50],
   },
 });
 

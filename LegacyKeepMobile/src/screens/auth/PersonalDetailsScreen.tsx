@@ -434,13 +434,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   datePickerContainer: {
-    minHeight: 50, // Even smaller
-    maxHeight: 60, // Even smaller
+    minHeight: 90, // Increased to ensure Select is visible
+    maxHeight: 120, // Increased to ensure Select is visible
     overflow: 'visible', // Allow content to be visible
     alignItems: 'center',
     justifyContent: 'flex-start', // Start from top instead of center
     paddingVertical: 0, // No padding to move it closer
-    marginTop: -spacing.sm, // Move it up closer to date input
+    marginTop: 0, // Remove negative margin to avoid clipping
   },
   inlineDatePicker: {
     backgroundColor: 'transparent',
@@ -456,7 +456,7 @@ const styles = StyleSheet.create({
   selectButton: {
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.md,
-    marginTop: spacing.xs,
+    marginTop: spacing.sm, // Give more space so it's not clipped
   },
   doneText: {
     fontSize: typography.sizes.md, // Bigger text
