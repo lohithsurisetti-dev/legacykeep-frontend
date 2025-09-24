@@ -16,7 +16,8 @@ const responsiveSpacing = getResponsiveSpacing();
 export const responsiveStyles = StyleSheet.create({
   // Base container styles
   container: {
-    ...responsiveLayout.container,
+    flex: 1,
+    width: '100%' as const,
   },
   
   safeContainer: {
@@ -24,7 +25,10 @@ export const responsiveStyles = StyleSheet.create({
   },
   
   centeredContent: {
-    ...responsiveLayout.centeredContent,
+    flex: 1,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    paddingHorizontal: responsiveSpacing.lg,
   },
   
   // Scrollable content
@@ -105,7 +109,11 @@ export const responsiveStyles = StyleSheet.create({
   
   // Bottom actions (for screens with bottom buttons)
   bottomActions: {
-    ...responsiveLayout.bottomActions,
+    position: 'absolute' as const,
+    bottom: responsiveSpacing.xl,
+    left: responsiveSpacing.lg,
+    right: responsiveSpacing.lg,
+    width: '100%',
   },
   
   // Header styles

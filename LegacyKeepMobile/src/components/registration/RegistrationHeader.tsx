@@ -24,7 +24,7 @@ const RegistrationHeader: React.FC<RegistrationHeaderProps> = ({
     <>
       {/* Back Button */}
       {showBackButton && (
-        <BackButton onPress={onBackPress} style={styles.backButton} />
+        <BackButton onPress={onBackPress || (() => {})} style={styles.backButton} />
       )}
       
       {/* Header */}

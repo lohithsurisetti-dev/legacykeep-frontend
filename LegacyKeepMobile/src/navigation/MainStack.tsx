@@ -34,13 +34,12 @@ const MainStack: React.FC = () => {
         }}
       />
       
-      {/* Modal/overlay screens */}
+      {/* Profile Screen */}
       <Stack.Screen
         name={ROUTES.PROFILE}
         component={ProfileScreen}
         options={{
-          title: 'Profile',
-          presentation: 'modal',
+          headerShown: false, // ProfileScreen handles its own header
         }}
       />
       

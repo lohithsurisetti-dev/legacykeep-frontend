@@ -45,7 +45,7 @@ interface LoginFormErrors {
 
 const LoginScreen: React.FC<Props> = () => {
   const navigation = useNavigation();
-  const { login } = useAuth();
+  const { login, completeVerification } = useAuth();
   const { t } = useLanguage();
   
   const [formData, setFormData] = useState<LoginFormData>({
@@ -303,14 +303,25 @@ const LoginScreen: React.FC<Props> = () => {
                   fontSize="lg"
                 />
 
-                {/* Forgot Password Link */}
-                <TouchableOpacity
-                  style={styles.forgotPasswordContainer}
-                  onPress={handleForgotPassword}
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.forgotPasswordText}>{t('auth.login.forgotPassword')}</Text>
-                </TouchableOpacity>
+                {/* Forgot Password Link and Home Icon */}
+                <View style={styles.forgotPasswordRow}>
+                  <TouchableOpacity
+                    style={styles.forgotPasswordContainer}
+                    onPress={handleForgotPassword}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.forgotPasswordText}>{t('auth.login.forgotPassword')}</Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity 
+                    style={styles.homeIcon}
+                    onPress={completeVerification}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons name="home" size={20} color={colors.neutral[50]} />
+                    <Text style={styles.homeIconText}>Home</Text>
+                  </TouchableOpacity>
+                </View>
               </GlassmorphismContainer>
             </View>
           </ScrollView>
@@ -519,8 +530,14 @@ const styles = StyleSheet.create({
     width: '100%',
     marginBottom: spacing.lg,
   },
-  forgotPasswordContainer: {
+  forgotPasswordRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  forgotPasswordContainer: {
+    flex: 1,
+    alignItems: 'flex-start',
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.sm,
   },
@@ -528,6 +545,20 @@ const styles = StyleSheet.create({
     color: componentColors.glassmorphism.text,
     fontSize: typography.sizes.md,
     fontWeight: typography.weights.medium,
+  },
+  homeIcon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  homeIconText: {
+    color: colors.neutral[50],
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.weights.medium,
+    marginLeft: spacing.xs,
   },
   socialSection: {
     width: '100%',

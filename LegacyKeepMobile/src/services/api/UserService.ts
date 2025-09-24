@@ -124,6 +124,7 @@ export class UserService {
       getEndpointPath('user', 'uploadProfilePicture'),
       formData,
       {
+        service: 'user',
         headers: {
           'Content-Type': 'multipart/form-data',
         },

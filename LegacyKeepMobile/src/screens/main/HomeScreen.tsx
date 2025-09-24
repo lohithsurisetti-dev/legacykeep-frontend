@@ -8,22 +8,24 @@ import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, Animated, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useNavigation } from '@react-navigation/native';
 import { typography, spacing } from '../../constants';
 import { HomeHeader, GradientText, QuickInsightsBar } from '../../components/ui';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import type { InsightItem } from '../../components/ui/QuickInsightsBar';
 import { useAuth } from '../../contexts/AuthContext';
+import { ROUTES } from '../../navigation/types';
 
 const HomeScreen: React.FC = () => {
   const scrollY = useRef(new Animated.Value(0)).current;
+  const navigation = useNavigation();
   const { user } = useAuth();
   const { t } = useLanguage();
   const { colors, gradients } = useTheme();
 
   const handleProfilePress = () => {
-    // TODO: Navigate to profile screen
-    console.log('Profile pressed');
+    (navigation as any).navigate(ROUTES.PROFILE);
   };
 
   const handleSendMessage = (insight: InsightItem) => {
