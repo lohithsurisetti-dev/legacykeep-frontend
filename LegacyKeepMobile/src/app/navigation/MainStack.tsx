@@ -47,8 +47,7 @@ const MainStack: React.FC = () => {
         name={ROUTES.SETTINGS}
         component={SettingsScreen}
         options={{
-          title: 'Settings',
-          presentation: 'modal',
+          headerShown: false, // SettingsScreen handles its own header
         }}
       />
       
