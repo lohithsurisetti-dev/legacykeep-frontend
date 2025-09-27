@@ -17,6 +17,7 @@ import {
   Animated,
   StatusBar,
 } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { MainStackScreenProps } from '../../../app/navigation/types';
@@ -49,6 +50,9 @@ const ProfileScreen: React.FC<Props> = () => {
     memoriesSaved: 150,
   });
   const [activeTab, setActiveTab] = useState('photos');
+  const [expandedBadge, setExpandedBadge] = useState<string | null>(null);
+  const popupOpacity = useRef(new Animated.Value(0)).current;
+  const popupScale = useRef(new Animated.Value(0.8)).current;
   const [lifeEvents, setLifeEvents] = useState([
     { 
       id: 1, 
@@ -463,6 +467,59 @@ const ProfileScreen: React.FC<Props> = () => {
     console.log('Edit profile pressed');
   };
 
+  const handleBadgePress = (badgeType: string) => {
+    console.log(`${badgeType} badge pressed`);
+    
+    if (expandedBadge === badgeType) {
+      // Close popup
+      Animated.parallel([
+        Animated.timing(popupOpacity, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(popupScale, {
+          toValue: 0.8,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        setExpandedBadge(null);
+      });
+    } else {
+      // Open popup
+      setExpandedBadge(badgeType);
+      Animated.parallel([
+        Animated.timing(popupOpacity, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.spring(popupScale, {
+          toValue: 1,
+          tension: 100,
+          friction: 8,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  };
+
+  const getBadgeContent = (badgeType: string) => {
+    switch (badgeType) {
+      case 'birthday':
+        return { title: 'Birthday', icon: 'gift', content: 'March 15th' };
+      case 'bucketlist':
+        return { title: 'Bucket List', icon: 'cart', content: ['Gaming Setup', 'New Camera', 'Concert Tickets'] };
+      case 'zodiac':
+        return { title: 'Zodiac', icon: 'star', content: 'Pisces ♓' };
+      case 'hobby':
+        return { title: 'Hobby', icon: 'musical-notes', content: 'Music & Photography' };
+      default:
+        return { title: '', icon: '', content: '' };
+    }
+  };
+
   const renderProfilePicture = () => {
     if (profileData?.profilePictureUrl) {
       return (
@@ -490,27 +547,138 @@ const ProfileScreen: React.FC<Props> = () => {
     );
   };
 
+  const renderCenteredPopup = () => {
+    if (!expandedBadge) return null;
+
+    const badgeContent = getBadgeContent(expandedBadge);
+    const getPopupColor = (badgeType: string) => {
+      switch (badgeType) {
+        case 'birthday': return '#FF6B6B';
+        case 'bucketlist': return '#4ECDC4';
+        case 'zodiac': return '#8B5CF6';
+        case 'hobby': return '#F59E0B';
+        default: return '#14B8A6';
+      }
+    };
+
+  return (
+      <Animated.View 
+        style={[
+          styles.popupOverlay,
+          {
+            opacity: popupOpacity,
+          }
+        ]}
+      >
+        <TouchableOpacity 
+          style={styles.popupOverlayTouchable}
+          activeOpacity={1}
+          onPress={() => handleBadgePress(expandedBadge)}
+        >
+          <BlurView intensity={15} tint="light" style={styles.blurBackground} />
+        </TouchableOpacity>
+        
+        <Animated.View 
+          style={[
+            styles.popupContainer, 
+            { 
+              backgroundColor: `${getPopupColor(expandedBadge)}A6`,
+              transform: [{ scale: popupScale }],
+            }
+          ]}
+        >
+          <View style={styles.popupContent}>
+            <Text style={styles.popupTitle}>{badgeContent.title}</Text>
+            
+            {Array.isArray(badgeContent.content) ? (
+              <View style={styles.popupList}>
+                {badgeContent.content.map((item, index) => (
+                  <View key={index} style={styles.popupListItemContainer}>
+                    <View style={[styles.popupNumber, { backgroundColor: getPopupColor(expandedBadge) }]}>
+                      <Text style={styles.popupNumberText}>{index + 1}</Text>
+                    </View>
+                    <Text style={styles.popupListItem}>
+                      {item}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            ) : (
+              <Text style={styles.popupText}>{badgeContent.content}</Text>
+            )}
+          </View>
+        </Animated.View>
+      </Animated.View>
+    );
+  };
+
   const renderSideDecorations = () => (
     <>
-      {/* Left side decoration */}
-      <View style={styles.leftDecoration}>
-        <View style={styles.decorationCircle}>
-          <Ionicons name="heart" size={16} color="#FF6B6B" />
-        </View>
-        <View style={[styles.decorationCircle, { marginTop: spacing.sm }]}>
-          <Ionicons name="star" size={14} color="#FFD93D" />
-        </View>
-      </View>
-      
-      {/* Right side decoration */}
-      <View style={styles.rightDecoration}>
-        <View style={styles.decorationCircle}>
-          <Ionicons name="camera" size={16} color="#4ECDC4" />
-        </View>
-        <View style={[styles.decorationCircle, { marginTop: spacing.sm }]}>
-          <Ionicons name="book" size={14} color="#96CEB4" />
-        </View>
-      </View>
+      {/* Left side decorations - positioned along profile picture curve */}
+      <TouchableOpacity 
+        style={styles.leftDecorationTop}
+        onPress={() => handleBadgePress('birthday')}
+        activeOpacity={0.7}
+      >
+        <Ionicons 
+          name="gift" 
+          size={24} 
+          color="#FF6B6B" 
+          style={[
+            styles.iconShadow,
+            expandedBadge === 'birthday' && styles.expandedBadge
+          ]}
+        />
+              </TouchableOpacity>
+              
+      <TouchableOpacity 
+        style={styles.leftDecorationBottom}
+        onPress={() => handleBadgePress('bucketlist')}
+        activeOpacity={0.7}
+      >
+        <Ionicons 
+          name="cart" 
+          size={24} 
+          color="#4ECDC4" 
+          style={[
+            styles.iconShadow,
+            expandedBadge === 'bucketlist' && styles.expandedBadge
+          ]}
+        />
+              </TouchableOpacity>
+              
+      {/* Right side decorations - positioned along profile picture curve */}
+      <TouchableOpacity 
+        style={styles.rightDecorationTop}
+        onPress={() => handleBadgePress('zodiac')}
+        activeOpacity={0.7}
+      >
+            <Ionicons 
+          name="star" 
+          size={24} 
+          color="#8B5CF6" 
+          style={[
+            styles.iconShadow,
+            expandedBadge === 'zodiac' && styles.expandedBadge
+          ]}
+            />
+          </TouchableOpacity>
+              
+      <TouchableOpacity 
+        style={styles.rightDecorationBottom}
+        onPress={() => handleBadgePress('hobby')}
+        activeOpacity={0.7}
+      >
+            <Ionicons 
+          name="musical-notes" 
+          size={24} 
+          color="#F59E0B" 
+          style={[
+            styles.iconShadow,
+            expandedBadge === 'hobby' && styles.expandedBadge
+          ]}
+            />
+              </TouchableOpacity>
     </>
   );
 
@@ -529,12 +697,12 @@ const ProfileScreen: React.FC<Props> = () => {
         <View style={styles.statItem}>
           <Text style={styles.statNumber}>{stats.familyMembers}</Text>
           <Text style={styles.statLabel}>Family Members</Text>
-        </View>
+          </View>
         <View style={styles.statItem}>
           <Text style={styles.statNumber}>{stats.memoriesSaved}</Text>
           <Text style={styles.statLabel}>Memories Saved</Text>
-        </View>
-      </View>
+                </View>
+          </View>
     </LinearGradient>
   );
 
@@ -562,7 +730,7 @@ const ProfileScreen: React.FC<Props> = () => {
             >
               {activeTab === tab.id ? (
                 <View style={styles.activeTabContainer}>
-                  <Ionicons
+            <Ionicons 
                     name={tab.icon as any}
                     size={20}
                     color={getTabColor(index)}
@@ -581,7 +749,7 @@ const ProfileScreen: React.FC<Props> = () => {
                   color={colors.neutral?.[500] || '#9E9E9E'}
                 />
               )}
-            </TouchableOpacity>
+              </TouchableOpacity>
          ))}
        </Animated.View>
      );
@@ -610,7 +778,7 @@ const ProfileScreen: React.FC<Props> = () => {
             />
               </View>
               </LinearGradient>
-        </View>
+            </View>
             <View style={styles.timelineContent}>
               <View style={styles.timelineHeader}>
                 <Text style={[styles.timelineTitle, { color: themeColors.text }]}>
@@ -759,7 +927,7 @@ const ProfileScreen: React.FC<Props> = () => {
               <Ionicons name="create-outline" size={16} color="white" />
               <Text style={styles.editProfileText}>Edit Profile</Text>
             </LinearGradient>
-          </TouchableOpacity>
+              </TouchableOpacity>
           </View>
 
         {/* Stats Section */}
@@ -793,6 +961,9 @@ const ProfileScreen: React.FC<Props> = () => {
         )}
 
         </ScrollView>
+        
+        {/* Centered Popup */}
+        {renderCenteredPopup()}
     </View>
   );
 };
@@ -904,34 +1075,89 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   // Side Decorations
-  leftDecoration: {
+  leftDecorationTop: {
     position: 'absolute',
-    left: -60,
-    top: '50%',
-    transform: [{ translateY: -30 }],
+    left: -35, // Closer to profile picture
+    top: 48, // 35% from profile picture top (136 * 0.35 = 48)
     alignItems: 'center',
   },
-  rightDecoration: {
+  leftDecorationBottom: {
     position: 'absolute',
-    right: -60,
-    top: '50%',
-    transform: [{ translateY: -30 }],
+    left: -25, // Much closer to profile picture for curve
+    bottom: 10, // Lower position for better curve following
+    alignItems: 'center',
+  },
+  rightDecorationTop: {
+    position: 'absolute',
+    right: -35, // Closer to profile picture
+    top: 48, // 35% from profile picture top (136 * 0.35 = 48)
+    alignItems: 'center',
+  },
+  rightDecorationBottom: {
+    position: 'absolute',
+    right: -25, // Much closer to profile picture for curve
+    bottom: 10, // Lower position for better curve following
     alignItems: 'center',
   },
   decorationCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 6,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+  },
+  iconShadow: {
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 3,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  expandedBadge: {
+    transform: [{ scale: 1.2 }],
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+  pillBadge: {
+    position: 'absolute',
+    borderRadius: 20,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
+    top: -2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 50,
+    minHeight: 24,
+  },
+  leftBadgeContent: {
+    right: 30, // Adjusted for closer icon position
+  },
+  rightBadgeContent: {
+    left: 30, // Adjusted for closer icon position
+  },
+  pillText: {
+    fontSize: typography.sizes.xs,
+    fontWeight: typography.weights.semibold,
+    color: 'white',
+    textAlign: 'center',
+    flexShrink: 0,
+    includeFontPadding: false,
+    textAlignVertical: 'center',
   },
   profileName: {
     fontSize: typography.sizes['3xl'],
@@ -1010,15 +1236,15 @@ const styles = StyleSheet.create({
   },
    // Mini Tabs - Gradient Icon & Underline Design
    miniTabsContainer: {
-     flexDirection: 'row',
+    flexDirection: 'row',
      marginBottom: 0,
      backgroundColor: colors.background?.primary || '#FFFFFF',
      marginTop: -spacing.xs,
    },
    miniTab: {
     flex: 1,
-     alignItems: 'center',
-     justifyContent: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
      paddingVertical: spacing.md,
      paddingHorizontal: spacing.xs,
      position: 'relative',
@@ -1183,6 +1409,95 @@ const styles = StyleSheet.create({
     width: 2,
     backgroundColor: colors.neutral?.[200] || '#E5E7EB',
     zIndex: 1,
+  },
+  // Popup Styles - Premium with Animations
+  popupOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 2000,
+  },
+  popupOverlayTouchable: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  blurBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  popupContainer: {
+    borderRadius: 16,
+    padding: spacing.lg,
+    margin: spacing.lg,
+    minWidth: 260,
+    maxWidth: 300,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  popupContent: {
+    alignItems: 'center',
+  },
+  popupTitle: {
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.bold,
+    color: 'rgba(255, 255, 255, 1)',
+    textAlign: 'center',
+    marginBottom: spacing.md,
+  },
+  popupText: {
+    fontSize: typography.sizes.xl,
+    color: 'rgba(255, 255, 255, 1)',
+    textAlign: 'center',
+    lineHeight: 28,
+  },
+  popupList: {
+    width: '100%',
+    alignItems: 'flex-start',
+  },
+  popupListItemContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+    width: '100%',
+  },
+  popupNumber: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: spacing.md,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  popupNumberText: {
+    fontSize: typography.sizes.md,
+    fontWeight: typography.weights.bold,
+    color: 'white',
+  },
+  popupListItem: {
+    fontSize: typography.sizes.lg,
+    color: 'rgba(255, 255, 255, 1)',
+    lineHeight: 24,
+    flex: 1,
   },
 });
 
