@@ -161,6 +161,15 @@ export const colors = {
       textSecondary: 'rgba(255, 255, 255, 0.7)',
     },
   },
+
+  // Profile Badge Colors
+  badge: {
+    birthday: '#FF6B6B',
+    bucketlist: '#4ECDC4', 
+    zodiac: '#8B5CF6',
+    hobby: '#F59E0B',
+    default: '#14B8A6',
+  },
 } as const;
 
 // Legacy gradients - DEPRECATED: Use designSystem.ts instead
@@ -172,6 +181,9 @@ export const gradients = {
   sunset: ['#FF6B6B', '#FFE66D'],
   ocean: ['#667eea', '#764ba2'],
   forest: ['#134E5E', '#71B280'],
+  // Profile specific gradients
+  profile: ['#14B8A6', '#8B5CF6'],
+  stats: ['#14B8A6', '#20A39E', '#3B82F6', '#8B5CF6'],
 } as const;
 
 // Gradient configurations with start/end points
@@ -188,6 +200,11 @@ export const gradientConfigs = {
   },
   horizontal: {
     colors: gradients.peacock,
+    start: { x: 0, y: 0 },
+    end: { x: 1, y: 0 },
+  },
+  profile: {
+    colors: gradients.profile,
     start: { x: 0, y: 0 },
     end: { x: 1, y: 0 },
   },

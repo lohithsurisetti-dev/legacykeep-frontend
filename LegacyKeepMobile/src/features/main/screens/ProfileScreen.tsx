@@ -22,7 +22,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { MainStackScreenProps } from '../../../app/navigation/types';
 import { ROUTES } from '../../../app/navigation/types';
-import { colors, typography, spacing } from '../../../shared/constants';
+import { colors, typography, spacing, gradients } from '../../../shared/constants';
+import { gradientConfigs } from '../../../shared/constants/designSystem';
 import { useTheme } from '../../../app/providers/ThemeContext';
 import { useAuth } from '../../../app/providers/AuthContext';
 import { BackButton, GradientButton } from '../../../shared/components/ui';
@@ -30,13 +31,54 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 type Props = MainStackScreenProps<typeof ROUTES.PROFILE>;
 
+// Type definitions for better type safety
+interface ProfileData {
+  firstName: string;
+  lastName: string;
+  username: string;
+  bio: string;
+  profilePictureUrl: string;
+}
+
+interface Stats {
+  storiesShared: number;
+  familyMembers: number;
+  memoriesSaved: number;
+}
+
+interface BadgeContent {
+  title: string;
+  icon: string;
+  content: string | string[];
+}
+
+type BadgeType = 'birthday' | 'bucketlist' | 'zodiac' | 'hobby';
+
+interface LifeEvent {
+  id: number;
+  type: string;
+  date: string;
+  title: string;
+  description: string;
+  icon: string;
+}
+
+interface Photo {
+  id: number;
+  url: string;
+  type: 'photo' | 'video';
+  isMultiple: boolean;
+  mediaCount?: number;
+}
+
 const { width } = Dimensions.get('window');
 
 const ProfileScreen: React.FC<Props> = () => {
   const navigation = useNavigation();
   const { user } = useAuth();
   const { colors: themeColors } = useTheme();
-  const [profileData, setProfileData] = useState<any>(null);
+  
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const scrollY = useRef(new Animated.Value(0)).current;
   const buttonsOpacity = useRef(new Animated.Value(1)).current;
   const tabsHeight = useRef(new Animated.Value(60)).current; // Full tabs height
@@ -44,16 +86,16 @@ const ProfileScreen: React.FC<Props> = () => {
   const lastScrollY = useRef(0);
   const areButtonsVisible = useRef(true);
   const areTabsVisible = useRef(true);
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<Stats>({
     storiesShared: 28,
     familyMembers: 12,
     memoriesSaved: 150,
   });
   const [activeTab, setActiveTab] = useState('photos');
-  const [expandedBadge, setExpandedBadge] = useState<string | null>(null);
+  const [expandedBadge, setExpandedBadge] = useState<BadgeType | null>(null);
   const popupOpacity = useRef(new Animated.Value(0)).current;
   const popupScale = useRef(new Animated.Value(0.8)).current;
-  const [lifeEvents, setLifeEvents] = useState([
+  const [lifeEvents, setLifeEvents] = useState<LifeEvent[]>([
     { 
       id: 1, 
       type: 'birth',
@@ -100,7 +142,7 @@ const ProfileScreen: React.FC<Props> = () => {
       age: '30 years old'
     },
   ]);
-  const [photos, setPhotos] = useState([
+  const [photos, setPhotos] = useState<Photo[]>([
     {
       id: 1,
       type: 'photo',
@@ -467,7 +509,7 @@ const ProfileScreen: React.FC<Props> = () => {
     console.log('Edit profile pressed');
   };
 
-  const handleBadgePress = (badgeType: string) => {
+  const handleBadgePress = (badgeType: BadgeType) => {
     console.log(`${badgeType} badge pressed`);
     
     if (expandedBadge === badgeType) {
@@ -505,7 +547,7 @@ const ProfileScreen: React.FC<Props> = () => {
     }
   };
 
-  const getBadgeContent = (badgeType: string) => {
+  const getBadgeContent = (badgeType: BadgeType): BadgeContent => {
     switch (badgeType) {
       case 'birthday':
         return { title: 'Birthday', icon: 'gift', content: 'March 15th' };
@@ -539,7 +581,7 @@ const ProfileScreen: React.FC<Props> = () => {
           <Ionicons 
             name="person" 
             size={60} 
-            color={colors.neutral?.[400] || '#9E9E9E'} 
+            color={colors.neutral[400]} 
           />
         </View>
         {renderSideDecorations()}
@@ -551,15 +593,15 @@ const ProfileScreen: React.FC<Props> = () => {
     if (!expandedBadge) return null;
 
     const badgeContent = getBadgeContent(expandedBadge);
-    const getPopupColor = (badgeType: string) => {
-      switch (badgeType) {
-        case 'birthday': return '#FF6B6B';
-        case 'bucketlist': return '#4ECDC4';
-        case 'zodiac': return '#8B5CF6';
-        case 'hobby': return '#F59E0B';
-        default: return '#14B8A6';
-      }
-    };
+  const getPopupColor = (badgeType: BadgeType): string => {
+    switch (badgeType) {
+      case 'birthday': return colors.badge.birthday;
+      case 'bucketlist': return colors.badge.bucketlist;
+      case 'zodiac': return colors.badge.zodiac;
+      case 'hobby': return colors.badge.hobby;
+      default: return colors.badge.default;
+    }
+  };
 
   return (
       <Animated.View 
@@ -623,7 +665,7 @@ const ProfileScreen: React.FC<Props> = () => {
         <Ionicons 
           name="gift" 
           size={24} 
-          color="#FF6B6B" 
+          color={colors.badge.birthday} 
           style={[
             styles.iconShadow,
             expandedBadge === 'birthday' && styles.expandedBadge
@@ -639,7 +681,7 @@ const ProfileScreen: React.FC<Props> = () => {
         <Ionicons 
           name="cart" 
           size={24} 
-          color="#4ECDC4" 
+          color={colors.badge.bucketlist} 
           style={[
             styles.iconShadow,
             expandedBadge === 'bucketlist' && styles.expandedBadge
@@ -656,7 +698,7 @@ const ProfileScreen: React.FC<Props> = () => {
             <Ionicons 
           name="star" 
           size={24} 
-          color="#8B5CF6" 
+          color={colors.badge.zodiac} 
           style={[
             styles.iconShadow,
             expandedBadge === 'zodiac' && styles.expandedBadge
@@ -669,15 +711,15 @@ const ProfileScreen: React.FC<Props> = () => {
         onPress={() => handleBadgePress('hobby')}
         activeOpacity={0.7}
       >
-            <Ionicons 
+        <Ionicons 
           name="musical-notes" 
           size={24} 
-          color="#F59E0B" 
+          color={colors.badge.hobby} 
           style={[
             styles.iconShadow,
             expandedBadge === 'hobby' && styles.expandedBadge
           ]}
-            />
+        />
               </TouchableOpacity>
     </>
   );
@@ -715,8 +757,8 @@ const ProfileScreen: React.FC<Props> = () => {
     ];
 
      const getTabColor = (index: number) => {
-       const colors = ['#14B8A6', '#20A39E', '#3B82F6', '#8B5CF6'];
-       return colors[index];
+       const gradientColors = gradients.stats;
+       return gradientColors[index];
      };
 
      return (
@@ -746,7 +788,7 @@ const ProfileScreen: React.FC<Props> = () => {
                 <Ionicons
                   name={tab.icon as any}
                   size={20}
-                  color={colors.neutral?.[500] || '#9E9E9E'}
+                  color={colors.neutral[500]}
                 />
               )}
               </TouchableOpacity>
@@ -919,10 +961,10 @@ const ProfileScreen: React.FC<Props> = () => {
             activeOpacity={0.7}
           >
             <LinearGradient
-              colors={['#14B8A6', '#8B5CF6']}
+              colors={gradients.profile}
               style={styles.editProfileGradient}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
+              start={gradientConfigs.profile?.start || { x: 0, y: 0 }}
+              end={gradientConfigs.profile?.end || { x: 1, y: 0 }}
             >
               <Ionicons name="create-outline" size={16} color="white" />
               <Text style={styles.editProfileText}>Edit Profile</Text>
@@ -978,7 +1020,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 1000,
-    backgroundColor: colors.background?.primary || '#FFFFFF',
+    backgroundColor: colors.background.primary,
   },
   statusBarSpacer: {
     height: 44, // Status bar height
@@ -1000,7 +1042,7 @@ const styles = StyleSheet.create({
   settingsButton: {
     padding: spacing.xs,
     borderRadius: 16,
-    backgroundColor: colors.neutral?.[100] || '#F5F5F5',
+    backgroundColor: colors.neutral[100],
   },
   scrollView: {
     flex: 1,
@@ -1038,10 +1080,10 @@ const styles = StyleSheet.create({
     width: 128,
     height: 128,
     borderRadius: 64,
-    backgroundColor: colors.neutral?.[100] || '#F5F5F5',
+    backgroundColor: colors.neutral[100],
     borderWidth: 4,
-    borderColor: colors.neutral?.[300] || '#E0E0E0',
-    shadowColor: colors.neutral?.[900] || '#000000',
+    borderColor: colors.neutral[300],
+    shadowColor: colors.neutral[900],
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
     shadowRadius: 16,
@@ -1051,9 +1093,9 @@ const styles = StyleSheet.create({
     width: 128,
     height: 128,
     borderRadius: 64,
-    backgroundColor: colors.neutral?.[100] || '#F5F5F5',
+    backgroundColor: colors.neutral[100],
     borderWidth: 4,
-    borderColor: colors.neutral?.[300] || '#E0E0E0',
+    borderColor: colors.neutral[300],
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -1068,7 +1110,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: colors.neutral?.[900] || '#000000',
+    shadowColor: colors.neutral[900],
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
@@ -1106,7 +1148,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000000',
+    shadowColor: colors.neutral[900],
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
@@ -1115,7 +1157,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.4)',
   },
   iconShadow: {
-    shadowColor: '#000000',
+    shadowColor: colors.neutral[900],
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
@@ -1132,7 +1174,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
-    shadowColor: '#000000',
+    shadowColor: colors.neutral[900],
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
@@ -1184,7 +1226,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.lg,
     borderRadius: 20,
-    shadowColor: '#000000',
+    shadowColor: colors.neutral[900],
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -1206,11 +1248,11 @@ const styles = StyleSheet.create({
   statsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.background.primary,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.sm,
     borderRadius: 10,
-    shadowColor: colors.neutral?.[900] || '#000000',
+    shadowColor: colors.neutral[900],
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
@@ -1224,12 +1266,12 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: typography.sizes.lg,
     fontWeight: typography.weights.bold,
-    color: colors.neutral?.[900] || '#000000',
+    color: colors.neutral[900],
     marginBottom: 2,
   },
   statLabel: {
     fontSize: typography.sizes.xs,
-    color: colors.neutral?.[500] || '#9E9E9E',
+    color: colors.neutral[500],
     fontWeight: typography.weights.medium,
     textAlign: 'center',
     lineHeight: 14,
@@ -1238,7 +1280,7 @@ const styles = StyleSheet.create({
    miniTabsContainer: {
     flexDirection: 'row',
      marginBottom: 0,
-     backgroundColor: colors.background?.primary || '#FFFFFF',
+     backgroundColor: colors.background.primary,
      marginTop: -spacing.xs,
    },
    miniTab: {
@@ -1269,7 +1311,7 @@ const styles = StyleSheet.create({
   // Photos Section - Full width
   photosSection: {
     flex: 1,
-    backgroundColor: colors.background?.primary || '#FFFFFF',
+    backgroundColor: colors.background.primary,
     marginTop: -8,
   },
   // Photos Grid
@@ -1285,7 +1327,7 @@ const styles = StyleSheet.create({
   },
   photoContainer: {
     position: 'relative',
-    backgroundColor: colors.neutral?.[100] || '#F5F5F5',
+    backgroundColor: colors.neutral[100],
     aspectRatio: 1, // Square aspect ratio
   },
   photoImage: {
@@ -1369,7 +1411,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.neutral?.[50] || '#FAFAFA',
+    backgroundColor: colors.neutral[50],
   },
   timelineContent: {
     flex: 1,
@@ -1389,7 +1431,7 @@ const styles = StyleSheet.create({
   timelineAge: {
     fontSize: typography.sizes.xs,
     fontWeight: typography.weights.medium,
-    color: colors.neutral?.[400] || '#BDBDBD',
+    color: colors.neutral[400],
   },
   timelineDescription: {
     fontSize: typography.sizes.sm,
@@ -1398,7 +1440,7 @@ const styles = StyleSheet.create({
   },
   timelineDate: {
     fontSize: typography.sizes.xs,
-    color: colors.neutral?.[400] || '#BDBDBD',
+    color: colors.neutral[400],
     fontStyle: 'italic',
   },
   timelineConnector: {
@@ -1407,7 +1449,7 @@ const styles = StyleSheet.create({
     top: 60,
     bottom: -spacing.lg,
     width: 2,
-    backgroundColor: colors.neutral?.[200] || '#E5E7EB',
+    backgroundColor: colors.neutral[200],
     zIndex: 1,
   },
   // Popup Styles - Premium with Animations
@@ -1441,7 +1483,7 @@ const styles = StyleSheet.create({
     margin: spacing.lg,
     minWidth: 260,
     maxWidth: 300,
-    shadowColor: '#000000',
+    shadowColor: colors.neutral[900],
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.2,
     shadowRadius: 12,
@@ -1482,7 +1524,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: spacing.md,
-    shadowColor: '#000000',
+    shadowColor: colors.neutral[900],
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,

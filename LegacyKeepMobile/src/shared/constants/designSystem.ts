@@ -61,6 +61,9 @@ export const gradients = {
   peacock: [brandColors.peacock.teal, brandColors.peacock.blue, brandColors.peacock.purple],
   splash: [brandColors.splash.teal, brandColors.splash.purple, brandColors.splash.indigo],
   instagram: [brandColors.instagram.blueDark, brandColors.instagram.blue, brandColors.instagram.blueLight],
+  // Profile specific gradients
+  profile: ['#14B8A6', '#8B5CF6'],
+  stats: ['#14B8A6', '#20A39E', '#3B82F6', '#8B5CF6'],
 } as const;
 
 /**
@@ -91,6 +94,11 @@ export const gradientConfigs = {
     colors: gradients.instagram,
     start: { x: 0, y: 0 },
     end: { x: 1, y: 1 },
+  },
+  profile: {
+    colors: gradients.profile,
+    start: { x: 0, y: 0 },
+    end: { x: 1, y: 0 },
   },
 } as const;
 

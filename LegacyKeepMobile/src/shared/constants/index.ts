@@ -126,7 +126,7 @@ export { colors } from './colors';
 export { typography } from './typography';
 export { spacing, borderRadius, shadows } from './spacing';
 export { LAYOUT } from './layout';
-export { gradients, brandColors, componentColors } from './designSystem';
+export { gradients, gradientConfigs, brandColors, componentColors } from './designSystem';
 export { themeColors } from './themeColors';
 export * from './texts';
 export * from './theme';
