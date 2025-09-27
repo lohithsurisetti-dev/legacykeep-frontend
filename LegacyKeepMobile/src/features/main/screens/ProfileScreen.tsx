@@ -38,15 +38,17 @@ const ProfileScreen: React.FC<Props> = () => {
   const [profileData, setProfileData] = useState<any>(null);
   const scrollY = useRef(new Animated.Value(0)).current;
   const buttonsOpacity = useRef(new Animated.Value(1)).current;
+  const tabsHeight = useRef(new Animated.Value(60)).current; // Full tabs height
   const headerHeight = useRef(new Animated.Value(88)).current; // Full header height
   const lastScrollY = useRef(0);
   const areButtonsVisible = useRef(true);
+  const areTabsVisible = useRef(true);
   const [stats, setStats] = useState({
     storiesShared: 28,
     familyMembers: 12,
     memoriesSaved: 150,
   });
-  const [activeTab, setActiveTab] = useState('timeline');
+  const [activeTab, setActiveTab] = useState('photos');
   const [lifeEvents, setLifeEvents] = useState([
     { 
       id: 1, 
@@ -54,7 +56,7 @@ const ProfileScreen: React.FC<Props> = () => {
       date: '1990-05-15', 
       title: 'Born in New York', 
       description: 'Welcome to the world! The beginning of an amazing journey.',
-      icon: 'baby',
+      icon: 'heart',
       age: '0 years old'
     },
     { 
@@ -94,41 +96,314 @@ const ProfileScreen: React.FC<Props> = () => {
       age: '30 years old'
     },
   ]);
-  const [recentActivity, setRecentActivity] = useState([
-    { 
-      id: 1, 
-      type: 'story', 
-      title: 'New story added', 
-      description: '"Grandma\'s secret garden in the summer of \'68."', 
-      date: '2 days ago',
-      icon: 'mic-outline'
+  const [photos, setPhotos] = useState([
+    {
+      id: 1,
+      type: 'photo',
+      url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+      title: 'Family Reunion 2023',
+      date: '2023-12-15',
+      likes: 24,
+      isMultiple: true,
+      mediaCount: 5,
     },
-    { 
-      id: 2, 
-      type: 'memory', 
-      title: 'Memory uploaded', 
-      description: 'A photo from the 1985 family reunion.', 
-      date: '5 days ago',
-      icon: 'camera-outline'
+    {
+      id: 2,
+      type: 'video',
+      url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=400&fit=crop',
+      title: 'Grandma\'s Birthday',
+      date: '2023-11-20',
+      likes: 18,
+      duration: '2:34',
+      isMultiple: false,
     },
-    { 
-      id: 3, 
-      type: 'comment', 
-      title: 'Aunt Carol commented', 
-      description: 'On "Dad\'s first car" story: "I remember that old thing!"', 
-      date: '1 week ago',
-      icon: 'chatbubble-outline'
+    {
+      id: 3,
+      type: 'photo',
+      url: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face',
+      title: 'Wedding Day',
+      date: '2023-10-05',
+      likes: 45,
+      isMultiple: true,
+      mediaCount: 8,
+    },
+    {
+      id: 4,
+      type: 'photo',
+      url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
+      title: 'Beach Vacation',
+      date: '2023-09-12',
+      likes: 32,
+      isMultiple: true,
+      mediaCount: 3,
+    },
+    {
+      id: 5,
+      type: 'video',
+      url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face',
+      title: 'Cooking with Mom',
+      date: '2023-08-28',
+      likes: 21,
+      duration: '5:12',
+      isMultiple: false,
+    },
+    {
+      id: 6,
+      type: 'photo',
+      url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=face',
+      title: 'Graduation Day',
+      date: '2023-07-15',
+      likes: 38,
+      isMultiple: true,
+      mediaCount: 4,
+    },
+    {
+      id: 7,
+      type: 'video',
+      url: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=400&fit=crop',
+      title: 'Family Dinner',
+      date: '2023-06-20',
+      likes: 29,
+      duration: '3:45',
+      isMultiple: false,
+    },
+    {
+      id: 8,
+      type: 'photo',
+      url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop&crop=face',
+      title: 'Summer Picnic',
+      date: '2023-05-10',
+      likes: 42,
+      isMultiple: true,
+      mediaCount: 6,
+    },
+    {
+      id: 9,
+      type: 'photo',
+      url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+      title: 'Birthday Party',
+      date: '2023-04-15',
+      likes: 35,
+      isMultiple: false,
+    },
+    {
+      id: 10,
+      type: 'video',
+      url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=400&fit=crop',
+      title: 'Holiday Memories',
+      date: '2023-03-22',
+      likes: 27,
+      duration: '4:12',
+      isMultiple: true,
+      mediaCount: 2,
+    },
+    {
+      id: 11,
+      type: 'photo',
+      url: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face',
+      title: 'New Year Celebration',
+      date: '2023-01-01',
+      likes: 51,
+      isMultiple: false,
+    },
+    {
+      id: 12,
+      type: 'photo',
+      url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
+      title: 'Christmas Eve',
+      date: '2022-12-24',
+      likes: 48,
+      isMultiple: true,
+      mediaCount: 7,
+    },
+    {
+      id: 13,
+      type: 'video',
+      url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face',
+      title: 'Thanksgiving',
+      date: '2022-11-24',
+      likes: 33,
+      duration: '2:58',
+      isMultiple: false,
+    },
+    {
+      id: 14,
+      type: 'photo',
+      url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=face',
+      title: 'Halloween Fun',
+      date: '2022-10-31',
+      likes: 39,
+      isMultiple: true,
+      mediaCount: 3,
+    },
+    {
+      id: 15,
+      type: 'photo',
+      url: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=400&fit=crop',
+      title: 'Back to School',
+      date: '2022-09-01',
+      likes: 25,
+      isMultiple: false,
+    },
+    {
+      id: 16,
+      type: 'video',
+      url: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face',
+      title: 'Summer Camp',
+      date: '2022-08-15',
+      likes: 31,
+      duration: '3:20',
+      isMultiple: true,
+      mediaCount: 4,
+    },
+    {
+      id: 17,
+      type: 'photo',
+      url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
+      title: 'Beach Day',
+      date: '2022-07-22',
+      likes: 28,
+      isMultiple: false,
+    },
+    {
+      id: 18,
+      type: 'photo',
+      url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+      title: 'Fourth of July',
+      date: '2022-07-04',
+      likes: 44,
+      isMultiple: true,
+      mediaCount: 6,
+    },
+    {
+      id: 19,
+      type: 'video',
+      url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face',
+      title: 'Father\'s Day',
+      date: '2022-06-19',
+      likes: 37,
+      duration: '2:45',
+      isMultiple: false,
+    },
+    {
+      id: 20,
+      type: 'photo',
+      url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop&crop=face',
+      title: 'Memorial Day',
+      date: '2022-05-30',
+      likes: 22,
+      isMultiple: true,
+      mediaCount: 3,
+    },
+    {
+      id: 21,
+      type: 'photo',
+      url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=face',
+      title: 'Mother\'s Day',
+      date: '2022-05-08',
+      likes: 52,
+      isMultiple: false,
+    },
+    {
+      id: 22,
+      type: 'video',
+      url: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=400&fit=crop',
+      title: 'Easter Celebration',
+      date: '2022-04-17',
+      likes: 41,
+      duration: '4:15',
+      isMultiple: true,
+      mediaCount: 5,
+    },
+    {
+      id: 23,
+      type: 'photo',
+      url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=400&fit=crop',
+      title: 'Spring Break',
+      date: '2022-03-25',
+      likes: 29,
+      isMultiple: false,
+    },
+    {
+      id: 24,
+      type: 'photo',
+      url: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face',
+      title: 'Valentine\'s Day',
+      date: '2022-02-14',
+      likes: 36,
+      isMultiple: true,
+      mediaCount: 2,
+    },
+    {
+      id: 25,
+      type: 'video',
+      url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
+      title: 'Super Bowl Party',
+      date: '2022-02-13',
+      likes: 33,
+      duration: '3:30',
+      isMultiple: false,
+    },
+    {
+      id: 26,
+      type: 'photo',
+      url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+      title: 'Winter Wonderland',
+      date: '2022-01-20',
+      likes: 47,
+      isMultiple: true,
+      mediaCount: 8,
+    },
+    {
+      id: 27,
+      type: 'photo',
+      url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face',
+      title: 'New Year\'s Eve 2022',
+      date: '2022-01-01',
+      likes: 58,
+      isMultiple: false,
+    },
+    {
+      id: 28,
+      type: 'video',
+      url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop&crop=face',
+      title: 'Christmas Morning',
+      date: '2021-12-25',
+      likes: 63,
+      duration: '5:45',
+      isMultiple: true,
+      mediaCount: 7,
+    },
+    {
+      id: 29,
+      type: 'photo',
+      url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=face',
+      title: 'Holiday Baking',
+      date: '2021-12-20',
+      likes: 34,
+      isMultiple: false,
+    },
+    {
+      id: 30,
+      type: 'photo',
+      url: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=400&fit=crop',
+      title: 'Thanksgiving Feast',
+      date: '2021-11-25',
+      likes: 49,
+      isMultiple: true,
+      mediaCount: 4,
     },
   ]);
+
 
   useEffect(() => {
     // Mock profile data - replace with actual API call
     setProfileData({
-      firstName: user?.firstName || 'John',
-      lastName: user?.lastName || 'Appleseed',
-      username: user?.username || 'johnappleseed',
+      firstName: user?.firstName || 'Lohith',
+      lastName: user?.lastName || 'Surisetti',
+      username: user?.username || 'lohithsurisetti',
       bio: 'Weaving the threads of our past into the fabric of our future.',
-      profilePictureUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+      profilePictureUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
     });
   }, [user]);
 
@@ -145,19 +420,26 @@ const ProfileScreen: React.FC<Props> = () => {
         // Only trigger if scroll delta is significant (prevents jittery behavior)
         if (scrollDelta < 5) return;
         
-        const shouldShowButtons = scrollDirection === 'up' || offsetY < 100;
+        const shouldShowButtons = scrollDirection === 'up' || offsetY < 50;
+        const shouldShowTabs = scrollDirection === 'up' || offsetY < 200;
         
         // Prevent unnecessary animations
-        if (shouldShowButtons === areButtonsVisible.current) return;
+        if (shouldShowButtons === areButtonsVisible.current && shouldShowTabs === areTabsVisible.current) return;
         
         areButtonsVisible.current = shouldShowButtons;
+        areTabsVisible.current = shouldShowTabs;
         
-        // Animate buttons and header height
+        // Animate buttons, tabs, and header height together
         Animated.parallel([
           Animated.timing(buttonsOpacity, {
             toValue: shouldShowButtons ? 1 : 0,
             duration: 200,
             useNativeDriver: true,
+          }),
+          Animated.timing(tabsHeight, {
+            toValue: shouldShowTabs ? 60 : 0,
+            duration: 200,
+            useNativeDriver: false,
           }),
           Animated.timing(headerHeight, {
             toValue: shouldShowButtons ? 88 : 44, // Collapse to just status bar height
@@ -181,30 +463,56 @@ const ProfileScreen: React.FC<Props> = () => {
     console.log('Edit profile pressed');
   };
 
-  const handleProfilePicture = () => {
-    console.log('Profile picture pressed');
-  };
-
   const renderProfilePicture = () => {
     if (profileData?.profilePictureUrl) {
       return (
-        <Image
-          source={{ uri: profileData.profilePictureUrl }}
-          style={styles.profilePicture}
-        />
+        <View style={styles.profilePictureBorder}>
+          <Image
+            source={{ uri: profileData.profilePictureUrl }}
+            style={styles.profilePicture}
+          />
+          {renderSideDecorations()}
+        </View>
       );
     }
     
     return (
-      <View style={styles.profilePicturePlaceholder}>
-        <Ionicons 
-          name="person" 
-          size={60} 
-          color={colors.neutral?.[400] || '#9E9E9E'} 
-        />
+      <View style={styles.profilePictureBorder}>
+        <View style={styles.profilePicturePlaceholder}>
+          <Ionicons 
+            name="person" 
+            size={60} 
+            color={colors.neutral?.[400] || '#9E9E9E'} 
+          />
+        </View>
+        {renderSideDecorations()}
       </View>
     );
   };
+
+  const renderSideDecorations = () => (
+    <>
+      {/* Left side decoration */}
+      <View style={styles.leftDecoration}>
+        <View style={styles.decorationCircle}>
+          <Ionicons name="heart" size={16} color="#FF6B6B" />
+        </View>
+        <View style={[styles.decorationCircle, { marginTop: spacing.sm }]}>
+          <Ionicons name="star" size={14} color="#FFD93D" />
+        </View>
+      </View>
+      
+      {/* Right side decoration */}
+      <View style={styles.rightDecoration}>
+        <View style={styles.decorationCircle}>
+          <Ionicons name="camera" size={16} color="#4ECDC4" />
+        </View>
+        <View style={[styles.decorationCircle, { marginTop: spacing.sm }]}>
+          <Ionicons name="book" size={14} color="#96CEB4" />
+        </View>
+      </View>
+    </>
+  );
 
   const renderStats = () => (
     <LinearGradient
@@ -244,7 +552,7 @@ const ProfileScreen: React.FC<Props> = () => {
      };
 
      return (
-       <View style={styles.miniTabsContainer}>
+       <Animated.View style={[styles.miniTabsContainer, { height: tabsHeight, overflow: 'hidden' }]}>
          {tabs.map((tab, index) => (
             <TouchableOpacity
               key={tab.id}
@@ -275,15 +583,15 @@ const ProfileScreen: React.FC<Props> = () => {
               )}
             </TouchableOpacity>
          ))}
-       </View>
+       </Animated.View>
      );
   };
 
   const renderLifeTimeline = () => (
-    <View style={styles.section}>
+          <View style={styles.section}>
       <Text style={[styles.sectionTitle, { color: themeColors.text }]}>
         My Legacy Journey
-      </Text>
+                </Text>
       <View style={styles.timelineContainer}>
         {lifeEvents.map((event, index) => (
           <View key={event.id} style={styles.timelineItem}>
@@ -295,14 +603,14 @@ const ProfileScreen: React.FC<Props> = () => {
                 style={styles.timelineIconGradient}
               >
                 <View style={styles.timelineIcon}>
-                  <Ionicons 
+            <Ionicons 
                     name={event.icon as any} 
                     size={20} 
-                    color={themeColors.text} 
-                  />
-                </View>
+              color={themeColors.text} 
+            />
+              </View>
               </LinearGradient>
-            </View>
+        </View>
             <View style={styles.timelineContent}>
               <View style={styles.timelineHeader}>
                 <Text style={[styles.timelineTitle, { color: themeColors.text }]}>
@@ -311,61 +619,48 @@ const ProfileScreen: React.FC<Props> = () => {
                 <Text style={[styles.timelineAge, { color: themeColors.textSecondary }]}>
                   {event.age}
                 </Text>
-              </View>
+                </View>
               <Text style={[styles.timelineDescription, { color: themeColors.textSecondary }]}>
                 {event.description}
               </Text>
               <Text style={[styles.timelineDate, { color: themeColors.textSecondary }]}>
                 {event.date}
               </Text>
-            </View>
+              </View>
             {index < lifeEvents.length - 1 && (
               <View style={styles.timelineConnector} />
             )}
-          </View>
+            </View>
         ))}
-      </View>
-    </View>
+          </View>
+                </View>
   );
 
-  const renderRecentActivity = () => (
-    <View style={styles.section}>
-      <Text style={[styles.sectionTitle, { color: themeColors.text }]}>
-        Recent Activity
-      </Text>
-      <View style={styles.activityContainer}>
-        {recentActivity.map((activity) => (
-          <View key={activity.id} style={styles.activityCard}>
-            <View style={styles.activityIconContainer}>
-              <LinearGradient
-                colors={['#14B8A6', '#8B5CF6']}
-                style={styles.activityIcon}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-              >
-                <Ionicons 
-                  name={activity.icon as any} 
-                  size={20} 
-                  color="white" 
-                />
-              </LinearGradient>
+  const renderPhotos = () => (
+    <View style={styles.photosSection}>
+      <View style={styles.photosGrid}>
+        {photos.map((photo) => (
+          <TouchableOpacity key={photo.id} style={styles.photoCard} activeOpacity={0.8}>
+            <View style={styles.photoContainer}>
+              <Image source={{ uri: photo.url }} style={styles.photoImage} />
+              {photo.type === 'video' && (
+                <View style={[styles.videoOverlay, photo.isMultiple && styles.videoOverlayWithMultiple]}>
+                  <Ionicons name="play-circle" size={24} color="white" />
                 </View>
-            <View style={styles.activityContent}>
-              <Text style={[styles.activityTitle, { color: themeColors.text }]}>
-                {activity.title}
-              </Text>
-              <Text style={[styles.activityDescription, { color: themeColors.textSecondary }]}>
-                {activity.description}
-              </Text>
-              <Text style={[styles.activityDate, { color: themeColors.textSecondary }]}>
-                {activity.date}
-              </Text>
+              )}
+              {photo.isMultiple && (
+                <View style={styles.multipleMediaIndicator}>
+                  <Ionicons name="layers" size={16} color="white" />
+                  <Text style={styles.mediaCount}>{photo.mediaCount}</Text>
+                </View>
+              )}
+            </View>
+              </TouchableOpacity>
+        ))}
             </View>
           </View>
-        ))}
-                </View>
-                </View>
   );
+
 
   if (!profileData) {
     return (
@@ -391,7 +686,7 @@ const ProfileScreen: React.FC<Props> = () => {
               activeOpacity={0.7}
             >
               <Ionicons name="settings-outline" size={20} color={themeColors.text} />
-            </TouchableOpacity>
+              </TouchableOpacity>
           </Animated.View>
         </Animated.View>
         
@@ -399,8 +694,8 @@ const ProfileScreen: React.FC<Props> = () => {
           <Text style={[styles.loadingText, { color: themeColors.textSecondary }]}>
             Loading profile...
           </Text>
-        </View>
-      </View>
+                </View>
+            </View>
     );
   }
 
@@ -427,7 +722,7 @@ const ProfileScreen: React.FC<Props> = () => {
             activeOpacity={0.7}
           >
             <Ionicons name="settings-outline" size={20} color={themeColors.text} />
-          </TouchableOpacity>
+              </TouchableOpacity>
         </Animated.View>
       </Animated.View>
       
@@ -440,29 +735,32 @@ const ProfileScreen: React.FC<Props> = () => {
         {/* Profile Header */}
         <View style={styles.profileHeader}>
             <View style={styles.profilePictureContainer}>
-              <TouchableOpacity onPress={handleProfilePicture}>
-                <View style={styles.profilePictureBorder}>
-                  {renderProfilePicture()}
+              {renderProfilePicture()}
                 </View>
-                <View style={styles.editButtonContainer}>
-                          <LinearGradient
-                            colors={['#14B8A6', '#8B5CF6']}
-                            style={styles.editButton}
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 0 }}
-                          >
-                            <Ionicons name="camera" size={14} color="white" />
-                          </LinearGradient>
-                </View>
-              </TouchableOpacity>
-            </View>
           <Text style={[styles.profileName, { color: themeColors.text }]}>
             {profileData.firstName} {profileData.lastName}
           </Text>
           <Text style={[styles.profileBio, { color: themeColors.textSecondary }]}>
             "{profileData.bio}"
           </Text>
-        </View>
+          
+          {/* Edit Profile Button */}
+          <TouchableOpacity 
+            style={styles.editProfileButton}
+            onPress={handleEditProfile}
+            activeOpacity={0.7}
+          >
+            <LinearGradient
+              colors={['#14B8A6', '#8B5CF6']}
+              style={styles.editProfileGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            >
+              <Ionicons name="create-outline" size={16} color="white" />
+              <Text style={styles.editProfileText}>Edit Profile</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+          </View>
 
         {/* Stats Section */}
         {renderStats()}
@@ -470,12 +768,31 @@ const ProfileScreen: React.FC<Props> = () => {
         {/* Mini Tabs */}
         {renderMiniTabs()}
 
-        {/* Life Timeline */}
-        {renderLifeTimeline()}
+        {/* Tab Content */}
+        {activeTab === 'photos' && renderPhotos()}
+        {activeTab === 'timeline' && renderLifeTimeline()}
+        {activeTab === 'tagged' && (
+          <View style={styles.photosSection}>
+            <View style={styles.emptyState}>
+              <Ionicons name="person-outline" size={48} color={colors.neutral?.[400] || '#9E9E9E'} />
+              <Text style={[styles.emptyStateText, { color: themeColors.textSecondary }]}>
+                No tagged content yet
+              </Text>
+                </View>
+            </View>
+        )}
+        {activeTab === 'stories' && (
+          <View style={styles.photosSection}>
+            <View style={styles.emptyState}>
+              <Ionicons name="book-outline" size={48} color={colors.neutral?.[400] || '#9E9E9E'} />
+              <Text style={[styles.emptyStateText, { color: themeColors.textSecondary }]}>
+                No stories yet
+              </Text>
+          </View>
+      </View>
+        )}
 
-        {/* Recent Activity */}
-        {renderRecentActivity()}
-      </ScrollView>
+        </ScrollView>
     </View>
   );
 };
@@ -500,8 +817,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
     minHeight: 44,
   },
   compactBackButton: {
@@ -535,14 +852,14 @@ const styles = StyleSheet.create({
   },
   profilePictureContainer: {
     position: 'relative',
-    marginBottom: spacing.lg,
+    marginBottom: spacing.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   profilePictureBorder: {
     width: 136,
     height: 136,
     borderRadius: 68,
-    borderWidth: 4,
-    borderColor: colors.neutral?.[300] || '#E0E0E0',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -551,6 +868,8 @@ const styles = StyleSheet.create({
     height: 128,
     borderRadius: 64,
     backgroundColor: colors.neutral?.[100] || '#F5F5F5',
+    borderWidth: 4,
+    borderColor: colors.neutral?.[300] || '#E0E0E0',
     shadowColor: colors.neutral?.[900] || '#000000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
@@ -562,13 +881,15 @@ const styles = StyleSheet.create({
     height: 128,
     borderRadius: 64,
     backgroundColor: colors.neutral?.[100] || '#F5F5F5',
+    borderWidth: 4,
+    borderColor: colors.neutral?.[300] || '#E0E0E0',
     justifyContent: 'center',
     alignItems: 'center',
   },
   editButtonContainer: {
     position: 'absolute',
-    bottom: 0,
-    right: 0,
+    bottom: 4,
+    right: 4,
   },
   editButton: {
     width: 28,
@@ -582,6 +903,36 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+  // Side Decorations
+  leftDecoration: {
+    position: 'absolute',
+    left: -60,
+    top: '50%',
+    transform: [{ translateY: -30 }],
+    alignItems: 'center',
+  },
+  rightDecoration: {
+    position: 'absolute',
+    right: -60,
+    top: '50%',
+    transform: [{ translateY: -30 }],
+    alignItems: 'center',
+  },
+  decorationCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
   profileName: {
     fontSize: typography.sizes['3xl'],
     fontWeight: typography.weights.bold,
@@ -594,11 +945,35 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     maxWidth: 300,
     lineHeight: 22,
+    marginBottom: spacing.sm,
+  },
+  editProfileButton: {
+    marginTop: spacing.xs,
+    marginBottom: spacing.sm,
+  },
+  editProfileGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    borderRadius: 20,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  editProfileText: {
+    color: 'white',
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.weights.semibold,
+    marginLeft: spacing.xs,
   },
   // Stats Section - Compact
   statsGradientBorder: {
     marginHorizontal: spacing.lg,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.sm,
     borderRadius: 12,
     padding: 2,
   },
@@ -636,35 +1011,104 @@ const styles = StyleSheet.create({
    // Mini Tabs - Gradient Icon & Underline Design
    miniTabsContainer: {
      flexDirection: 'row',
-     marginHorizontal: spacing.lg,
-     marginBottom: spacing.lg,
-     borderBottomWidth: 1,
-     borderBottomColor: colors.neutral?.[200] || '#E0E0E0',
+     marginBottom: 0,
+     backgroundColor: colors.background?.primary || '#FFFFFF',
+     marginTop: -spacing.xs,
    },
    miniTab: {
-     flex: 1,
+    flex: 1,
      alignItems: 'center',
      justifyContent: 'center',
-     paddingVertical: spacing.sm,
+     paddingVertical: spacing.md,
      paddingHorizontal: spacing.xs,
      position: 'relative',
    },
    activeTabContainer: {
-     alignItems: 'center',
+    alignItems: 'center',
      justifyContent: 'center',
    },
    gradientUnderline: {
      position: 'absolute',
-     bottom: -spacing.sm - 1,
-     left: -spacing.lg - spacing.md,
-     right: -spacing.lg - spacing.md,
-     height: 3,
-     borderRadius: 1.5,
+     bottom: -10,
+     left: -spacing.lg * 2,
+     right: -spacing.lg * 2,
+      height: 2,
+     borderRadius: 1,
    },
   // Section Styles
   section: {
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.lg,
+  },
+  // Photos Section - Full width
+  photosSection: {
+    flex: 1,
+    backgroundColor: colors.background?.primary || '#FFFFFF',
+    marginTop: -8,
+  },
+  // Photos Grid
+  photosGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingHorizontal: 1, // Minimal padding for grid lines
+  },
+  photoCard: {
+    width: (width - 2) / 3, // Full width minus 2px for grid lines
+    marginBottom: 1,
+  },
+  photoContainer: {
+    position: 'relative',
+    backgroundColor: colors.neutral?.[100] || '#F5F5F5',
+    aspectRatio: 1, // Square aspect ratio
+  },
+  photoImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  videoOverlay: {
+    position: 'absolute',
+    top: spacing.sm,
+    right: spacing.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  },
+  videoOverlayWithMultiple: {
+    right: spacing.sm + 60, // Move left when multiple media indicator is present
+  },
+  multipleMediaIndicator: {
+    position: 'absolute',
+    top: spacing.sm,
+    right: spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    paddingHorizontal: spacing.xs,
+    paddingVertical: 2,
+    borderRadius: 12,
+  },
+  mediaCount: {
+    color: 'white',
+    fontSize: typography.sizes.xs,
+    fontWeight: typography.weights.semibold,
+    marginLeft: 2,
+  },
+  // Empty State
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.xl * 2,
+    paddingHorizontal: spacing.lg,
+  },
+  emptyStateText: {
+    fontSize: typography.sizes.md,
+    marginTop: spacing.md,
+    textAlign: 'center',
   },
   sectionTitle: {
     fontSize: typography.sizes.xl,
@@ -739,51 +1183,6 @@ const styles = StyleSheet.create({
     width: 2,
     backgroundColor: colors.neutral?.[200] || '#E5E7EB',
     zIndex: 1,
-  },
-  // Activity Styles
-  activityContainer: {
-    gap: spacing.md,
-  },
-  activityCard: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: colors.neutral?.[50] || '#FAFAFA',
-    padding: spacing.md,
-    borderRadius: 12,
-    shadowColor: colors.neutral?.[900] || '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-    borderWidth: 1,
-    borderColor: colors.neutral?.[100] || '#F5F5F5',
-  },
-  activityIconContainer: {
-    marginRight: spacing.md,
-  },
-  activityIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  activityContent: {
-    flex: 1,
-  },
-  activityTitle: {
-    fontSize: typography.sizes.md,
-    fontWeight: typography.weights.semibold,
-    marginBottom: spacing.xs,
-  },
-  activityDescription: {
-    fontSize: typography.sizes.sm,
-    lineHeight: 18,
-    marginBottom: spacing.xs,
-  },
-  activityDate: {
-    fontSize: typography.sizes.xs,
-    fontWeight: typography.weights.medium,
   },
 });
 
