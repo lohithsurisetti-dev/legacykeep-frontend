@@ -17,3 +17,4 @@ export { default as BottomNavigation } from './BottomNavigation';
 export { default as QuickInsightsBar } from './QuickInsightsBar';
 export { default as LanguageSelector } from './LanguageSelector';
 export { default as ThemeSelector } from './ThemeSelector';
+export { default as GlassToggle } from './GlassToggle';

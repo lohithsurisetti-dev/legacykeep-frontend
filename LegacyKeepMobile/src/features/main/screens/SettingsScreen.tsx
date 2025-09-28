@@ -4,7 +4,7 @@
  * User settings and preferences management
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,9 @@ import {
   SafeAreaView,
   ScrollView,
   Alert,
+  Switch,
+  ActionSheetIOS,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -21,14 +24,15 @@ import { ROUTES } from '../../../app/navigation/types';
 import { colors, typography, spacing } from '../../../shared/constants';
 import { useTheme } from '../../../app/providers/ThemeContext';
 import { useAuth } from '../../../app/providers/AuthContext';
-import { BackButton } from '../../../shared/components/ui';
+import { BackButton, GlassToggle } from '../../../shared/components/ui';
 
 type Props = MainStackScreenProps<typeof ROUTES.SETTINGS>;
 
 const SettingsScreen: React.FC<Props> = () => {
   const navigation = useNavigation();
   const { logout } = useAuth();
-  const { colors: themeColors } = useTheme();
+  const { colors: themeColors, effectiveTheme, toggleTheme } = useTheme();
+  const [selectedLanguage, setSelectedLanguage] = useState('en');
 
   const handleBack = () => {
     navigation.goBack();
@@ -46,31 +50,92 @@ const SettingsScreen: React.FC<Props> = () => {
   };
 
   const handleAccountSettings = () => {
-    console.log('Account settings pressed');
+    (navigation as any).navigate(ROUTES.ACCOUNT_SETTINGS);
   };
 
   const handlePrivacySettings = () => {
-    console.log('Privacy settings pressed');
+    (navigation as any).navigate(ROUTES.PRIVACY_SETTINGS);
   };
 
   const handleNotificationSettings = () => {
-    console.log('Notification settings pressed');
+    (navigation as any).navigate(ROUTES.NOTIFICATION_SETTINGS);
   };
 
   const handleSecuritySettings = () => {
-    console.log('Security settings pressed');
+    (navigation as any).navigate(ROUTES.SECURITY_SETTINGS);
   };
 
   const handleAppPreferences = () => {
-    console.log('App preferences pressed');
+    (navigation as any).navigate(ROUTES.APP_PREFERENCES);
   };
 
   const handleHelpSupport = () => {
-    console.log('Help & support pressed');
+    (navigation as any).navigate(ROUTES.HELP_SUPPORT);
   };
 
   const handleAbout = () => {
-    console.log('About pressed');
+    (navigation as any).navigate(ROUTES.ABOUT);
+  };
+
+  const handleLanguageChange = (language: string) => {
+    setSelectedLanguage(language);
+    console.log('Language changed to:', language);
+  };
+
+  const showLanguageSelector = () => {
+    const languages = [
+      { code: 'en', name: 'English' },
+      { code: 'es', name: 'Español' },
+      { code: 'fr', name: 'Français' },
+      { code: 'de', name: 'Deutsch' },
+      { code: 'pt', name: 'Português' },
+      { code: 'hi', name: 'हिन्दी' }
+    ];
+
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: [...languages.map(lang => lang.name), 'Cancel'],
+          cancelButtonIndex: languages.length,
+          title: 'Select Language',
+        },
+        (buttonIndex) => {
+          if (buttonIndex < languages.length) {
+            handleLanguageChange(languages[buttonIndex].code);
+          }
+        }
+      );
+    } else {
+      // For Android, show an alert with options
+      const languageOptions = languages.map(lang => lang.name).join('\n');
+      Alert.alert(
+        'Select Language',
+        languageOptions,
+        [
+          ...languages.map((lang, index) => ({
+            text: lang.name,
+            onPress: () => handleLanguageChange(lang.code),
+          })),
+          { text: 'Cancel', style: 'cancel' }
+        ]
+      );
+    }
+  };
+
+  const getLanguageName = (code: string) => {
+    const languages: { [key: string]: string } = {
+      'en': 'English',
+      'es': 'Español',
+      'fr': 'Français',
+      'de': 'Deutsch',
+      'pt': 'Português',
+      'hi': 'हिन्दी'
+    };
+    return languages[code] || 'English';
+  };
+
+  const handleDarkModeToggle = () => {
+    toggleTheme();
   };
 
   const renderSettingsSection = (title: string, items: any[]) => (
@@ -85,6 +150,7 @@ const SettingsScreen: React.FC<Props> = () => {
             { borderBottomColor: colors.neutral?.[100] || '#F5F5F5' }
           ]}
           onPress={item.onPress}
+          activeOpacity={0.7}
         >
           <View style={styles.settingsItemLeft}>
             <Ionicons 
@@ -96,11 +162,31 @@ const SettingsScreen: React.FC<Props> = () => {
               {item.title}
             </Text>
           </View>
-          <Ionicons 
-            name="chevron-forward" 
-            size={16} 
-            color={colors.neutral?.[400] || '#BDBDBD'} 
-          />
+          <View style={styles.settingsItemRight}>
+            {item.hasToggle ? (
+              <GlassToggle
+                value={item.toggleValue}
+                onValueChange={item.onPress}
+              />
+            ) : item.hasDropdown ? (
+              <View style={styles.dropdownContainer}>
+                <Text style={[styles.dropdownText, { color: themeColors.textSecondary }]}>
+                  {item.currentValue}
+                </Text>
+                <Ionicons 
+                  name="chevron-down" 
+                  size={16} 
+                  color={colors.neutral?.[400] || '#BDBDBD'} 
+                />
+              </View>
+            ) : (
+              <Ionicons 
+                name="chevron-forward" 
+                size={16} 
+                color={colors.neutral?.[400] || '#BDBDBD'} 
+              />
+            )}
+          </View>
         </TouchableOpacity>
       ))}
     </View>
@@ -131,6 +217,20 @@ const SettingsScreen: React.FC<Props> = () => {
 
   const appItems = [
     {
+      icon: 'moon-outline',
+      title: 'Dark Mode',
+      onPress: handleDarkModeToggle,
+      hasToggle: true,
+      toggleValue: effectiveTheme === 'dark',
+    },
+    {
+      icon: 'language-outline',
+      title: 'Language',
+      onPress: showLanguageSelector,
+      hasDropdown: true,
+      currentValue: getLanguageName(selectedLanguage),
+    },
+    {
       icon: 'settings-outline',
       title: 'App Preferences',
       onPress: handleAppPreferences,
@@ -159,7 +259,11 @@ const SettingsScreen: React.FC<Props> = () => {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background?.primary || '#FFFFFF' }]}>
       <View style={styles.header}>
-        <BackButton onPress={handleBack} />
+        <BackButton 
+          onPress={handleBack} 
+          size={20}
+          style={styles.compactBackButton}
+        />
         <Text style={[styles.headerTitle, { color: themeColors.text }]}>Settings</Text>
         <View style={styles.headerSpacer} />
       </View>
@@ -167,7 +271,7 @@ const SettingsScreen: React.FC<Props> = () => {
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {renderSettingsSection('Account', accountItems)}
         {renderSettingsSection('App', appItems)}
-        {renderSettingsSection('', dangerItems)}
+        {renderSettingsSection('Account', dangerItems)}
         
         <View style={styles.footer}>
           <Text style={[styles.footerText, { color: themeColors.textSecondary }]}>
@@ -191,6 +295,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.neutral?.[200] || '#EEEEEE',
     minHeight: 48,
+  },
+  compactBackButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
   },
   headerTitle: {
     flex: 1,
@@ -231,10 +340,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
   },
+  settingsItemRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   settingsItemText: {
     fontSize: typography.sizes.md,
     fontWeight: typography.weights.medium,
     marginLeft: spacing.md,
+  },
+  dropdownContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: spacing.xs,
+  },
+  dropdownText: {
+    fontSize: typography.sizes.sm,
+    marginRight: spacing.xs,
   },
   footer: {
     alignItems: 'center',

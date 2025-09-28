@@ -75,6 +75,13 @@ export type MainStackParamList = {
   MainTabs: undefined;
   Profile: undefined;
   Settings: undefined;
+  AccountSettings: undefined;
+  PrivacySettings: undefined;
+  NotificationSettings: undefined;
+  SecuritySettings: undefined;
+  AppPreferences: undefined;
+  HelpSupport: undefined;
+  About: undefined;
   Media: undefined;
 };
 
@@ -161,6 +168,13 @@ export const ROUTES = {
   HOME: 'Home',
   PROFILE: 'Profile',
   SETTINGS: 'Settings',
+  ACCOUNT_SETTINGS: 'AccountSettings',
+  PRIVACY_SETTINGS: 'PrivacySettings',
+  NOTIFICATION_SETTINGS: 'NotificationSettings',
+  SECURITY_SETTINGS: 'SecuritySettings',
+  APP_PREFERENCES: 'AppPreferences',
+  HELP_SUPPORT: 'HelpSupport',
+  ABOUT: 'About',
   CHAT: 'Chat',
   FAMILY: 'Family',
   STORIES: 'Stories',

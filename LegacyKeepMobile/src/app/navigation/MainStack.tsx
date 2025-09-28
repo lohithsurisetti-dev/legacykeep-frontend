@@ -12,6 +12,13 @@ import { MainStackParamList, ROUTES } from './types';
 import TabNavigator from './TabNavigator';
 import ProfileScreen from '../../features/main/screens/ProfileScreen';
 import SettingsScreen from '../../features/main/screens/SettingsScreen';
+import AccountSettingsScreen from '../../features/main/screens/AccountSettingsScreen';
+import PrivacySettingsScreen from '../../features/main/screens/PrivacySettingsScreen';
+import NotificationSettingsScreen from '../../features/main/screens/NotificationSettingsScreen';
+import SecuritySettingsScreen from '../../features/main/screens/SecuritySettingsScreen';
+import AppPreferencesScreen from '../../features/main/screens/AppPreferencesScreen';
+import HelpSupportScreen from '../../features/main/screens/HelpSupportScreen';
+import AboutScreen from '../../features/main/screens/AboutScreen';
 import MediaScreen from '../../features/main/screens/MediaScreen';
 
 const Stack = createStackNavigator<MainStackParamList>();
@@ -48,6 +55,63 @@ const MainStack: React.FC = () => {
         component={SettingsScreen}
         options={{
           headerShown: false, // SettingsScreen handles its own header
+        }}
+      />
+      
+      {/* Settings Screens */}
+      <Stack.Screen
+        name={ROUTES.ACCOUNT_SETTINGS}
+        component={AccountSettingsScreen}
+        options={{
+          headerShown: false, // Each screen handles its own header
+        }}
+      />
+      
+      <Stack.Screen
+        name={ROUTES.PRIVACY_SETTINGS}
+        component={PrivacySettingsScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      
+      <Stack.Screen
+        name={ROUTES.NOTIFICATION_SETTINGS}
+        component={NotificationSettingsScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      
+      <Stack.Screen
+        name={ROUTES.SECURITY_SETTINGS}
+        component={SecuritySettingsScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      
+      <Stack.Screen
+        name={ROUTES.APP_PREFERENCES}
+        component={AppPreferencesScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      
+      <Stack.Screen
+        name={ROUTES.HELP_SUPPORT}
+        component={HelpSupportScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      
+      <Stack.Screen
+        name={ROUTES.ABOUT}
+        component={AboutScreen}
+        options={{
+          headerShown: false,
         }}
       />
       
