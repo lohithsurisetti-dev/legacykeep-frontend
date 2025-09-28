@@ -61,6 +61,7 @@ interface LifeEvent {
   title: string;
   description: string;
   icon: string;
+  age: string;
 }
 
 interface Photo {
@@ -69,6 +70,10 @@ interface Photo {
   type: 'photo' | 'video';
   isMultiple: boolean;
   mediaCount?: number;
+  title: string;
+  date: string;
+  likes: number;
+  duration?: string;
 }
 
 const { width } = Dimensions.get('window');
@@ -95,6 +100,27 @@ const ProfileScreen: React.FC<Props> = () => {
   const [expandedBadge, setExpandedBadge] = useState<BadgeType | null>(null);
   const popupOpacity = useRef(new Animated.Value(0)).current;
   const popupScale = useRef(new Animated.Value(0.8)).current;
+  
+  // Birthday celebration animation
+  const [isBirthday, setIsBirthday] = useState(false);
+  const confettiAnimations = useRef(Array.from({ length: 15 }, () => ({
+    translateY: new Animated.Value(-100),
+    translateX: new Animated.Value(0),
+    rotate: new Animated.Value(0),
+    scale: new Animated.Value(1),
+    opacity: new Animated.Value(1),
+    type: 'strip', // 'strip' or 'ball'
+  }))).current;
+  const ballAnimations = useRef(Array.from({ length: 10 }, () => ({
+    translateY: new Animated.Value(-100),
+    translateX: new Animated.Value(0),
+    rotate: new Animated.Value(0),
+    scale: new Animated.Value(1),
+    opacity: new Animated.Value(1),
+    type: 'ball',
+  }))).current;
+  const birthdayTextScale = useRef(new Animated.Value(0)).current;
+  const birthdayTextOpacity = useRef(new Animated.Value(0)).current;
   const [lifeEvents, setLifeEvents] = useState<LifeEvent[]>([
     { 
       id: 1, 
@@ -444,13 +470,25 @@ const ProfileScreen: React.FC<Props> = () => {
 
   useEffect(() => {
     // Mock profile data - replace with actual API call
-    setProfileData({
-      firstName: user?.firstName || 'Lohith',
-      lastName: user?.lastName || 'Surisetti',
-      username: user?.username || 'lohithsurisetti',
-      bio: 'Weaving the threads of our past into the fabric of our future.',
-      profilePictureUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
-    });
+        setProfileData({
+          firstName: user?.firstName || 'Lohith',
+          lastName: user?.lastName || 'Surisetti',
+          username: user?.username || 'lohithsurisetti',
+          bio: 'Weaving the threads of our past into the fabric of our future.',
+          profilePictureUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+        });
+        
+    // Check if today is birthday (Today's date for testing)
+    const today = new Date();
+    const isTodayBirthday = today.getMonth() === today.getMonth() && today.getDate() === today.getDate(); // Today's date for testing
+    setIsBirthday(isTodayBirthday);
+    
+    if (isTodayBirthday) {
+      // Start birthday celebration animation after a short delay
+      setTimeout(() => {
+        startBirthdayAnimation();
+      }, 1000);
+    }
   }, [user]);
 
   const handleScroll = Animated.event(
@@ -509,6 +547,77 @@ const ProfileScreen: React.FC<Props> = () => {
     console.log('Edit profile pressed');
   };
 
+  const startBirthdayAnimation = () => {
+    // Animate confetti strips
+    const confettiAnimationPromises = confettiAnimations.map((confetti, index) => {
+      const randomX = (Math.random() - 0.5) * 400; // Random horizontal spread
+      const randomDelay = Math.random() * 1000; // Staggered start times
+      
+      return Animated.parallel([
+        Animated.timing(confetti.translateY, {
+          toValue: 800, // Fall to bottom of screen
+          duration: 3000 + Math.random() * 2000,
+          delay: randomDelay,
+          useNativeDriver: true,
+        }),
+        Animated.timing(confetti.translateX, {
+          toValue: randomX,
+          duration: 3000 + Math.random() * 2000,
+          delay: randomDelay,
+          useNativeDriver: true,
+        }),
+        Animated.timing(confetti.rotate, {
+          toValue: Math.random() * 720, // Random rotation
+          duration: 3000 + Math.random() * 2000,
+          delay: randomDelay,
+          useNativeDriver: true,
+        }),
+        Animated.timing(confetti.opacity, {
+          toValue: 0,
+          duration: 3000 + Math.random() * 2000,
+          delay: randomDelay + 2000,
+          useNativeDriver: true,
+        }),
+      ]);
+    });
+
+    // Animate balls
+    const ballAnimationPromises = ballAnimations.map((ball, index) => {
+      const randomX = (Math.random() - 0.5) * 400; // Random horizontal spread
+      const randomDelay = Math.random() * 1000; // Staggered start times
+      
+      return Animated.parallel([
+        Animated.timing(ball.translateY, {
+          toValue: 800, // Fall to bottom of screen
+          duration: 3000 + Math.random() * 2000,
+          delay: randomDelay,
+          useNativeDriver: true,
+        }),
+        Animated.timing(ball.translateX, {
+          toValue: randomX,
+          duration: 3000 + Math.random() * 2000,
+          delay: randomDelay,
+          useNativeDriver: true,
+        }),
+        Animated.timing(ball.rotate, {
+          toValue: Math.random() * 720, // Random rotation
+          duration: 3000 + Math.random() * 2000,
+          delay: randomDelay,
+          useNativeDriver: true,
+        }),
+        Animated.timing(ball.opacity, {
+          toValue: 0,
+          duration: 3000 + Math.random() * 2000,
+          delay: randomDelay + 2000,
+          useNativeDriver: true,
+        }),
+      ]);
+    });
+
+    // Start all animations
+    Animated.parallel([...confettiAnimationPromises, ...ballAnimationPromises]).start();
+  };
+
   const handleBadgePress = (badgeType: BadgeType) => {
     console.log(`${badgeType} badge pressed`);
     
@@ -564,7 +673,7 @@ const ProfileScreen: React.FC<Props> = () => {
 
   const renderProfilePicture = () => {
     if (profileData?.profilePictureUrl) {
-      return (
+  return (
         <View style={styles.profilePictureBorder}>
           <Image
             source={{ uri: profileData.profilePictureUrl }}
@@ -578,7 +687,7 @@ const ProfileScreen: React.FC<Props> = () => {
     return (
       <View style={styles.profilePictureBorder}>
         <View style={styles.profilePicturePlaceholder}>
-          <Ionicons 
+            <Ionicons 
             name="person" 
             size={60} 
             color={colors.neutral[400]} 
@@ -588,6 +697,56 @@ const ProfileScreen: React.FC<Props> = () => {
       </View>
     );
   };
+
+  const renderBirthdayCelebration = () => (
+    <View style={styles.birthdayOverlay}>
+      {/* Confetti Strips */}
+      {confettiAnimations.map((confetti, index) => (
+        <Animated.View
+          key={`strip-${index}`}
+          style={[
+            styles.confetti,
+            {
+              backgroundColor: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57', '#FF9FF3'][index % 6],
+              transform: [
+                { translateY: confetti.translateY },
+                { translateX: confetti.translateX },
+                { rotate: confetti.rotate.interpolate({
+                  inputRange: [0, 360],
+                  outputRange: ['0deg', '360deg'],
+                }) },
+                { scale: confetti.scale },
+              ],
+              opacity: confetti.opacity,
+            },
+          ]}
+        />
+      ))}
+      
+      {/* Confetti Balls */}
+      {ballAnimations.map((ball, index) => (
+        <Animated.View
+          key={`ball-${index}`}
+          style={[
+            styles.confettiBall,
+            {
+              backgroundColor: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57', '#FF9FF3'][index % 6],
+              transform: [
+                { translateY: ball.translateY },
+                { translateX: ball.translateX },
+                { rotate: ball.rotate.interpolate({
+                  inputRange: [0, 360],
+                  outputRange: ['0deg', '360deg'],
+                }) },
+                { scale: ball.scale },
+              ],
+              opacity: ball.opacity,
+            },
+          ]}
+        />
+      ))}
+              </View>
+  );
 
   const renderCenteredPopup = () => {
     if (!expandedBadge) return null;
@@ -641,8 +800,8 @@ const ProfileScreen: React.FC<Props> = () => {
                     </View>
                     <Text style={styles.popupListItem}>
                       {item}
-                    </Text>
-                  </View>
+                </Text>
+                </View>
                 ))}
               </View>
             ) : (
@@ -665,7 +824,7 @@ const ProfileScreen: React.FC<Props> = () => {
         <Ionicons 
           name="gift" 
           size={24} 
-          color={colors.badge.birthday} 
+          color={colors.neutral[600]} // colors.badge.birthday - commented for neutral look
           style={[
             styles.iconShadow,
             expandedBadge === 'birthday' && styles.expandedBadge
@@ -681,7 +840,7 @@ const ProfileScreen: React.FC<Props> = () => {
         <Ionicons 
           name="cart" 
           size={24} 
-          color={colors.badge.bucketlist} 
+          color={colors.neutral[600]} // colors.badge.bucketlist - commented for neutral look
           style={[
             styles.iconShadow,
             expandedBadge === 'bucketlist' && styles.expandedBadge
@@ -698,7 +857,7 @@ const ProfileScreen: React.FC<Props> = () => {
             <Ionicons 
           name="star" 
           size={24} 
-          color={colors.badge.zodiac} 
+          color={colors.neutral[600]} // colors.badge.zodiac - commented for neutral look
           style={[
             styles.iconShadow,
             expandedBadge === 'zodiac' && styles.expandedBadge
@@ -714,7 +873,7 @@ const ProfileScreen: React.FC<Props> = () => {
         <Ionicons 
           name="musical-notes" 
           size={24} 
-          color={colors.badge.hobby} 
+          color={colors.neutral[600]} // colors.badge.hobby - commented for neutral look
           style={[
             styles.iconShadow,
             expandedBadge === 'hobby' && styles.expandedBadge
@@ -725,27 +884,20 @@ const ProfileScreen: React.FC<Props> = () => {
   );
 
   const renderStats = () => (
-    <LinearGradient
-      colors={['#14B8A6', '#8B5CF6']}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 0 }}
-      style={styles.statsGradientBorder}
-    >
-      <View style={styles.statsContainer}>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{stats.storiesShared}</Text>
-          <Text style={styles.statLabel}>Stories Shared</Text>
-        </View>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{stats.familyMembers}</Text>
-          <Text style={styles.statLabel}>Family Members</Text>
+    <View style={styles.statsContainer}>
+      <View style={styles.statItem}>
+        <Text style={styles.statNumber}>{stats.storiesShared}</Text>
+        <Text style={styles.statLabel}>Stories</Text>
+            </View>
+      <View style={styles.statItem}>
+        <Text style={styles.statNumber}>{stats.familyMembers}</Text>
+        <Text style={styles.statLabel}>Family</Text>
           </View>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{stats.memoriesSaved}</Text>
-          <Text style={styles.statLabel}>Memories Saved</Text>
+      <View style={styles.statItem}>
+        <Text style={styles.statNumber}>{stats.memoriesSaved}</Text>
+        <Text style={styles.statLabel}>Memories</Text>
                 </View>
-          </View>
-    </LinearGradient>
+    </View>
   );
 
   const renderMiniTabs = () => {
@@ -798,52 +950,179 @@ const ProfileScreen: React.FC<Props> = () => {
   };
 
   const renderLifeTimeline = () => (
-          <View style={styles.section}>
-      <Text style={[styles.sectionTitle, { color: themeColors.text }]}>
-        My Legacy Journey
-                </Text>
-      <View style={styles.timelineContainer}>
-        {lifeEvents.map((event, index) => (
-          <View key={event.id} style={styles.timelineItem}>
-            <View style={styles.timelineIconContainer}>
-              <LinearGradient
-                colors={['#14B8A6', '#8B5CF6']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.timelineIconGradient}
-              >
-                <View style={styles.timelineIcon}>
-            <Ionicons 
-                    name={event.icon as any} 
-                    size={20} 
-              color={themeColors.text} 
-            />
-              </View>
-              </LinearGradient>
-            </View>
-            <View style={styles.timelineContent}>
-              <View style={styles.timelineHeader}>
-                <Text style={[styles.timelineTitle, { color: themeColors.text }]}>
-                  {event.title}
-                </Text>
-                <Text style={[styles.timelineAge, { color: themeColors.textSecondary }]}>
-                  {event.age}
-                </Text>
+    <View style={styles.legacyJourneyContainer}>
+      {/* Journey Overview */}
+      <View style={styles.journeyOverview}>
+        <View style={styles.overviewCard}>
+          <View style={styles.overviewHeader}>
+            <Ionicons name="compass" size={24} color={colors.primary[600]} />
+            <Text style={[styles.overviewTitle, { color: themeColors.text }]}>My Legacy Journey</Text>
                 </View>
-              <Text style={[styles.timelineDescription, { color: themeColors.textSecondary }]}>
-                {event.description}
-              </Text>
-              <Text style={[styles.timelineDate, { color: themeColors.textSecondary }]}>
-                {event.date}
-              </Text>
-              </View>
-            {index < lifeEvents.length - 1 && (
-              <View style={styles.timelineConnector} />
-            )}
+          <Text style={[styles.overviewSubtitle, { color: themeColors.textSecondary }]}>
+            A timeline of meaningful moments that shaped who I am today
+          </Text>
             </View>
-        ))}
           </View>
+
+      {/* Journey Stats */}
+      <View style={styles.journeyStatsGrid}>
+        <View style={styles.statCard}>
+          <Text style={[styles.journeyStatNumber, { color: colors.primary[600] }]}>28</Text>
+          <Text style={[styles.journeyStatLabel, { color: themeColors.textSecondary }]}>Years</Text>
                 </View>
+        <View style={styles.statCard}>
+          <Text style={[styles.journeyStatNumber, { color: colors.secondary.teal[600] }]}>12</Text>
+          <Text style={[styles.journeyStatLabel, { color: themeColors.textSecondary }]}>Milestones</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Text style={[styles.journeyStatNumber, { color: colors.app.accent }]}>3</Text>
+          <Text style={[styles.journeyStatLabel, { color: themeColors.textSecondary }]}>Generations</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Text style={[styles.journeyStatNumber, { color: colors.success[600] }]}>∞</Text>
+          <Text style={[styles.journeyStatLabel, { color: themeColors.textSecondary }]}>Memories</Text>
+        </View>
+      </View>
+
+      {/* Life Chapters */}
+      <View style={styles.chaptersContainer}>
+        <Text style={[styles.chaptersTitle, { color: themeColors.text }]}>Life Chapters</Text>
+        
+        {/* Chapter 1: Foundation */}
+        <View style={styles.chapterCard}>
+          <View style={styles.chapterHeader}>
+            <View style={[styles.chapterIcon, { backgroundColor: colors.primary[100] }]}>
+              <Ionicons name="flower" size={20} color={colors.primary[600]} />
+                </View>
+            <View style={styles.chapterInfo}>
+              <Text style={[styles.chapterTitle, { color: themeColors.text }]}>Foundation Years</Text>
+              <Text style={[styles.chapterPeriod, { color: themeColors.textSecondary }]}>1995 - 2005</Text>
+            </View>
+            <View style={[styles.chapterBadge, { backgroundColor: colors.primary[50] }]}>
+              <Text style={[styles.chapterBadgeText, { color: colors.primary[600] }]}>Childhood</Text>
+            </View>
+          </View>
+          <Text style={[styles.chapterDescription, { color: themeColors.textSecondary }]}>
+            The formative years filled with wonder, learning, and family bonds that established my core values and character.
+          </Text>
+          <View style={styles.chapterHighlights}>
+            <View style={styles.highlightTag}>
+              <Ionicons name="school" size={14} color={colors.primary[600]} />
+              <Text style={[styles.highlightText, { color: colors.primary[600] }]}>First School Day</Text>
+            </View>
+            <View style={styles.highlightTag}>
+              <Ionicons name="heart" size={14} color={colors.primary[600]} />
+              <Text style={[styles.highlightText, { color: colors.primary[600] }]}>Family Traditions</Text>
+            </View>
+            <View style={styles.highlightTag}>
+              <Ionicons name="book" size={14} color={colors.primary[600]} />
+              <Text style={[styles.highlightText, { color: colors.primary[600] }]}>Learning to Read</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Chapter 2: Growth */}
+        <View style={styles.chapterCard}>
+          <View style={styles.chapterHeader}>
+            <View style={[styles.chapterIcon, { backgroundColor: colors.secondary.teal[100] }]}>
+              <Ionicons name="trending-up" size={20} color={colors.secondary.teal[600]} />
+                </View>
+            <View style={styles.chapterInfo}>
+              <Text style={[styles.chapterTitle, { color: themeColors.text }]}>Growth & Discovery</Text>
+              <Text style={[styles.chapterPeriod, { color: themeColors.textSecondary }]}>2005 - 2015</Text>
+            </View>
+            <View style={[styles.chapterBadge, { backgroundColor: colors.secondary.teal[50] }]}>
+              <Text style={[styles.chapterBadgeText, { color: colors.secondary.teal[600] }]}>Teenage</Text>
+            </View>
+          </View>
+          <Text style={[styles.chapterDescription, { color: themeColors.textSecondary }]}>
+            Years of self-discovery, building lasting friendships, and developing passions that would guide my future path.
+          </Text>
+          <View style={styles.chapterHighlights}>
+            <View style={styles.highlightTag}>
+              <Ionicons name="people" size={14} color={colors.secondary.teal[600]} />
+              <Text style={[styles.highlightText, { color: colors.secondary.teal[600] }]}>Lifelong Friends</Text>
+            </View>
+            <View style={styles.highlightTag}>
+              <Ionicons name="musical-notes" size={14} color={colors.secondary.teal[600]} />
+              <Text style={[styles.highlightText, { color: colors.secondary.teal[600] }]}>Music Passion</Text>
+            </View>
+            <View style={styles.highlightTag}>
+              <Ionicons name="trophy" size={14} color={colors.secondary.teal[600]} />
+              <Text style={[styles.highlightText, { color: colors.secondary.teal[600] }]}>First Achievements</Text>
+            </View>
+            </View>
+          </View>
+
+        {/* Chapter 3: Legacy Building */}
+        <View style={styles.chapterCard}>
+          <View style={styles.chapterHeader}>
+            <View style={[styles.chapterIcon, { backgroundColor: colors.warning[100] }]}>
+              <Ionicons name="star" size={20} color={colors.app.accent} />
+                </View>
+            <View style={styles.chapterInfo}>
+              <Text style={[styles.chapterTitle, { color: themeColors.text }]}>Building Legacy</Text>
+              <Text style={[styles.chapterPeriod, { color: themeColors.textSecondary }]}>2015 - Present</Text>
+            </View>
+            <View style={[styles.chapterBadge, { backgroundColor: colors.warning[50] }]}>
+              <Text style={[styles.chapterBadgeText, { color: colors.app.accent }]}>Adult</Text>
+            </View>
+          </View>
+          <Text style={[styles.chapterDescription, { color: themeColors.textSecondary }]}>
+            Creating meaningful impact, preserving family stories, and building connections that will last for generations.
+          </Text>
+          <View style={styles.chapterHighlights}>
+            <View style={styles.highlightTag}>
+              <Ionicons name="camera" size={14} color={colors.app.accent} />
+              <Text style={[styles.highlightText, { color: colors.app.accent }]}>Photography Journey</Text>
+            </View>
+            <View style={styles.highlightTag}>
+              <Ionicons name="library" size={14} color={colors.app.accent} />
+              <Text style={[styles.highlightText, { color: colors.app.accent }]}>Story Preservation</Text>
+            </View>
+            <View style={styles.highlightTag}>
+              <Ionicons name="people-circle" size={14} color={colors.app.accent} />
+              <Text style={[styles.highlightText, { color: colors.app.accent }]}>Family Connections</Text>
+            </View>
+          </View>
+        </View>
+      </View>
+
+      {/* Legacy Impact */}
+      <View style={styles.impactSection}>
+        <Text style={[styles.impactTitle, { color: themeColors.text }]}>My Legacy Impact</Text>
+        <View style={styles.impactGrid}>
+          <View style={styles.impactCard}>
+            <View style={[styles.impactIcon, { backgroundColor: colors.primary[100] }]}>
+              <Ionicons name="people-circle" size={24} color={colors.primary[600]} />
+                </View>
+            <Text style={[styles.impactNumber, { color: colors.primary[600] }]}>50+</Text>
+            <Text style={[styles.impactLabel, { color: themeColors.textSecondary }]}>Lives Touched</Text>
+          </View>
+          <View style={styles.impactCard}>
+            <View style={[styles.impactIcon, { backgroundColor: colors.secondary.teal[100] }]}>
+              <Ionicons name="book" size={24} color={colors.secondary.teal[600]} />
+            </View>
+            <Text style={[styles.impactNumber, { color: colors.secondary.teal[600] }]}>200+</Text>
+            <Text style={[styles.impactLabel, { color: themeColors.textSecondary }]}>Stories Preserved</Text>
+          </View>
+          <View style={styles.impactCard}>
+            <View style={[styles.impactIcon, { backgroundColor: colors.warning[100] }]}>
+              <Ionicons name="heart" size={24} color={colors.app.accent} />
+            </View>
+            <Text style={[styles.impactNumber, { color: colors.app.accent }]}>3</Text>
+            <Text style={[styles.impactLabel, { color: themeColors.textSecondary }]}>Generations</Text>
+          </View>
+          <View style={styles.impactCard}>
+            <View style={[styles.impactIcon, { backgroundColor: colors.success[100] }]}>
+              <Ionicons name="time" size={24} color={colors.success[600]} />
+            </View>
+            <Text style={[styles.impactNumber, { color: colors.success[600] }]}>∞</Text>
+            <Text style={[styles.impactLabel, { color: themeColors.textSecondary }]}>Memories</Text>
+          </View>
+        </View>
+      </View>
+    </View>
   );
 
   const renderPhotos = () => (
@@ -853,9 +1132,9 @@ const ProfileScreen: React.FC<Props> = () => {
           <TouchableOpacity key={photo.id} style={styles.photoCard} activeOpacity={0.8}>
             <View style={styles.photoContainer}>
               <Image source={{ uri: photo.url }} style={styles.photoImage} />
-              {photo.type === 'video' && (
-                <View style={[styles.videoOverlay, photo.isMultiple && styles.videoOverlayWithMultiple]}>
-                  <Ionicons name="play-circle" size={24} color="white" />
+              {photo.type === 'video' && !photo.isMultiple && (
+                <View style={styles.videoOverlay}>
+                  <Ionicons name="play-circle" size={16} color="white" />
                 </View>
               )}
               {photo.isMultiple && (
@@ -988,7 +1267,7 @@ const ProfileScreen: React.FC<Props> = () => {
               <Text style={[styles.emptyStateText, { color: themeColors.textSecondary }]}>
                 No tagged content yet
               </Text>
-                </View>
+      </View>
             </View>
         )}
         {activeTab === 'stories' && (
@@ -1006,6 +1285,9 @@ const ProfileScreen: React.FC<Props> = () => {
         
         {/* Centered Popup */}
         {renderCenteredPopup()}
+        
+        {/* Birthday Celebration */}
+        {isBirthday && renderBirthdayCelebration()}
     </View>
   );
 };
@@ -1217,7 +1499,7 @@ const styles = StyleSheet.create({
   },
   editProfileButton: {
     marginTop: spacing.xs,
-    marginBottom: spacing.sm,
+    marginBottom: -spacing.sm,
   },
   editProfileGradient: {
     flexDirection: 'row',
@@ -1238,25 +1520,14 @@ const styles = StyleSheet.create({
     fontWeight: typography.weights.semibold,
     marginLeft: spacing.xs,
   },
-  // Stats Section - Compact
-  statsGradientBorder: {
-    marginHorizontal: spacing.lg,
-    marginBottom: spacing.sm,
-    borderRadius: 12,
-    padding: 2,
-  },
+  // Stats Section - Minimal No Card
   statsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    backgroundColor: colors.background.primary,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.sm,
-    borderRadius: 10,
-    shadowColor: colors.neutral[900],
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 3,
+    marginHorizontal: spacing.lg,
+    marginTop: 0,
+    marginBottom: spacing.sm,
+    paddingVertical: spacing.xs,
   },
   statItem: {
     alignItems: 'center',
@@ -1264,10 +1535,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xs,
   },
   statNumber: {
-    fontSize: typography.sizes.lg,
+    fontSize: typography.sizes['2xl'] * 0.9,
     fontWeight: typography.weights.bold,
     color: colors.neutral[900],
-    marginBottom: 2,
+    marginBottom: spacing.xs,
   },
   statLabel: {
     fontSize: typography.sizes.xs,
@@ -1341,13 +1612,10 @@ const styles = StyleSheet.create({
     right: spacing.sm,
     alignItems: 'center',
     justifyContent: 'center',
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
-  },
-  videoOverlayWithMultiple: {
-    right: spacing.sm + 60, // Move left when multiple media indicator is present
   },
   multipleMediaIndicator: {
     position: 'absolute',
@@ -1383,75 +1651,192 @@ const styles = StyleSheet.create({
     fontWeight: typography.weights.bold,
     marginBottom: spacing.md,
   },
-  // Timeline Styles
-  timelineContainer: {
-    position: 'relative',
-  },
-  timelineItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: spacing.lg,
-    position: 'relative',
-  },
-  timelineIconContainer: {
-    marginRight: spacing.md,
-    zIndex: 2,
-  },
-  timelineIconGradient: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 2,
-  },
-  timelineIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.neutral[50],
-  },
-  timelineContent: {
+   // Legacy Journey Styles
+   legacyJourneyContainer: {
     flex: 1,
-    paddingTop: spacing.xs,
+    backgroundColor: colors.background.primary,
   },
-  timelineHeader: {
+   journeyOverview: {
+     paddingHorizontal: spacing.lg,
+     marginBottom: spacing.lg,
+   },
+   overviewCard: {
+     backgroundColor: colors.neutral[50],
+     borderRadius: 16,
+     padding: spacing.lg,
+     shadowColor: colors.neutral[900],
+     shadowOffset: { width: 0, height: 2 },
+     shadowOpacity: 0.1,
+     shadowRadius: 8,
+     elevation: 3,
+   },
+   overviewHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+     marginBottom: spacing.sm,
+   },
+   overviewTitle: {
+     fontSize: typography.sizes.xl,
+     fontWeight: typography.weights.bold,
+     marginLeft: spacing.sm,
+   },
+   overviewSubtitle: {
+     fontSize: typography.sizes.sm,
+     lineHeight: 20,
+   },
+   journeyStatsGrid: {
+     flexDirection: 'row',
+     justifyContent: 'space-between',
+     paddingHorizontal: spacing.lg,
+     marginBottom: spacing.xl,
+   },
+   statCard: {
+     backgroundColor: colors.neutral[50],
+     borderRadius: 12,
+     padding: spacing.md,
+     alignItems: 'center',
+    flex: 1,
+     marginHorizontal: spacing.xs,
+     shadowColor: colors.neutral[900],
+     shadowOffset: { width: 0, height: 1 },
+     shadowOpacity: 0.05,
+     shadowRadius: 4,
+     elevation: 2,
+   },
+   journeyStatNumber: {
+     fontSize: typography.sizes['2xl'],
+     fontWeight: typography.weights.bold,
+     marginBottom: spacing.xs,
+   },
+   journeyStatLabel: {
+     fontSize: typography.sizes.xs,
+     fontWeight: typography.weights.medium,
+     textAlign: 'center',
+   },
+   chaptersContainer: {
+    paddingHorizontal: spacing.lg,
+     marginBottom: spacing.xl,
+  },
+   chaptersTitle: {
+     fontSize: typography.sizes.lg,
+    fontWeight: typography.weights.bold,
+     marginBottom: spacing.lg,
+     textAlign: 'center',
+  },
+   chapterCard: {
+     backgroundColor: colors.neutral[50],
+    borderRadius: 16,
+    padding: spacing.lg,
+     marginBottom: spacing.lg,
+     shadowColor: colors.neutral[900],
+     shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+   chapterHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+   chapterIcon: {
+     width: 40,
+     height: 40,
+     borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+     marginRight: spacing.md,
+   },
+   chapterInfo: {
+    flex: 1,
+  },
+   chapterTitle: {
+     fontSize: typography.sizes.md,
+    fontWeight: typography.weights.bold,
     marginBottom: spacing.xs,
   },
-  timelineTitle: {
+   chapterPeriod: {
+    fontSize: typography.sizes.sm,
+     fontWeight: typography.weights.medium,
+   },
+   chapterBadge: {
+     paddingHorizontal: spacing.sm,
+     paddingVertical: spacing.xs,
+     borderRadius: 12,
+   },
+   chapterBadgeText: {
+     fontSize: typography.sizes.xs,
+     fontWeight: typography.weights.semibold,
+   },
+   chapterDescription: {
+    fontSize: typography.sizes.sm,
+     lineHeight: 20,
+     marginBottom: spacing.md,
+   },
+   chapterHighlights: {
+     flexDirection: 'row',
+     flexWrap: 'wrap',
+     gap: spacing.sm,
+   },
+   highlightTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+     backgroundColor: colors.neutral[100],
+    paddingHorizontal: spacing.sm,
+     paddingVertical: spacing.xs,
+     borderRadius: 16,
+   },
+   highlightText: {
+     fontSize: typography.sizes.xs,
+     fontWeight: typography.weights.medium,
+     marginLeft: spacing.xs,
+   },
+   impactSection: {
+     paddingHorizontal: spacing.lg,
+     marginBottom: spacing.xl,
+   },
+   impactTitle: {
     fontSize: typography.sizes.lg,
     fontWeight: typography.weights.bold,
-    flex: 1,
-  },
-  timelineAge: {
-    fontSize: typography.sizes.xs,
-    fontWeight: typography.weights.medium,
-    color: colors.neutral[400],
-  },
-  timelineDescription: {
-    fontSize: typography.sizes.sm,
-    lineHeight: 20,
+     marginBottom: spacing.lg,
+     textAlign: 'center',
+   },
+   impactGrid: {
+     flexDirection: 'row',
+     flexWrap: 'wrap',
+     justifyContent: 'space-between',
+   },
+   impactCard: {
+     width: '48%',
+     backgroundColor: colors.neutral[50],
+     borderRadius: 12,
+     padding: spacing.lg,
+     alignItems: 'center',
+     marginBottom: spacing.md,
+     shadowColor: colors.neutral[900],
+     shadowOffset: { width: 0, height: 2 },
+     shadowOpacity: 0.1,
+     shadowRadius: 8,
+     elevation: 3,
+   },
+   impactIcon: {
+     width: 48,
+     height: 48,
+     borderRadius: 24,
+     justifyContent: 'center',
+     alignItems: 'center',
+     marginBottom: spacing.sm,
+   },
+   impactNumber: {
+     fontSize: typography.sizes.xl,
+     fontWeight: typography.weights.bold,
     marginBottom: spacing.xs,
   },
-  timelineDate: {
-    fontSize: typography.sizes.xs,
-    color: colors.neutral[400],
-    fontStyle: 'italic',
-  },
-  timelineConnector: {
-    position: 'absolute',
-    left: 24,
-    top: 60,
-    bottom: -spacing.lg,
-    width: 2,
-    backgroundColor: colors.neutral[200],
-    zIndex: 1,
-  },
+   impactLabel: {
+    fontSize: typography.sizes.sm,
+     fontWeight: typography.weights.medium,
+     textAlign: 'center',
+   },
   // Popup Styles - Premium with Animations
   popupOverlay: {
     position: 'absolute',
@@ -1495,17 +1880,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   popupTitle: {
-    fontSize: typography.sizes.xl,
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.weights.medium,
+    color: 'rgba(255, 255, 255, 0.8)',
+    textAlign: 'center',
+    marginBottom: spacing.sm,
+  },
+  popupText: {
+    fontSize: typography.sizes['2xl'],
     fontWeight: typography.weights.bold,
     color: 'rgba(255, 255, 255, 1)',
     textAlign: 'center',
-    marginBottom: spacing.md,
-  },
-  popupText: {
-    fontSize: typography.sizes.xl,
-    color: 'rgba(255, 255, 255, 1)',
-    textAlign: 'center',
-    lineHeight: 28,
+    lineHeight: 32,
   },
   popupList: {
     width: '100%',
@@ -1536,10 +1922,62 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   popupListItem: {
-    fontSize: typography.sizes.lg,
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.bold,
     color: 'rgba(255, 255, 255, 1)',
-    lineHeight: 24,
+    lineHeight: 28,
     flex: 1,
+  },
+  // Birthday Celebration Styles
+  birthdayOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 3000,
+    pointerEvents: 'none',
+  },
+  confetti: {
+    position: 'absolute',
+    width: 3,
+    height: 12,
+    borderRadius: 1,
+    top: -50,
+    left: '50%',
+  },
+  confettiBall: {
+    position: 'absolute',
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    top: -50,
+    left: '50%',
+  },
+  birthdayTextContainer: {
+    position: 'absolute',
+    top: '30%',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: spacing.lg,
+  },
+  birthdayText: {
+    fontSize: typography.sizes['2xl'],
+    fontWeight: typography.weights.bold,
+    color: colors.primary[600],
+    textAlign: 'center',
+    marginBottom: spacing.sm,
+    textShadowColor: 'rgba(255, 255, 255, 0.8)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  birthdaySubtext: {
+    fontSize: typography.sizes.lg,
+    color: colors.neutral[600],
+    textAlign: 'center',
+    fontWeight: typography.weights.medium,
   },
 });
 
