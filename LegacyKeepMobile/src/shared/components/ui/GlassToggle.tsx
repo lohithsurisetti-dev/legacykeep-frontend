@@ -1,6 +1,6 @@
 /**
  * Glass Toggle Component
- * 
+ *
  * Reusable toggle switch with glassmorphism effect
  * Used consistently across the entire app
  */
@@ -15,19 +15,19 @@ interface GlassToggleProps {
   disabled?: boolean;
 }
 
-const GlassToggle: React.FC<GlassToggleProps> = ({ 
-  value, 
-  onValueChange, 
-  disabled = false 
+const GlassToggle: React.FC<GlassToggleProps> = ({
+  value,
+  onValueChange,
+  disabled = false,
 }) => {
   return (
     <Switch
       value={value}
       onValueChange={onValueChange}
       disabled={disabled}
-      trackColor={{ 
-        false: 'rgba(224, 224, 224, 0.3)', 
-        true: 'rgba(0, 122, 255, 0.8)' 
+      trackColor={{
+        false: 'rgba(224, 224, 224, 0.3)',
+        true: 'rgba(0, 122, 255, 0.8)',
       }}
       thumbColor={value ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.8)'}
       style={styles.switchStyle}

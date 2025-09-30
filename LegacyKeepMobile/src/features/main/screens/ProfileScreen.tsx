@@ -783,7 +783,8 @@ const ProfileScreen: React.FC<Props> = () => {
           style={[
             styles.popupContainer, 
             { 
-              backgroundColor: `${getPopupColor(expandedBadge)}A6`,
+              // Use neutral grayscale background instead of badge color
+              backgroundColor: 'rgba(0, 0, 0, 0.65)',
               transform: [{ scale: popupScale }],
             }
           ]}
@@ -795,7 +796,7 @@ const ProfileScreen: React.FC<Props> = () => {
               <View style={styles.popupList}>
                 {badgeContent.content.map((item, index) => (
                   <View key={index} style={styles.popupListItemContainer}>
-                    <View style={[styles.popupNumber, { backgroundColor: getPopupColor(expandedBadge) }]}>
+                    <View style={[styles.popupNumber, { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]}>
                       <Text style={styles.popupNumberText}>{index + 1}</Text>
                     </View>
                     <Text style={styles.popupListItem}>
