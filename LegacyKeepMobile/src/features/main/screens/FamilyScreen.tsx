@@ -4,7 +4,7 @@
  * Uses dynamic components that adapt to any backend data structure
  */
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   View, 
   Text,
@@ -57,6 +57,9 @@ const FamilyScreen: React.FC = () => {
   // Animation values for member card
   const [cardAnimation] = useState(new Animated.Value(0));
   const [blurAnimation] = useState(new Animated.Value(0));
+  
+  // Scroll animation for header fade
+  const scrollY = useRef(new Animated.Value(0)).current;
 
   // Get family data - in real app, this would come from your backend
   const familyData = createMockFamilyData();
@@ -154,11 +157,12 @@ const FamilyScreen: React.FC = () => {
       
       <SafeAreaView style={styles.safeArea}>
         {/* Header */}
-        <HomeHeader 
-          onProfilePress={handleProfilePress} 
-          userInitials={userInitials}
-          title="Family Tree"
-        />
+         <HomeHeader 
+           onProfilePress={handleProfilePress} 
+           userInitials={userInitials}
+           title="Family Tree"
+           scrollY={scrollY}
+         />
         
         {/* Dynamic Family Tree */}
             <FamilyTree
@@ -166,6 +170,7 @@ const FamilyScreen: React.FC = () => {
           onPersonPress={handlePersonPress}
           themeColors={themeColors}
           size="medium"
+          scrollY={scrollY}
           isModalOpen={!!selectedMember}
         />
 
@@ -275,25 +280,29 @@ const FamilyScreen: React.FC = () => {
 
               {/* Action Icons Row - Moved Below Details */}
               <View style={styles.actionIconsRow}>
-                {/* Chat - Moved to first position */}
-                <TouchableOpacity 
-                  style={styles.actionIcon}
-                  onPress={() => handleStartChat(selectedMember)}
-                >
-                  <Ionicons name="chatbubbles-outline" size={24} color="#3B9B9F" />
-                  <Text style={styles.actionIconLabel}>Chat</Text>
-                </TouchableOpacity>
+                {/* Chat - Only for living members */}
+                {selectedMember.isAlive && (
+                  <TouchableOpacity 
+                    style={styles.actionIcon}
+                    onPress={() => handleStartChat(selectedMember)}
+                  >
+                    <Ionicons name="chatbubbles-outline" size={24} color="#3B9B9F" />
+                    <Text style={styles.actionIconLabel}>Chat</Text>
+                  </TouchableOpacity>
+                )}
 
-                {/* Add Content - Moved to second position */}
+                {/* Add Content - Available for both living and deceased */}
                 <TouchableOpacity 
                   style={styles.actionIcon}
                   onPress={() => handleAddContent(selectedMember)}
                 >
                   <Ionicons name="add" size={24} color="#3B9B9F" />
-                  <Text style={styles.actionIconLabel}>Add</Text>
+                  <Text style={styles.actionIconLabel}>
+                    {selectedMember.isAlive ? "Add" : "Memorial"}
+                  </Text>
                 </TouchableOpacity>
 
-                {/* Share - Moved to third position */}
+                {/* Share - Available for both living and deceased */}
                 <TouchableOpacity 
                   style={styles.actionIcon}
                   onPress={() => handleShareLegacy(selectedMember)}

@@ -43,6 +43,7 @@ interface GenerationSectionProps {
   size?: 'small' | 'medium' | 'large';
   showTitle?: boolean;
   titleStyle?: 'generation' | 'side';
+  isCurrentGeneration?: boolean;
 }
 
 const GenerationSection: React.FC<GenerationSectionProps> = ({
@@ -52,8 +53,9 @@ const GenerationSection: React.FC<GenerationSectionProps> = ({
   size = 'medium',
   showTitle = true,
   titleStyle = 'generation',
+  isCurrentGeneration = false,
 }) => {
-  const styles = createStyles(size);
+  const styles = createStyles(size, isCurrentGeneration);
 
   const renderTitle = () => {
     // Don't show titles anymore - they're now part of the expand buttons
@@ -67,14 +69,20 @@ const GenerationSection: React.FC<GenerationSectionProps> = ({
         {generation.isExpandable && (
           <TouchableOpacity
             onPress={generation.onToggle}
-            style={styles.expandButtonWithLabel}
+            style={[
+              styles.expandButtonWithLabel,
+              isCurrentGeneration && styles.currentGenerationButton
+            ]}
           >
             <Ionicons 
               name={generation.isExpanded ? "chevron-down" : "chevron-forward"} 
               size={20} 
-              color="#3B9B9F" 
+              color={isCurrentGeneration ? "#FFFFFF" : "#3B9B9F"} 
             />
-            <Text style={styles.expandLabel}>
+            <Text style={[
+              styles.expandLabel,
+              isCurrentGeneration && styles.currentGenerationLabel
+            ]}>
               {generation.title}
             </Text>
           </TouchableOpacity>
@@ -82,7 +90,10 @@ const GenerationSection: React.FC<GenerationSectionProps> = ({
 
         {/* Render People Below Button - Only when expanded */}
         {generation.isExpanded && (
-          <View style={styles.expandedContent}>
+          <View style={[
+            styles.expandedContent,
+            isCurrentGeneration && styles.currentGenerationContent
+          ]}>
             {/* Render Couples */}
             {generation.couples?.map((couple, index) => (
               <CoupleCard
@@ -125,7 +136,7 @@ const GenerationSection: React.FC<GenerationSectionProps> = ({
   );
 };
 
-const createStyles = (size: 'small' | 'medium' | 'large') => StyleSheet.create({
+const createStyles = (size: 'small' | 'medium' | 'large', isCurrentGeneration: boolean) => StyleSheet.create({
   container: {
     marginBottom: spacing.lg,
     alignItems: 'center',
@@ -201,6 +212,30 @@ const createStyles = (size: 'small' | 'medium' | 'large') => StyleSheet.create({
     fontWeight: typography.weights.semibold,
     color: '#3B9B9F',
     marginLeft: spacing.xs,
+  },
+  // Special styling for current generation
+  currentGenerationButton: {
+    backgroundColor: '#3B9B9F',
+    borderColor: '#2A7A7E',
+    shadowColor: '#3B9B9F',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+    transform: [{ scale: 1.05 }],
+  },
+  currentGenerationLabel: {
+    color: '#FFFFFF',
+    fontWeight: typography.weights.bold,
+  },
+  currentGenerationContent: {
+    backgroundColor: 'rgba(59, 155, 159, 0.05)',
+    borderRadius: 16,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.sm,
+    marginTop: spacing.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(59, 155, 159, 0.15)',
   },
 });
 

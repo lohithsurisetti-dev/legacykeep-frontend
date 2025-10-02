@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { typography, spacing } from '../../../shared/constants';
 import GenerationSection from './GenerationSection';
@@ -51,6 +51,7 @@ interface FamilyTreeProps {
   themeColors: any;
   size?: 'small' | 'medium' | 'large';
   isModalOpen?: boolean;
+  scrollY?: Animated.Value;
 }
 
 const FamilyTree: React.FC<FamilyTreeProps> = ({
@@ -59,6 +60,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({
   themeColors,
   size = 'medium',
   isModalOpen = false,
+  scrollY,
 }) => {
   const styles = createStyles(size);
   const scrollViewRef = useRef<ScrollView>(null);
@@ -126,6 +128,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({
       size={size}
       showTitle={false}
       titleStyle="generation"
+      isCurrentGeneration={generation.id === 'siblings'}
     />
   );
 
@@ -165,17 +168,49 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({
   );
 
   return (
-    <ScrollView 
+    <Animated.ScrollView 
       ref={scrollViewRef}
       style={styles.container}
       showsVerticalScrollIndicator={false}
+      onScroll={scrollY ? Animated.event(
+        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+        { useNativeDriver: false }
+      ) : undefined}
+      scrollEventThrottle={16}
     >
-      {/* Tree Subtitle */}
+      {/* Tree Header */}
       <View style={styles.header}>
         <Text style={[styles.headerSubtitle, { color: themeColors.textSecondary }]}>
-          Tap to expand and explore family ranches
+          Tap generations to explore your family
         </Text>
       </View>
+
+      {/* Animated Header for Scroll Effect */}
+      {scrollY && (
+        <Animated.View 
+          style={[
+            styles.animatedHeader,
+            {
+              opacity: scrollY.interpolate({
+                inputRange: [0, 50, 100],
+                outputRange: [1, 0.5, 0],
+                extrapolate: 'clamp',
+              }),
+              transform: [{
+                translateY: scrollY.interpolate({
+                  inputRange: [0, 100],
+                  outputRange: [0, -20],
+                  extrapolate: 'clamp',
+                })
+              }]
+            }
+          ]}
+        >
+          <Text style={styles.animatedHeaderText}>
+            🌳 Your Family Tree
+          </Text>
+        </Animated.View>
+      )}
 
       {/* Family Tree Content */}
       <View style={styles.treeContainer}>
@@ -185,7 +220,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({
         {/* Render Side Sections */}
         {data.sideSections?.map(renderSideSection)}
       </View>
-    </ScrollView>
+    </Animated.ScrollView>
   );
 };
 
@@ -195,11 +230,43 @@ const createStyles = (size: 'small' | 'medium' | 'large') => StyleSheet.create({
   },
   header: {
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
+    paddingVertical: spacing.xl,
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.bold,
+    color: '#3B9B9F',
+    textAlign: 'center',
+    marginBottom: spacing.sm,
+    letterSpacing: 0.5,
   },
   headerSubtitle: {
+    fontSize: typography.sizes.md,
+    textAlign: 'center',
+    lineHeight: 22,
+    fontWeight: typography.weights.medium,
+    marginBottom: spacing.xs,
+    letterSpacing: 0.3,
+  },
+  headerHint: {
     fontSize: typography.sizes.sm,
-    lineHeight: 20,
+    textAlign: 'center',
+    color: '#757575',
+    fontStyle: 'italic',
+    marginTop: spacing.xs,
+  },
+  animatedHeader: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    alignItems: 'center',
+  },
+  animatedHeaderText: {
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.bold,
+    color: '#3B9B9F',
+    textAlign: 'center',
+    letterSpacing: 0.5,
   },
   treeContainer: {
     paddingHorizontal: spacing.md,
