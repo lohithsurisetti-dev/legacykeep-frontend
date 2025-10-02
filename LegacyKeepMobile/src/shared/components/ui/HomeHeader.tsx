@@ -14,9 +14,10 @@ interface HomeHeaderProps {
   onProfilePress?: () => void;
   scrollY?: Animated.Value;
   userInitials?: string;
+  title?: string;
 }
 
-const HomeHeader: React.FC<HomeHeaderProps> = ({ onProfilePress, scrollY }) => {
+const HomeHeader: React.FC<HomeHeaderProps> = ({ onProfilePress, scrollY, title = 'LegacyKeep' }) => {
   const { colors } = useTheme();
   // Create animated styles for scroll-to-fade
   const headerHeight = scrollY?.interpolate({
@@ -50,9 +51,9 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({ onProfilePress, scrollY }) => {
           }
         ]}
       >
-        {/* LegacyKeep Title */}
+        {/* Dynamic Title */}
         <Text style={styles.title}>
-          LegacyKeep
+          {title}
         </Text>
         
         {/* Profile Icon */}

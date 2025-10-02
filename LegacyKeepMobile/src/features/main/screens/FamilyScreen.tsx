@@ -1,388 +1,145 @@
 /**
- * Family Screen - Expandable Tree Structure
+ * Family Screen - Dynamic Family Tree
  * 
- * Hierarchical family tree with expand/collapse functionality
+ * Uses dynamic components that adapt to any backend data structure
  */
 
 import React, { useState } from 'react';
 import { 
   View, 
-  Text, 
+  Text,
   StyleSheet, 
   SafeAreaView, 
-  ScrollView, 
-  TouchableOpacity, 
-  Image,
-  StatusBar
+  StatusBar,
+  Animated,
+  Dimensions,
+  TouchableOpacity,
+  Image
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import { colors, typography, spacing } from '../../../shared/constants';
 import { HomeHeader } from '../../../shared/components/ui';
 import { useAuth } from '../../../app/providers/AuthContext';
 import { useLanguage } from '../../../app/providers/LanguageContext';
 import { useTheme } from '../../../app/providers/ThemeContext';
+import FamilyTree from '../components/FamilyTree';
+import { transformFamilyData, createMockFamilyData } from '../utils/familyDataAdapter';
 
-// Family member data structure with hierarchical relationships
-interface FamilyMember {
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
+// Dynamic person interface that adapts to any backend data
+interface PersonData {
   id: string;
   name: string;
-  surname: string;
+  surname?: string;
   relation: string;
   photo?: string;
   isAlive: boolean;
   birthYear?: string;
+  deathYear?: string;
   email?: string;
   phone?: string;
-  spouse?: string; // Spouse ID
-  children?: FamilyMember[]; // Nested children
-  siblings?: FamilyMember[]; // Siblings
+  availabilityMessage?: string; // Custom message like "Always available for family"
+  contactPreference?: string; // Preferred contact method like "Text messages" or "Phone calls"
+  bestTime?: string; // Best time to contact like "Weekends" or "After 6 PM"
+  [key: string]: any;
 }
-
-// Complete family tree structure with ALL possible relations
-const familyTreeData = {
-  // Generation 0: Great-Grandparents (Father's Side)
-  greatGrandparentsFatherSide: {
-    husband: {
-      id: 'gg1',
-      name: 'William',
-      surname: 'Smith',
-      relation: 'Great-Grandfather',
-      photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-      isAlive: false,
-      birthYear: '1920',
-    },
-    wife: {
-      id: 'gg2',
-      name: 'Elizabeth',
-      surname: 'Smith',
-      relation: 'Great-Grandmother',
-      photo: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
-      isAlive: false,
-      birthYear: '1922',
-    },
-  },
-
-  // Generation 0: Great-Grandparents (Mother's Side)
-  greatGrandparentsMotherSide: {
-    husband: {
-      id: 'gg3',
-      name: 'Charles',
-      surname: 'Johnson',
-      relation: 'Great-Grandfather',
-      photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-      isAlive: false,
-      birthYear: '1918',
-    },
-    wife: {
-      id: 'gg4',
-      name: 'Rose',
-      surname: 'Johnson',
-      relation: 'Great-Grandmother',
-      photo: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-      isAlive: false,
-      birthYear: '1921',
-    },
-  },
-
-  // Generation 1: Grandparents (Father's Side)
-  grandparentsFatherSide: {
-    husband: {
-      id: '1',
-      name: 'John',
-      surname: 'Smith',
-      relation: 'Grandfather',
-      photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-      isAlive: false,
-      birthYear: '1945',
-    },
-    wife: {
-      id: '2',
-      name: 'Mary',
-      surname: 'Davis',
-      relation: 'Grandmother',
-      photo: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
-      isAlive: true,
-      birthYear: '1948',
-      email: 'mary@example.com',
-    },
-  },
-
-  // Generation 1: Grandparents (Mother's Side)
-  grandparentsMotherSide: {
-    husband: {
-      id: 'gp3',
-      name: 'Richard',
-      surname: 'Johnson',
-      relation: 'Grandfather',
-      photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-      isAlive: false,
-      birthYear: '1943',
-    },
-    wife: {
-      id: 'gp4',
-      name: 'Patricia',
-      surname: 'Johnson',
-      relation: 'Grandmother',
-      photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face',
-      isAlive: true,
-      birthYear: '1946',
-      email: 'patricia@example.com',
-      phone: '+1 555-0130',
-    },
-  },
-  
-  // Generation 2: Parents
-  parents: {
-    father: {
-      id: '3',
-      name: 'Robert',
-      surname: 'Smith',
-      relation: 'Father',
-      photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-      isAlive: true,
-      birthYear: '1970',
-      email: 'robert@example.com',
-      phone: '+1 555-0123',
-    },
-    mother: {
-      id: '4',
-      name: 'Sarah',
-      surname: 'Johnson',
-      relation: 'Mother',
-      photo: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-      isAlive: true,
-      birthYear: '1972',
-      email: 'sarah@example.com',
-      phone: '+1 555-0124',
-    },
-    unclesAunts: [
-      {
-        id: '8',
-        name: 'James',
-        surname: 'Smith',
-        relation: 'Uncle (Paternal)',
-        photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
-        isAlive: true,
-        birthYear: '1973',
-        email: 'james@example.com',
-      },
-      {
-        id: '10',
-        name: 'Linda',
-        surname: 'Thompson',
-        relation: 'Aunt (Paternal)',
-        photo: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-        isAlive: true,
-        birthYear: '1975',
-      },
-      {
-        id: '11',
-        name: 'Tom',
-        surname: 'Johnson',
-        relation: 'Uncle (Maternal)',
-        photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-        isAlive: true,
-        birthYear: '1969',
-        email: 'tom@example.com',
-      },
-      {
-        id: '12',
-        name: 'Jennifer',
-        surname: 'Martinez',
-        relation: 'Aunt (Maternal)',
-        photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face',
-        isAlive: true,
-        birthYear: '1974',
-      },
-    ],
-  },
-  
-  // Step-Parents (if applicable)
-  stepParents: [
-    {
-      id: 'sp1',
-      name: 'Mark',
-      surname: 'Wilson',
-      relation: 'Step-Father',
-      photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
-      isAlive: true,
-      birthYear: '1968',
-    },
-  ],
-
-  // Generation 3: You & Siblings
-  children: [
-    {
-      id: '5',
-      name: 'Michael',
-      surname: 'Smith',
-      relation: 'You',
-      photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
-      isAlive: true,
-      birthYear: '1995',
-      email: 'michael@example.com',
-      phone: '+1 555-0125',
-    },
-    {
-      id: '6',
-      name: 'Emma',
-      surname: 'Smith',
-      relation: 'Sister',
-      photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face',
-      isAlive: true,
-      birthYear: '1997',
-      email: 'emma@example.com',
-      phone: '+1 555-0126',
-    },
-    {
-      id: '7',
-      name: 'David',
-      surname: 'Smith',
-      relation: 'Brother',
-      photo: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=150&h=150&fit=crop&crop=face',
-      isAlive: true,
-      birthYear: '1999',
-      email: 'david@example.com',
-      phone: '+1 555-0127',
-    },
-  ],
-
-  // Half-Siblings
-  halfSiblings: [
-    {
-      id: 'hs1',
-      name: 'Sophie',
-      surname: 'Wilson',
-      relation: 'Half-Sister',
-      photo: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
-      isAlive: true,
-      birthYear: '2005',
-    },
-  ],
-
-  // Step-Siblings
-  stepSiblings: [
-    {
-      id: 'ss1',
-      name: 'Tyler',
-      surname: 'Wilson',
-      relation: 'Step-Brother',
-      photo: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=150&h=150&fit=crop&crop=face',
-      isAlive: true,
-      birthYear: '2003',
-    },
-  ],
-  
-  // Cousins
-  cousins: [
-    {
-      id: '9',
-      name: 'Olivia',
-      surname: 'Smith',
-      relation: 'Cousin (James\'s Daughter)',
-      photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face',
-      isAlive: true,
-      birthYear: '2000',
-    },
-    {
-      id: 'c2',
-      name: 'Noah',
-      surname: 'Thompson',
-      relation: 'Cousin (Linda\'s Son)',
-      photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
-      isAlive: true,
-      birthYear: '2001',
-    },
-    {
-      id: 'c3',
-      name: 'Sophia',
-      surname: 'Johnson',
-      relation: 'Cousin (Tom\'s Daughter)',
-      photo: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-      isAlive: true,
-      birthYear: '1998',
-    },
-    {
-      id: 'c4',
-      name: 'Lucas',
-      surname: 'Martinez',
-      relation: 'Cousin (Jennifer\'s Son)',
-      photo: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=150&h=150&fit=crop&crop=face',
-      isAlive: true,
-      birthYear: '2002',
-    },
-  ],
-
-  // Nieces & Nephews (Your siblings' children)
-  niecesNephews: [
-    {
-      id: 'nn1',
-      name: 'Lily',
-      surname: 'Smith',
-      relation: 'Niece (Emma\'s Daughter)',
-      photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face',
-      isAlive: true,
-      birthYear: '2020',
-    },
-    {
-      id: 'nn2',
-      name: 'Jack',
-      surname: 'Smith',
-      relation: 'Nephew (David\'s Son)',
-      photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
-      isAlive: true,
-      birthYear: '2022',
-    },
-  ],
-
-  // In-Laws (Spouses of siblings)
-  inLaws: [
-    {
-      id: 'il1',
-      name: 'Alex',
-      surname: 'Brown',
-      relation: 'Brother-in-Law (Emma\'s Husband)',
-      photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-      isAlive: true,
-      birthYear: '1996',
-    },
-    {
-      id: 'il2',
-      name: 'Jessica',
-      surname: 'Smith',
-      relation: 'Sister-in-Law (David\'s Wife)',
-      photo: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
-      isAlive: true,
-      birthYear: '1998',
-    },
-  ],
-};
 
 const FamilyScreen: React.FC = () => {
   const { user } = useAuth();
   const { t } = useLanguage();
   const { colors: themeColors } = useTheme();
   
-  const [selectedMember, setSelectedMember] = useState<FamilyMember | null>(null);
-  const [showGreatGrandparents, setShowGreatGrandparents] = useState(false);
-  const [showGrandparents, setShowGrandparents] = useState(true);
-  const [showParents, setShowParents] = useState(true);
-  const [showYourGeneration, setShowYourGeneration] = useState(false);
-  const [showUnclesAunts, setShowUnclesAunts] = useState(false);
-  const [showStepParents, setShowStepParents] = useState(false);
-  const [showCousins, setShowCousins] = useState(false);
-  const [showHalfSiblings, setShowHalfSiblings] = useState(false);
-  const [showStepSiblings, setShowStepSiblings] = useState(false);
-  const [showInLaws, setShowInLaws] = useState(false);
-  const [showNiecesNephews, setShowNiecesNephews] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<PersonData | null>(null);
+  
+  // Animation values for member card
+  const [cardAnimation] = useState(new Animated.Value(0));
+  const [blurAnimation] = useState(new Animated.Value(0));
+
+  // Get family data - in real app, this would come from your backend
+  const familyData = createMockFamilyData();
 
   const handleProfilePress = () => {
     console.log('Profile pressed');
   };
 
-  const handleMemberPress = (member: any) => {
-    setSelectedMember(member);
+  const handlePersonPress = (person: PersonData) => {
+    setSelectedMember(person);
+    // Animate card appearance
+    Animated.parallel([
+      Animated.spring(cardAnimation, {
+        toValue: 1,
+        useNativeDriver: true,
+        tension: 100,
+        friction: 8,
+      }),
+      Animated.timing(blurAnimation, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const closeMemberCard = () => {
+    Animated.parallel([
+      Animated.spring(cardAnimation, {
+        toValue: 0,
+        useNativeDriver: true,
+        tension: 100,
+        friction: 8,
+      }),
+      Animated.timing(blurAnimation, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setSelectedMember(null);
+    });
+  };
+
+  // Action handlers for member card
+  const handleShareLegacy = (person: PersonData) => {
+    console.log('Share legacy with:', person.name);
+    // TODO: Implement legacy sharing
+  };
+
+  const handleStartChat = (person: PersonData) => {
+    console.log('Start chat with:', person.name);
+    // TODO: Implement chat functionality
+  };
+
+  const handleCall = (person: PersonData) => {
+    console.log('Call:', person.name, person.phone);
+    // TODO: Implement calling functionality
+  };
+
+  const handleEmail = (person: PersonData) => {
+    console.log('Email:', person.name, person.email);
+    // TODO: Implement email functionality
+  };
+
+  const handleAddContent = (person: PersonData) => {
+    console.log('Add content for:', person.name);
+    // TODO: Implement add content functionality (memories, recipes, advice, etc.)
+  };
+
+  const handleAddPhoto = (person: PersonData) => {
+    console.log('Add photo for:', person.name);
+    // TODO: Implement photo upload
+  };
+
+  const handleEditRelationship = (person: PersonData) => {
+    console.log('Edit relationship for:', person.name);
+    // TODO: Implement relationship editing
+  };
+
+  const handleViewProfile = (person: PersonData) => {
+    console.log('View profile for:', person.name);
+    // TODO: Navigate to detailed profile
   };
 
   const userInitials = user?.firstName && user?.lastName 
@@ -390,51 +147,6 @@ const FamilyScreen: React.FC = () => {
     : 'LS';
 
   const styles = createStyles(themeColors);
-
-  // Render single member
-  const renderMember = (member: any) => (
-    <View key={member.id} style={styles.memberContainer}>
-      <TouchableOpacity
-        onPress={() => handleMemberPress(member)}
-        activeOpacity={0.7}
-      >
-        <View style={styles.circularPhotoContainer}>
-          {member.photo ? (
-            <Image source={{ uri: member.photo }} style={styles.circularPhoto} />
-          ) : (
-            <View style={styles.circularPhotoPlaceholder}>
-              <Ionicons name="person" size={32} color="#9E9E9E" />
-            </View>
-          )}
-          {!member.isAlive && (
-            <View style={styles.deceasedBadge}>
-              <Ionicons name="heart" size={8} color="#FFFFFF" />
-            </View>
-          )}
-        </View>
-        <Text style={[styles.memberName, { color: themeColors.text }]} numberOfLines={1}>
-          {member.name}
-        </Text>
-        <Text style={[styles.memberSurname, { color: themeColors.text }]} numberOfLines={1}>
-          {member.surname}
-        </Text>
-        <Text style={[styles.memberRelation, { color: themeColors.textSecondary }]} numberOfLines={1}>
-          {member.relation}
-        </Text>
-      </TouchableOpacity>
-    </View>
-  );
-
-  // Render couple side by side
-  const renderCouple = (husband: any, wife: any) => (
-    <View style={styles.coupleContainer}>
-      {renderMember(husband)}
-      <View style={styles.heartConnector}>
-        <Ionicons name="heart" size={16} color="#FF6B9D" />
-      </View>
-      {renderMember(wife)}
-    </View>
-  );
 
   return (
     <View style={styles.container}>
@@ -445,285 +157,152 @@ const FamilyScreen: React.FC = () => {
         <HomeHeader 
           onProfilePress={handleProfilePress} 
           userInitials={userInitials}
+          title="Family Tree"
         />
         
-        {/* Family Tree Content */}
-        <ScrollView 
-          style={styles.scrollView}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Tree Header */}
-          <View style={styles.header}>
-            <View>
-              <Text style={[styles.headerTitle, { color: themeColors.text }]}>
-                Family Tree
-              </Text>
-              <Text style={[styles.headerSubtitle, { color: themeColors.textSecondary }]}>
-                Tap to expand and explore family branches
-            </Text>
-            </View>
-          </View>
+        {/* Dynamic Family Tree */}
+            <FamilyTree
+          data={familyData}
+          onPersonPress={handlePersonPress}
+          themeColors={themeColors}
+          size="medium"
+          isModalOpen={!!selectedMember}
+        />
 
-          {/* Hierarchical Tree */}
-          <View style={styles.treeContainer}>
-            {/* Great-Grandparents Toggle */}
-            <View style={styles.sideSection}>
-              <TouchableOpacity
-                onPress={() => setShowGreatGrandparents(!showGreatGrandparents)}
-                style={styles.sideSectionButton}
-              >
-                <Text style={styles.sideSectionLabel}>
-                  {showGreatGrandparents ? '▼' : '▶'} Great-Grandparents (4)
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Great-Grandparents */}
-            {showGreatGrandparents && (
-              <View style={styles.generationSection}>
-                <Text style={styles.generationLabel}>Father's Side</Text>
-                {renderCouple(familyTreeData.greatGrandparentsFatherSide.husband, familyTreeData.greatGrandparentsFatherSide.wife)}
-                <Text style={[styles.generationLabel, { marginTop: spacing.lg }]}>Mother's Side</Text>
-                {renderCouple(familyTreeData.greatGrandparentsMotherSide.husband, familyTreeData.greatGrandparentsMotherSide.wife)}
-              </View>
-            )}
-
-            {/* Generation 1: Grandparents */}
-            <View style={styles.generationSection}>
-              <Text style={styles.generationLabel}>Grandparents</Text>
-              <Text style={styles.sideLabel}>Father's Side</Text>
-              {renderCouple(familyTreeData.grandparentsFatherSide.husband, familyTreeData.grandparentsFatherSide.wife)}
-              <Text style={[styles.sideLabel, { marginTop: spacing.lg }]}>Mother's Side</Text>
-              {renderCouple(familyTreeData.grandparentsMotherSide.husband, familyTreeData.grandparentsMotherSide.wife)}
-              <TouchableOpacity
-                onPress={() => setShowParents(!showParents)}
-                style={styles.expandButton}
-              >
-                <Ionicons 
-                  name={showParents ? "chevron-down" : "chevron-forward"} 
-                  size={20} 
-                  color="#4A90E2" 
-                />
-              </TouchableOpacity>
-            </View>
-
-            {/* Generation 2: Parents */}
-            {showParents && (
-              <View style={styles.generationSection}>
-                <Text style={styles.generationLabel}>Parents</Text>
-                {renderCouple(familyTreeData.parents.father, familyTreeData.parents.mother)}
-                <TouchableOpacity
-                  onPress={() => setShowYourGeneration(!showYourGeneration)}
-                  style={styles.expandButton}
-                >
-                  <Ionicons 
-                    name={showYourGeneration ? "chevron-down" : "chevron-forward"} 
-                    size={20} 
-                    color="#4A90E2" 
-                  />
-                </TouchableOpacity>
-              </View>
-            )}
-
-            {/* Uncles & Aunts Toggle */}
-            {showParents && (
-              <View style={styles.sideSection}>
-                <TouchableOpacity
-                  onPress={() => setShowUnclesAunts(!showUnclesAunts)}
-                  style={styles.sideSectionButton}
-                >
-                  <Text style={styles.sideSectionLabel}>
-                    {showUnclesAunts ? '▼' : '▶'} Uncles & Aunts ({familyTreeData.parents.unclesAunts.length})
-                  </Text>
-                </TouchableOpacity>
-                {showUnclesAunts && (
-                  <View style={styles.childRow}>
-                    {familyTreeData.parents.unclesAunts.map((person: any) => renderMember(person))}
-                  </View>
-                )}
-              </View>
-            )}
-
-            {/* Step-Parents Toggle */}
-            {showParents && (
-              <View style={styles.sideSection}>
-                <TouchableOpacity
-                  onPress={() => setShowStepParents(!showStepParents)}
-                  style={styles.sideSectionButton}
-                >
-                  <Text style={styles.sideSectionLabel}>
-                    {showStepParents ? '▼' : '▶'} Step-Parents ({familyTreeData.stepParents.length})
-                  </Text>
-                </TouchableOpacity>
-                {showStepParents && (
-                  <View style={styles.childRow}>
-                    {familyTreeData.stepParents.map((person: any) => renderMember(person))}
-                  </View>
-                )}
-              </View>
-            )}
-
-            {/* Generation 3: Your Generation */}
-            {showYourGeneration && (
-              <View style={styles.generationSection}>
-                <Text style={styles.generationLabel}>Your Generation</Text>
-                <View style={styles.childRow}>
-                  {familyTreeData.children.map((child: any) => renderMember(child))}
-                </View>
-              </View>
-            )}
-
-            {/* Half-Siblings Toggle */}
-            {showYourGeneration && (
-              <View style={styles.sideSection}>
-                <TouchableOpacity
-                  onPress={() => setShowHalfSiblings(!showHalfSiblings)}
-                  style={styles.sideSectionButton}
-                >
-                  <Text style={styles.sideSectionLabel}>
-                    {showHalfSiblings ? '▼' : '▶'} Half-Siblings ({familyTreeData.halfSiblings.length})
-                  </Text>
-                </TouchableOpacity>
-                {showHalfSiblings && (
-                  <View style={styles.childRow}>
-                    {familyTreeData.halfSiblings.map((person: any) => renderMember(person))}
-                  </View>
-                )}
-              </View>
-            )}
-
-            {/* Step-Siblings Toggle */}
-            {showYourGeneration && (
-              <View style={styles.sideSection}>
-                <TouchableOpacity
-                  onPress={() => setShowStepSiblings(!showStepSiblings)}
-                  style={styles.sideSectionButton}
-                >
-                  <Text style={styles.sideSectionLabel}>
-                    {showStepSiblings ? '▼' : '▶'} Step-Siblings ({familyTreeData.stepSiblings.length})
-                  </Text>
-                </TouchableOpacity>
-                {showStepSiblings && (
-                  <View style={styles.childRow}>
-                    {familyTreeData.stepSiblings.map((person: any) => renderMember(person))}
-                  </View>
-                )}
-              </View>
-            )}
-
-            {/* Cousins Toggle */}
-            {showYourGeneration && (
-              <View style={styles.sideSection}>
-                <TouchableOpacity
-                  onPress={() => setShowCousins(!showCousins)}
-                  style={styles.sideSectionButton}
-                >
-                  <Text style={styles.sideSectionLabel}>
-                    {showCousins ? '▼' : '▶'} Cousins ({familyTreeData.cousins.length})
-                  </Text>
-                </TouchableOpacity>
-                {showCousins && (
-                  <View style={styles.childRow}>
-                    {familyTreeData.cousins.map((cousin: any) => renderMember(cousin))}
-                  </View>
-                )}
-              </View>
-            )}
-
-            {/* In-Laws Toggle */}
-            {showYourGeneration && (
-              <View style={styles.sideSection}>
-                <TouchableOpacity
-                  onPress={() => setShowInLaws(!showInLaws)}
-                  style={styles.sideSectionButton}
-                >
-                  <Text style={styles.sideSectionLabel}>
-                    {showInLaws ? '▼' : '▶'} In-Laws ({familyTreeData.inLaws.length})
-                  </Text>
-                </TouchableOpacity>
-                {showInLaws && (
-                  <View style={styles.childRow}>
-                    {familyTreeData.inLaws.map((person: any) => renderMember(person))}
-                  </View>
-                )}
-              </View>
-            )}
-
-            {/* Nieces & Nephews Toggle */}
-            {showYourGeneration && (
-              <View style={styles.sideSection}>
-                <TouchableOpacity
-                  onPress={() => setShowNiecesNephews(!showNiecesNephews)}
-                  style={styles.sideSectionButton}
-                >
-                  <Text style={styles.sideSectionLabel}>
-                    {showNiecesNephews ? '▼' : '▶'} Nieces & Nephews ({familyTreeData.niecesNephews.length})
-                  </Text>
-                </TouchableOpacity>
-                {showNiecesNephews && (
-                  <View style={styles.childRow}>
-                    {familyTreeData.niecesNephews.map((person: any) => renderMember(person))}
-                  </View>
-                )}
-              </View>
-            )}
-          </View>
-        </ScrollView>
-
-        {/* Selected Member Modal */}
+        {/* Premium Member Card Modal */}
         {selectedMember && (
           <View style={styles.modalOverlay}>
+            <Animated.View 
+              style={[
+                styles.modalBackground,
+                {
+                  opacity: blurAnimation,
+                }
+              ]}
+            >
+              <BlurView intensity={20} style={StyleSheet.absoluteFillObject} />
+              <View style={styles.blurOverlay} />
+            </Animated.View>
+            
             <TouchableOpacity 
-              style={styles.modalBackground}
+              style={styles.modalBackdrop}
               activeOpacity={1}
-              onPress={() => setSelectedMember(null)}
+              onPress={closeMemberCard}
             />
-            <View style={styles.modalContent}>
-              <TouchableOpacity 
-                style={styles.modalClose}
-                onPress={() => setSelectedMember(null)}
-              >
-                <Ionicons name="close" size={24} color="#000" />
-              </TouchableOpacity>
-              
-              <View style={styles.modalHeader}>
-                <Image source={{ uri: selectedMember.photo }} style={styles.modalPhoto} />
-                <View style={styles.modalInfo}>
-                  <Text style={styles.modalName}>{selectedMember.name}</Text>
-                  <Text style={styles.modalRelation}>{selectedMember.relation}</Text>
-                  <View style={styles.modalStatus}>
-                    <View style={[
-                      styles.modalStatusDot,
-                      { backgroundColor: selectedMember.isAlive ? '#4CAF50' : '#9E9E9E' }
-                    ]} />
-                    <Text style={styles.modalStatusText}>
-                      {selectedMember.isAlive ? 'Living' : 'Deceased'}
-                    </Text>
+            
+            <Animated.View 
+              style={[
+                styles.premiumModalContent,
+                {
+                  transform: [
+                    {
+                      scale: cardAnimation.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.8, 1],
+                      }),
+                    },
+                    {
+                      translateY: cardAnimation.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [50, 0],
+                      }),
+                    },
+                  ],
+                  opacity: cardAnimation,
+                }
+              ]}
+            >
+              {/* Enhanced Header with Photo and Info */}
+              <View style={styles.enhancedModalHeader}>
+                <View style={styles.enhancedPhotoContainer}>
+                  {selectedMember.photo ? (
+                    <Image source={{ uri: selectedMember.photo }} style={styles.enhancedModalPhoto} />
+                  ) : (
+                    <View style={styles.enhancedPhotoPlaceholder}>
+                      <Ionicons name="person" size={28} color="#9E9E9E" />
+                    </View>
+                  )}
+                  {!selectedMember.isAlive && (
+                    <View style={styles.enhancedDeceasedBadge}>
+                      <Text style={styles.enhancedDeceasedText}>
+                        {selectedMember.birthYear ? `${selectedMember.birthYear}-${parseInt(selectedMember.birthYear) + 80}` : '†'}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+                
+                <View style={styles.enhancedModalInfo}>
+                  <Text style={styles.enhancedModalName}>
+                    {selectedMember.name}{selectedMember.surname ? ` ${selectedMember.surname}` : ''}
+                  </Text>
+                  <View style={styles.relationContainer}>
+                    <Ionicons name="people" size={14} color="#3B9B9F" />
+                    <Text style={styles.enhancedModalRelation}>{selectedMember.relation}</Text>
                   </View>
                 </View>
               </View>
 
-              {selectedMember.birthYear && (
-                <View style={styles.modalDetail}>
-                  <Ionicons name="calendar-outline" size={20} color="#4A90E2" />
-                  <Text style={styles.modalDetailText}>Born in {selectedMember.birthYear}</Text>
-                </View>
-              )}
+              {/* Details Section */}
+              <View style={styles.premiumDetailsSection}>
+                {selectedMember.birthYear && (
+                  <View style={styles.premiumDetailItem}>
+                    <Ionicons name="calendar" size={16} color="#3B9B9F" />
+                    <Text style={styles.premiumDetailText}>Born in {selectedMember.birthYear}</Text>
+                  </View>
+                )}
 
-              {selectedMember.email && (
-                <View style={styles.modalDetail}>
-                  <Ionicons name="mail-outline" size={20} color="#4A90E2" />
-                  <Text style={styles.modalDetailText}>{selectedMember.email}</Text>
-                </View>
-              )}
+                {selectedMember.email && (
+                  <View style={styles.premiumDetailItem}>
+                    <Ionicons name="mail-outline" size={16} color="#3B9B9F" />
+                    <Text style={styles.premiumDetailText}>{selectedMember.email}</Text>
+                  </View>
+                )}
 
-              {selectedMember.phone && (
-                <View style={styles.modalDetail}>
-                  <Ionicons name="call-outline" size={20} color="#4A90E2" />
-                  <Text style={styles.modalDetailText}>{selectedMember.phone}</Text>
-                </View>
-              )}
-            </View>
+                {selectedMember.phone && (
+                  <View style={styles.premiumDetailItem}>
+                    <Ionicons name="call-outline" size={16} color="#3B9B9F" />
+                    <Text style={styles.premiumDetailText}>
+                      {selectedMember.phone}
+                      {selectedMember.isAlive && (
+                        <Text style={styles.availabilityText}>
+                          {' '}({selectedMember.bestTime || "Available: Anytime"})
+                        </Text>
+                      )}
+                    </Text>
+                  </View>
+                )}
+              </View>
+
+              {/* Action Icons Row - Moved Below Details */}
+              <View style={styles.actionIconsRow}>
+                {/* Chat - Moved to first position */}
+                <TouchableOpacity 
+                  style={styles.actionIcon}
+                  onPress={() => handleStartChat(selectedMember)}
+                >
+                  <Ionicons name="chatbubbles-outline" size={24} color="#3B9B9F" />
+                  <Text style={styles.actionIconLabel}>Chat</Text>
+                </TouchableOpacity>
+
+                {/* Add Content - Moved to second position */}
+                <TouchableOpacity 
+                  style={styles.actionIcon}
+                  onPress={() => handleAddContent(selectedMember)}
+                >
+                  <Ionicons name="add" size={24} color="#3B9B9F" />
+                  <Text style={styles.actionIconLabel}>Add</Text>
+                </TouchableOpacity>
+
+                {/* Share - Moved to third position */}
+                <TouchableOpacity 
+                  style={styles.actionIcon}
+                  onPress={() => handleShareLegacy(selectedMember)}
+                >
+                  <Ionicons name="share-outline" size={24} color="#3B9B9F" />
+                  <Text style={styles.actionIconLabel}>Share</Text>
+                </TouchableOpacity>
+              </View>
+            </Animated.View>
           </View>
         )}
       </SafeAreaView>
@@ -739,213 +318,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  scrollView: {
-    flex: 1,
-  },
-  // Header
-  header: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
-  },
-  headerTitle: {
-    fontSize: typography.sizes['2xl'],
-    fontWeight: typography.weights.bold,
-    marginBottom: spacing.xs,
-  },
-  headerSubtitle: {
-    fontSize: typography.sizes.sm,
-    lineHeight: 20,
-  },
-  // Tree Container
-  treeContainer: {
-    paddingHorizontal: spacing.md,
-    paddingBottom: spacing.xl,
-    alignItems: 'center',
-  },
-  generationSection: {
-    marginBottom: spacing.xl,
-    alignItems: 'center',
-  },
-  generationLabel: {
-    fontSize: typography.sizes.lg,
-    fontWeight: typography.weights.bold,
-    color: '#1A1A1A',
-    marginBottom: spacing.lg,
-    textAlign: 'center',
-    letterSpacing: 0.5,
-  },
-  sideSection: {
-    marginVertical: spacing.lg,
-    alignItems: 'center',
-    width: '100%',
-  },
-  sideSectionButton: {
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.xl,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    marginBottom: spacing.md,
-    borderWidth: 2,
-    borderColor: '#E8EAED',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  sideSectionLabel: {
-    fontSize: typography.sizes.sm,
-    fontWeight: typography.weights.bold,
-    color: '#4A90E2',
-  },
-  sideLabel: {
-    fontSize: typography.sizes.xs,
-    fontWeight: typography.weights.semibold,
-    color: '#757575',
-    marginBottom: spacing.sm,
-    marginTop: spacing.xs,
-  },
-  coupleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.md,
-  },
-  heartConnector: {
-    marginHorizontal: spacing.lg,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#FFE4EC',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#FFB6C1',
-    shadowColor: '#FF6B9D',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-  coupleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  memberContainer: {
-    alignItems: 'center',
-    width: 110,
-  },
-  circularCard: {
-    marginBottom: spacing.md,
-  },
-  circularPhotoContainer: {
-    position: 'relative',
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-  },
-  circularPhoto: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    borderWidth: 4,
-    borderColor: '#FFFFFF',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  circularPhotoPlaceholder: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#F0F4F8',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 4,
-    borderColor: '#FFFFFF',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  expandButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#E3F2FD',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: spacing.md,
-    borderWidth: 2,
-    borderColor: '#90CAF9',
-    shadowColor: '#4A90E2',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-  childrenContainer: {
-    marginTop: spacing.lg,
-    alignItems: 'center',
-    width: '100%',
-  },
-  childRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: spacing.xl,
-    paddingHorizontal: spacing.lg,
-    marginBottom: spacing.md,
-  },
-  deceasedBadge: {
-    position: 'absolute',
-    bottom: 2,
-    right: 2,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#757575',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 3,
-    borderColor: '#FFFFFF',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  memberName: {
-    fontSize: typography.sizes.md,
-    fontWeight: typography.weights.bold,
-    color: '#1A1A1A',
-    textAlign: 'center',
-    maxWidth: 90,
-    lineHeight: 18,
-    marginBottom: 2,
-  },
-  memberSurname: {
-    fontSize: typography.sizes.sm,
-    fontWeight: typography.weights.semibold,
-    color: '#4A90E2',
-    marginBottom: spacing.xs,
-    textAlign: 'center',
-    maxWidth: 90,
-    lineHeight: 16,
-  },
-  memberRelation: {
-    fontSize: typography.sizes.xs,
-    color: '#757575',
-    fontWeight: typography.weights.medium,
-    textAlign: 'center',
-    lineHeight: 14,
-    paddingHorizontal: spacing.xs,
-  },
-  // Modal
+  // Premium Modal
   modalOverlay: {
     position: 'absolute',
     top: 0,
@@ -962,93 +335,276 @@ const createStyles = (colors: any) => StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
   },
-  modalContent: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    padding: spacing.xl,
-    marginHorizontal: spacing.xl,
-    maxWidth: 400,
-    width: '85%',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.3,
-    shadowRadius: 24,
-    elevation: 12,
-  },
-  modalClose: {
+  modalBackdrop: {
     position: 'absolute',
-    top: spacing.lg,
-    right: spacing.lg,
-    zIndex: 10,
-    backgroundColor: '#F8F9FA',
-    borderRadius: 20,
-    padding: spacing.xs,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
-  modalHeader: {
+  blurOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(59, 155, 159, 0.08)', // Very light teal tint
+  },
+  premiumModalContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: spacing.lg,
+    marginHorizontal: spacing.md,
+    maxWidth: screenWidth * 0.9,
+    width: '90%',
+    shadowColor: '#3B9B9F',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(59, 155, 159, 0.1)',
+  },
+  // Enhanced Modal Styles
+  enhancedModalHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: spacing.xl,
-    paddingRight: spacing.xl,
+    marginBottom: spacing.lg,
+    paddingHorizontal: spacing.sm,
   },
-  modalPhoto: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+  enhancedPhotoContainer: {
+    position: 'relative',
     marginRight: spacing.lg,
+  },
+  enhancedModalPhoto: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    shadowColor: '#3B9B9F',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 8,
     borderWidth: 3,
-    borderColor: '#E8EAED',
+    borderColor: '#FFFFFF',
   },
-  modalInfo: {
-    flex: 1,
+  enhancedPhotoPlaceholder: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: '#F8F9FA',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#3B9B9F',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 8,
+    borderWidth: 3,
+    borderColor: '#FFFFFF',
   },
-  modalName: {
-    fontSize: typography.sizes.xl,
+  enhancedDeceasedBadge: {
+    position: 'absolute',
+    bottom: -4,
+    right: -4,
+    minWidth: 32,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: '#757575',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 6,
+    borderWidth: 3,
+    borderColor: '#FFFFFF',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  enhancedDeceasedText: {
+    fontSize: 8,
+    color: '#FFFFFF',
     fontWeight: typography.weights.bold,
-    marginBottom: spacing.xs,
+    textAlign: 'center',
+    lineHeight: 8,
+    includeFontPadding: false,
+  },
+  premiumDeceasedBadge: {
+    position: 'absolute',
+    bottom: 4,
+    right: 4,
+    minWidth: 40,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#757575',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 3,
+    borderColor: '#FFFFFF',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
+    paddingHorizontal: 6,
+  },
+  premiumDeceasedBadgeBelow: {
+    minWidth: 50,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#757575',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: spacing.sm,
+    marginBottom: spacing.sm,
+    paddingHorizontal: 8,
+    alignSelf: 'center',
+  },
+  premiumDeceasedText: {
+    fontSize: 10,
+    color: '#FFFFFF',
+    fontWeight: typography.weights.bold,
+    textAlign: 'center',
+    lineHeight: 10,
+    includeFontPadding: false,
+  },
+  enhancedModalInfo: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  enhancedModalName: {
+    fontSize: typography.sizes.xxl,
+    fontWeight: typography.weights.bold,
     color: '#1A1A1A',
+    marginBottom: spacing.xs,
     lineHeight: 28,
   },
-  modalRelation: {
-    fontSize: typography.sizes.md,
-    color: '#4A90E2',
-    fontWeight: typography.weights.semibold,
-    marginBottom: spacing.sm,
-  },
-  modalStatus: {
+  relationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F8F9FA',
     paddingHorizontal: spacing.sm,
-    paddingVertical: 6,
-    borderRadius: 12,
+    paddingVertical: spacing.xs,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E8F4F5',
     alignSelf: 'flex-start',
   },
-  modalStatusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginRight: spacing.xs,
-  },
-  modalStatusText: {
-    fontSize: typography.sizes.xs,
-    color: '#757575',
+  enhancedModalRelation: {
+    fontSize: typography.sizes.sm,
+    color: '#3B9B9F',
     fontWeight: typography.weights.semibold,
+    marginLeft: spacing.xs,
   },
-  modalDetail: {
+  premiumStatusContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
-    marginTop: spacing.xs,
+    backgroundColor: '#F0F4F8',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E8F4F5',
   },
-  modalDetailText: {
+  premiumStatusDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginRight: spacing.xs,
+  },
+  premiumStatusText: {
+    fontSize: typography.sizes.sm,
+    color: '#757575',
+    fontWeight: typography.weights.semibold,
+    marginLeft: spacing.xs,
+  },
+  // Action Icons
+  actionIconsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingHorizontal: spacing.sm,
+    paddingTop: spacing.md,
+  },
+  actionIcon: {
+    alignItems: 'center',
+    minWidth: 60,
+  },
+  actionIconLabel: {
+    fontSize: typography.sizes.xs,
+    color: '#757575',
+    fontWeight: typography.weights.medium,
+    textAlign: 'center',
+  },
+  // Premium Status Row
+  premiumStatusRow: {
+    alignItems: 'center',
+    marginBottom: spacing.lg,
+  },
+  premiumStatusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8F9FA',
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#E8F4F5',
+  },
+  // Secondary Actions
+  secondaryActionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: spacing.lg,
+    paddingHorizontal: spacing.md,
+  },
+  secondaryAction: {
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: 16,
+    backgroundColor: '#F8F9FA',
+    borderWidth: 1,
+    borderColor: '#E8F4F5',
+  },
+  secondaryActionLabel: {
+    fontSize: typography.sizes.xs,
+    color: '#757575',
+    fontWeight: typography.weights.medium,
+    marginTop: spacing.xs,
+    textAlign: 'center',
+  },
+  // Details Section
+  premiumDetailsSection: {
+    borderTopWidth: 1,
+    borderTopColor: '#E8F4F5',
+    paddingTop: spacing.lg,
+    marginBottom: spacing.lg,
+  },
+  premiumDetailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.xs,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E8F4F5',
+  },
+  premiumDetailText: {
     fontSize: typography.sizes.sm,
     color: '#1A1A1A',
     marginLeft: spacing.md,
     flex: 1,
+    fontWeight: typography.weights.medium,
+  },
+  availabilityText: {
+    fontSize: typography.sizes.xs,
+    color: '#3B9B9F',
+    fontStyle: 'italic',
+    fontWeight: typography.weights.normal,
   },
 });
 
