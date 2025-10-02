@@ -82,6 +82,12 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({
       }
     });
     
+    // Auto-expand "Your Generation" (siblings) section
+    const siblingsSection = data.generations.find(gen => gen.id === 'siblings');
+    if (siblingsSection) {
+      defaultExpanded.add('siblings');
+    }
+    
     return defaultExpanded;
   });
 
@@ -180,37 +186,14 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({
     >
       {/* Tree Header */}
       <View style={styles.header}>
+        <View style={styles.headerIconContainer}>
+          <Ionicons name="people" size={24} color="#3B9B9F" />
+        </View>
         <Text style={[styles.headerSubtitle, { color: themeColors.textSecondary }]}>
           Tap generations to explore your family
         </Text>
       </View>
 
-      {/* Animated Header for Scroll Effect */}
-      {scrollY && (
-        <Animated.View 
-          style={[
-            styles.animatedHeader,
-            {
-              opacity: scrollY.interpolate({
-                inputRange: [0, 50, 100],
-                outputRange: [1, 0.5, 0],
-                extrapolate: 'clamp',
-              }),
-              transform: [{
-                translateY: scrollY.interpolate({
-                  inputRange: [0, 100],
-                  outputRange: [0, -20],
-                  extrapolate: 'clamp',
-                })
-              }]
-            }
-          ]}
-        >
-          <Text style={styles.animatedHeaderText}>
-            🌳 Your Family Tree
-          </Text>
-        </Animated.View>
-      )}
 
       {/* Family Tree Content */}
       <View style={styles.treeContainer}>
@@ -232,6 +215,9 @@ const createStyles = (size: 'small' | 'medium' | 'large') => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.xl,
     alignItems: 'center',
+  },
+  headerIconContainer: {
+    marginBottom: spacing.sm,
   },
   headerTitle: {
     fontSize: typography.sizes.xl,

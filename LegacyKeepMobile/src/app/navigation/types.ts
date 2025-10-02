@@ -169,7 +169,6 @@ export const ROUTES = {
   PROFILE: 'Profile',
   SETTINGS: 'Settings',
   ACCOUNT_SETTINGS: 'AccountSettings',
-  PRIVACY_SETTINGS: 'PrivacySettings',
   NOTIFICATION_SETTINGS: 'NotificationSettings',
   SECURITY_SETTINGS: 'SecuritySettings',
   APP_PREFERENCES: 'AppPreferences',

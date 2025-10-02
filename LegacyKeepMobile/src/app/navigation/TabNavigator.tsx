@@ -13,7 +13,7 @@ import { ROUTES } from './types';
 import HomeScreen from '../../features/main/screens/HomeScreen';
 import FamilyScreen from '../../features/main/screens/FamilyScreen';
 import StoriesScreen from '../../features/main/screens/StoriesScreen';
-import ChatScreen from '../../features/main/screens/ChatScreen';
+import ChatStackNavigator from '../../features/main/navigation/ChatStackNavigator';
 
 // Import our custom bottom navigation
 import { BottomNavigation } from '../../shared/components/ui';
@@ -40,6 +40,13 @@ const CustomTabBar = ({ state, descriptors, navigation }: any) => {
   // Get current active tab
   const currentRoute = state.routes[state.index];
   const activeTab = currentRoute.name.toLowerCase();
+
+  // Hide bottom navigation when in chat conversation
+  const shouldHideTabBar = currentRoute.state?.index > 0; // Hide if we're in a nested screen (like ChatConversation)
+
+  if (shouldHideTabBar) {
+    return null;
+  }
 
   return (
     <BottomNavigation
@@ -84,7 +91,7 @@ const TabNavigator: React.FC = () => {
       
       <Tab.Screen
         name={ROUTES.CHAT}
-        component={ChatScreen}
+        component={ChatStackNavigator}
         options={{
           title: 'Chat',
         }}
