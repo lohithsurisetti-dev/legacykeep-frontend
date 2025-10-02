@@ -16,7 +16,8 @@ import {
   Image,
   Dimensions,
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  Modal
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, typography, spacing, gradients } from '../../../shared/constants';
@@ -76,7 +77,35 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
   const [message, setMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showAttachmentOptions, setShowAttachmentOptions] = useState(false);
+  const [showMessageMenu, setShowMessageMenu] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState<ChatMessage | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
+  
+  // Generate consistent colors for each sender
+  const getSenderColor = (senderId: string) => {
+    const colors = [
+      '#1E40AF', // Dark Blue
+      '#DC2626', // Dark Red
+      '#059669', // Dark Green
+      '#D97706', // Dark Amber
+      '#7C3AED', // Dark Purple
+      '#DB2777', // Dark Pink
+      '#0891B2', // Dark Cyan
+      '#65A30D', // Dark Lime
+      '#EA580C', // Dark Orange
+      '#4F46E5', // Dark Indigo
+      '#7C2D12', // Dark Brown
+      '#374151', // Dark Gray
+    ];
+    
+    // Use senderId to get consistent color
+    let hash = 0;
+    for (let i = 0; i < senderId.length; i++) {
+      hash = senderId.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const index = Math.abs(hash) % colors.length;
+    return colors[index];
+  };
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -91,6 +120,11 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
       console.log('Sending message:', message);
       setMessage('');
     }
+  };
+
+  const handleMessageMenu = (msg: ChatMessage) => {
+    setSelectedMessage(msg);
+    setShowMessageMenu(true);
   };
 
   const handleBackPress = () => {
@@ -108,9 +142,6 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
         <View style={styles.headerContent}>
           <View style={styles.headerInfo}>
             <Text style={styles.headerTitle}>{chat.name}</Text>
-            <TouchableOpacity>
-              <Text style={styles.headerSubtitle}>View family members</Text>
-            </TouchableOpacity>
           </View>
         </View>
       );
@@ -135,13 +166,22 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
     }
   };
 
-  const renderMessage = (msg: ChatMessage) => {
+  const renderMessage = (msg: ChatMessage, index: number) => {
     const isOwn = msg.isOwnMessage;
+    const isGroupChat = chat.type === 'group';
+    
+    // Check if this is the first message from this sender in a sequence
+    const isFirstMessageFromSender = isGroupChat && !isOwn && (
+      index === 0 || 
+      chat.messages[index - 1].senderId !== msg.senderId ||
+      chat.messages[index - 1].isOwnMessage
+    );
     
     return (
       <View key={msg.id} style={[
         styles.messageContainer,
-        isOwn ? styles.ownMessageContainer : styles.otherMessageContainer
+        isOwn ? styles.ownMessageContainer : styles.otherMessageContainer,
+        !isFirstMessageFromSender && !isOwn && styles.consecutiveMessage
       ]}>
         {isOwn ? (
           <LinearGradient
@@ -160,23 +200,73 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
                 </View>
               )}
               <Text style={[styles.messageText, styles.ownMessageText]}>
-                {msg.content}
+                {msg.content || ''}
+              </Text>
+              <Text style={styles.messageTimeInBubble}>
+                {formatTime(msg.timestamp)}
               </Text>
             </View>
           </LinearGradient>
         ) : (
-          <View style={[styles.messageBubble, styles.otherMessageBubble]}>
+          <View style={[
+            styles.messageBubble, 
+            styles.otherMessageBubble,
+            chat.type === 'group' && styles.groupMessageBubble
+          ]}>
+            {/* Profile pic and name inside bubble for group chats - only show for first message in sequence */}
+            {isFirstMessageFromSender && (
+              <View style={[styles.senderInfoInBubble, { borderBottomColor: getSenderColor(msg.senderId) }]}>
+                <Image 
+                  source={{ uri: msg.senderAvatar }} 
+                  style={styles.senderAvatarInBubble}
+                />
+                <Text style={[styles.senderNameInBubble, { color: getSenderColor(msg.senderId) }]}>
+                  {msg.senderName || ''}
+                </Text>
+                
+                {/* Action icons */}
+                <View style={styles.senderActions}>
+                  <TouchableOpacity style={styles.senderActionButton}>
+                    <Ionicons name="chatbubble-outline" size={14} color="#374151" />
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.senderActionButton}>
+                    <Ionicons name="call-outline" size={14} color="#374151" />
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={styles.senderActionButton}
+                    onPress={() => handleMessageMenu(msg)}
+                  >
+                    <Ionicons name="ellipsis-horizontal" size={14} color="#374151" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+            
             {msg.replyTo && (
               <View style={styles.replyContainer}>
                 <View style={styles.replyContent}>
-                  <Text style={styles.replySender}>{msg.replyTo.senderName}</Text>
-                  <Text style={styles.replyText} numberOfLines={1}>{msg.replyTo.content}</Text>
+                  <Text style={styles.replySender}>{msg.replyTo.senderName || ''}</Text>
+                  <Text style={styles.replyText} numberOfLines={1}>{msg.replyTo.content || ''}</Text>
                 </View>
               </View>
             )}
             <Text style={[styles.messageText, styles.otherMessageText]}>
-              {msg.content}
+              {msg.content || ''}
             </Text>
+            <View style={styles.messageBottomRow}>
+              <Text style={styles.messageTimeInBubble}>
+                {formatTime(msg.timestamp)}
+              </Text>
+              
+              {/* Action icons for all messages */}
+              {isGroupChat && (
+                <View style={styles.messageActions}>
+                  <TouchableOpacity style={styles.messageActionButton}>
+                    <Ionicons name="arrow-redo-outline" size={12} color="#374151" />
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
           </View>
         )}
         
@@ -194,14 +284,6 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
             ))}
           </View>
         )}
-        
-        {/* Timestamp */}
-        <Text style={[
-          styles.messageTimestamp,
-          isOwn ? styles.ownMessageTimestamp : styles.otherMessageTimestamp
-        ]}>
-          {formatTime(msg.timestamp)}
-        </Text>
       </View>
     );
   };
@@ -334,12 +416,52 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
           </View>
           
           {/* Messages */}
-          {chat.messages.map(renderMessage)}
+          {chat.messages.map((msg, index) => renderMessage(msg, index))}
         </ScrollView>
         
         {/* Input Area */}
         {renderInputArea()}
       </KeyboardAvoidingView>
+
+      {/* Message Menu Modal */}
+      <Modal
+        visible={showMessageMenu}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowMessageMenu(false)}
+      >
+        <TouchableOpacity 
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowMessageMenu(false)}
+        >
+          <View style={styles.messageMenuContainer}>
+            <View style={styles.messageMenuHeader}>
+              <Text style={styles.messageMenuTitle}>Message Options</Text>
+            </View>
+            
+            <TouchableOpacity style={styles.messageMenuOption}>
+              <Ionicons name="star-outline" size={20} color="#374151" />
+              <Text style={styles.messageMenuText}>Mark as Favorite</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.messageMenuOption}>
+              <Ionicons name="copy-outline" size={20} color="#374151" />
+              <Text style={styles.messageMenuText}>Copy Message</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.messageMenuOption}>
+              <Ionicons name="bookmark-outline" size={20} color="#374151" />
+              <Text style={styles.messageMenuText}>Save to Family Memories</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.messageMenuOption}>
+              <Ionicons name="flag-outline" size={20} color="#374151" />
+              <Text style={styles.messageMenuText}>Report Message</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -413,11 +535,6 @@ const styles = StyleSheet.create({
     fontWeight: typography.weights.bold,
     color: '#111827', // text-gray-900 from HTML
   },
-  headerSubtitle: {
-    fontSize: typography.sizes.xs,
-    color: '#6B7280', // text-gray-500 from HTML
-    marginTop: 2,
-  },
   messagesContainer: {
     flex: 1,
   },
@@ -441,13 +558,47 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   messageContainer: {
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm, // Reduced spacing for more content
   },
   ownMessageContainer: {
     alignItems: 'flex-end',
   },
   otherMessageContainer: {
     alignItems: 'flex-start',
+  },
+  consecutiveMessage: {
+    marginTop: -spacing.xs, // Reduce spacing for consecutive messages
+  },
+  senderInfoInBubble: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.xs,
+    paddingBottom: spacing.xs,
+    borderBottomWidth: 1,
+  },
+  senderAvatarInBubble: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    marginRight: spacing.sm,
+  },
+  senderNameInBubble: {
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.weights.bold,
+    flex: 1,
+    textShadowColor: 'rgba(0, 0, 0, 0.1)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 1,
+  },
+  senderActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  senderActionButton: {
+    padding: spacing.xs,
+    borderRadius: 8,
+    opacity: 0.8,
   },
   messageBubble: {
     maxWidth: '80%',
@@ -457,23 +608,46 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 4,
   },
   ownMessageBubbleInner: {
-    backgroundColor: 'white',
+    backgroundColor: '#F0F9FF', // Light blue background for self messages
     borderRadius: 16,
     borderBottomRightRadius: 3,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     margin: 1.5, // This creates the gradient border effect
   },
   otherMessageBubble: {
     backgroundColor: '#E5E7EB', // bg-gray-200 from HTML
     borderBottomLeftRadius: 4,
     borderRadius: 18,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+  },
+  groupMessageBubble: {
+    // No special styling needed since sender info is now inside
   },
   messageText: {
-    fontSize: typography.sizes.xs, // text-xs from HTML (12px)
-    lineHeight: 16,
+    fontSize: typography.sizes.sm, // Improved font size (14px)
+    lineHeight: 20,
+  },
+  messageBottomRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: spacing.xs,
+  },
+  messageTimeInBubble: {
+    fontSize: typography.sizes.xs, // 12px
+    color: '#9CA3AF', // text-gray-400
+  },
+  messageActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  messageActionButton: {
+    padding: spacing.xs,
+    borderRadius: 6,
+    opacity: 0.7,
   },
   ownMessageText: {
     color: '#1F2937', // text-gray-800 from HTML (same as other messages)
@@ -537,17 +711,6 @@ const styles = StyleSheet.create({
     color: '#1F2937', // text-gray-800 from HTML
     fontWeight: typography.weights.medium,
   },
-  messageTimestamp: {
-    fontSize: typography.sizes.xs,
-    color: '#9CA3AF', // text-gray-400 from HTML
-    marginTop: spacing.xs,
-  },
-  ownMessageTimestamp: {
-    textAlign: 'right',
-  },
-  otherMessageTimestamp: {
-    textAlign: 'left',
-  },
   inputContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.8)', // bg-white/80 from HTML
     borderTopWidth: 1,
@@ -599,6 +762,50 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  messageMenuContainer: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: spacing.md,
+    minWidth: 280,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  messageMenuHeader: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+    paddingBottom: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  messageMenuTitle: {
+    fontSize: typography.sizes.lg,
+    fontWeight: typography.weights.bold,
+    color: '#111827',
+    textAlign: 'center',
+  },
+  messageMenuOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.xs,
+    borderRadius: 8,
+  },
+  messageMenuText: {
+    fontSize: typography.sizes.md,
+    color: '#374151',
+    marginLeft: spacing.md,
   },
 });
 
