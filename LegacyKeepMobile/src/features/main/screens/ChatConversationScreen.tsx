@@ -17,13 +17,86 @@ import {
   Dimensions,
   KeyboardAvoidingView,
   Platform,
-  Modal
+  Modal,
+  StatusBar
 } from 'react-native';
+import { PanGestureHandler, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, typography, spacing, gradients } from '../../../shared/constants';
 import { LinearGradient } from 'expo-linear-gradient';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withRepeat,
+  withSequence,
+  interpolate,
+  runOnJS,
+} from 'react-native-reanimated';
 
 const { width: screenWidth } = Dimensions.get('window');
+
+// Swipe Indicator Component
+const SwipeIndicator: React.FC<{ hasHiddenContent: boolean }> = ({ hasHiddenContent }) => {
+  const arrowAnimation = useSharedValue(0);
+
+  useEffect(() => {
+    if (hasHiddenContent) {
+      arrowAnimation.value = withRepeat(
+        withTiming(1, { duration: 1600 }),
+        -1,
+        false
+      );
+    } else {
+      arrowAnimation.value = withTiming(0, { duration: 200 });
+    }
+  }, [hasHiddenContent]);
+
+  // Individual arrow animation handled separately
+
+  if (!hasHiddenContent) return null;
+
+  return (
+    <View style={styles.swipeIndicator}>
+      <Animated.View style={[
+        styles.individualArrow,
+        useAnimatedStyle(() => ({
+          opacity: interpolate(arrowAnimation.value, [0.75, 0.875, 1], [0.6, 1, 0.6]),
+          transform: [{ scale: interpolate(arrowAnimation.value, [0.75, 0.875, 1], [1, 1.3, 1]) }],
+        }))
+      ]}>
+        <Ionicons name="chevron-back" size={12} color="#6B7280" />
+      </Animated.View>
+      <Animated.View style={[
+        styles.individualArrow,
+        useAnimatedStyle(() => ({
+          opacity: interpolate(arrowAnimation.value, [0.5, 0.625, 0.75], [0.6, 1, 0.6]),
+          transform: [{ scale: interpolate(arrowAnimation.value, [0.5, 0.625, 0.75], [1, 1.3, 1]) }],
+        }))
+      ]}>
+        <Ionicons name="chevron-back" size={12} color="#6B7280" />
+      </Animated.View>
+      <Animated.View style={[
+        styles.individualArrow,
+        useAnimatedStyle(() => ({
+          opacity: interpolate(arrowAnimation.value, [0.25, 0.375, 0.5], [0.6, 1, 0.6]),
+          transform: [{ scale: interpolate(arrowAnimation.value, [0.25, 0.375, 0.5], [1, 1.3, 1]) }],
+        }))
+      ]}>
+        <Ionicons name="chevron-back" size={12} color="#6B7280" />
+      </Animated.View>
+      <Animated.View style={[
+        styles.individualArrow,
+        useAnimatedStyle(() => ({
+          opacity: interpolate(arrowAnimation.value, [0, 0.125, 0.25], [0.6, 1, 0.6]),
+          transform: [{ scale: interpolate(arrowAnimation.value, [0, 0.125, 0.25], [1, 1.3, 1]) }],
+        }))
+      ]}>
+        <Ionicons name="chevron-back" size={12} color="#6B7280" />
+      </Animated.View>
+    </View>
+  );
+};
 
 // Data interfaces
 interface ChatMessage {
@@ -34,6 +107,8 @@ interface ChatMessage {
   content: string;
   timestamp: string;
   isOwnMessage: boolean;
+  hiddenContent?: string;
+  hasHiddenContent?: boolean;
   replyTo?: {
     id: string;
     senderName: string;
@@ -79,6 +154,7 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
   const [showAttachmentOptions, setShowAttachmentOptions] = useState(false);
   const [showMessageMenu, setShowMessageMenu] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState<ChatMessage | null>(null);
+  const [flippedMessages, setFlippedMessages] = useState<Set<string>>(new Set());
   const scrollViewRef = useRef<ScrollView>(null);
   
   // Generate consistent colors for each sender
@@ -105,6 +181,19 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
     }
     const index = Math.abs(hash) % colors.length;
     return colors[index];
+  };
+
+  // Flip message function
+  const toggleMessageFlip = (messageId: string) => {
+    setFlippedMessages(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(messageId)) {
+        newSet.delete(messageId);
+      } else {
+        newSet.add(messageId);
+      }
+      return newSet;
+    });
   };
 
   // Auto-scroll to bottom when new messages arrive
@@ -141,7 +230,7 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
       return (
         <View style={styles.headerContent}>
           <View style={styles.headerInfo}>
-            <Text style={styles.headerTitle}>{chat.name}</Text>
+            <Text style={styles.headerTitle}>{chat.name || ''}</Text>
           </View>
         </View>
       );
@@ -155,20 +244,80 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
             ) : (
               <View style={styles.headerAvatarPlaceholder}>
                 <Text style={styles.headerAvatarText}>
-                  {participant.name.split(' ').map(n => n[0]).join('')}
+                  {(participant.name || '').split(' ').map(n => n[0] || '').join('')}
                 </Text>
               </View>
             )}
-            <Text style={styles.headerTitle}>{participant.name}</Text>
+            <Text style={styles.headerTitle}>{participant.name || ''}</Text>
           </View>
         </View>
       );
     }
   };
 
+  // FlipMessage Component
+  const FlipMessage: React.FC<{ msg: ChatMessage; children: React.ReactNode; index: number }> = ({ msg, children, index }) => {
+    const flipRotation = useSharedValue(0);
+    const jiggleX = useSharedValue(0);
+    const isFlipped = flippedMessages.has(msg.id);
+    const hasHiddenContent = msg.hasHiddenContent;
+
+    // No jiggle animation - using arrow indicators instead
+
+    // Premium flip animation - slower and more elegant
+    useEffect(() => {
+      flipRotation.value = withTiming(isFlipped ? 1 : 0, { 
+        duration: 1200
+      });
+    }, [isFlipped]);
+
+    const animatedStyle = useAnimatedStyle(() => ({
+      transform: [
+        { perspective: 1000 },
+        { 
+          scaleY: interpolate(flipRotation.value, [0, 0.5, 1], [1, 0.92, 1]) 
+        },
+        { 
+          scaleX: interpolate(flipRotation.value, [0, 0.5, 1], [1, 0.98, 1]) 
+        },
+        { 
+          rotateY: `${interpolate(flipRotation.value, [0, 0.5, 1], [0, 8, 0])}deg` 
+        }
+      ],
+    }));
+
+    const handleSwipeGesture = (event: any) => {
+      const { translationX } = event.nativeEvent;
+      if (translationX < -50 && hasHiddenContent) { // Changed to negative for right-to-left
+        runOnJS(toggleMessageFlip)(msg.id);
+      }
+    };
+
+    return (
+      <PanGestureHandler
+        onGestureEvent={handleSwipeGesture}
+        onHandlerStateChange={(event) => {
+          if (event.nativeEvent.state === 5) { // END state
+            const { translationX } = event.nativeEvent;
+            if (translationX < -50 && hasHiddenContent) { // Changed to negative for right-to-left
+              toggleMessageFlip(msg.id);
+            }
+          }
+        }}
+        minDist={20}
+      >
+        <Animated.View style={animatedStyle}>
+          {children}
+        </Animated.View>
+      </PanGestureHandler>
+    );
+  };
+
   const renderMessage = (msg: ChatMessage, index: number) => {
     const isOwn = msg.isOwnMessage;
     const isGroupChat = chat.type === 'group';
+    const isFlipped = flippedMessages.has(msg.id);
+    const hasHiddenContent = msg.hasHiddenContent;
     
     // Check if this is the first message from this sender in a sequence
     const isFirstMessageFromSender = isGroupChat && !isOwn && (
@@ -176,8 +325,11 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
       chat.messages[index - 1].senderId !== msg.senderId ||
       chat.messages[index - 1].isOwnMessage
     );
+
+    // Determine which content to show
+    const displayContent = isFlipped && hasHiddenContent ? msg.hiddenContent : msg.content;
     
-    return (
+    const messageContent = (
       <View key={msg.id} style={[
         styles.messageContainer,
         isOwn ? styles.ownMessageContainer : styles.otherMessageContainer,
@@ -194,13 +346,13 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
               {msg.replyTo && (
                 <View style={styles.replyContainer}>
                   <View style={styles.replyContent}>
-                    <Text style={styles.replySender}>{msg.replyTo.senderName}</Text>
-                    <Text style={styles.replyText} numberOfLines={1}>{msg.replyTo.content}</Text>
+                    <Text style={styles.replySender}>{msg.replyTo.senderName || ''}</Text>
+                    <Text style={styles.replyText} numberOfLines={1}>{msg.replyTo.content || ''}</Text>
                   </View>
                 </View>
               )}
               <Text style={[styles.messageText, styles.ownMessageText]}>
-                {msg.content || ''}
+                {displayContent || ''}
               </Text>
               <Text style={styles.messageTimeInBubble}>
                 {formatTime(msg.timestamp)}
@@ -211,7 +363,8 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
           <View style={[
             styles.messageBubble, 
             styles.otherMessageBubble,
-            chat.type === 'group' && styles.groupMessageBubble
+            chat.type === 'group' && styles.groupMessageBubble,
+            isFlipped && styles.flippedMessageBubble
           ]}>
             {/* Profile pic and name inside bubble for group chats - only show for first message in sequence */}
             {isFirstMessageFromSender && (
@@ -250,8 +403,12 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
                 </View>
               </View>
             )}
-            <Text style={[styles.messageText, styles.otherMessageText]}>
-              {msg.content || ''}
+            <Text style={[
+              styles.messageText, 
+              styles.otherMessageText,
+              isFlipped && styles.flippedMessageText
+            ]}>
+              {displayContent || ''}
             </Text>
             <View style={styles.messageBottomRow}>
               <Text style={styles.messageTimeInBubble}>
@@ -261,6 +418,9 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
               {/* Action icons for all messages */}
               {isGroupChat && (
                 <View style={styles.messageActions}>
+                  {/* Swipe indicator for messages with hidden content */}
+                  <SwipeIndicator hasHiddenContent={msg.hasHiddenContent || false} />
+                  
                   <TouchableOpacity style={styles.messageActionButton}>
                     <Ionicons name="arrow-redo-outline" size={12} color="#374151" />
                   </TouchableOpacity>
@@ -286,6 +446,17 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
         )}
       </View>
     );
+
+    // Wrap message with FlipMessage component if it has hidden content
+    if (hasHiddenContent) {
+      return (
+        <FlipMessage msg={msg} index={index}>
+          {messageContent}
+        </FlipMessage>
+      );
+    }
+
+    return messageContent;
   };
 
   const renderInputArea = () => {
@@ -365,7 +536,9 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <View style={styles.container}>
+        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
@@ -462,7 +635,8 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
           </View>
         </TouchableOpacity>
       </Modal>
-    </SafeAreaView>
+      </View>
+    </GestureHandlerRootView>
   );
 };
 
@@ -475,8 +649,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)', // bg-white/80 from HTML
+    paddingTop: 50, // Account for status bar
+    paddingBottom: spacing.sm,
+    backgroundColor: '#FFFFFF', // Full white background
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB', // border-gray-200 from HTML
     elevation: 2,
@@ -575,20 +750,47 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
     paddingBottom: spacing.xs,
     borderBottomWidth: 1,
+    // Glassmorphism styling
+    backgroundColor: 'rgba(255, 255, 255, 0.4)', // Enhanced glassmorphism overlay
+    borderRadius: 8,
+    paddingHorizontal: spacing.xs,
+    paddingTop: spacing.xs,
+    marginHorizontal: -spacing.xs,
+    borderWidth: 0.5,
+    borderColor: 'rgba(255, 255, 255, 0.6)',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   senderAvatarInBubble: {
     width: 20,
     height: 20,
     borderRadius: 10,
     marginRight: spacing.sm,
+    // Premium avatar styling
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.8)',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   senderNameInBubble: {
-    fontSize: typography.sizes.sm,
-    fontWeight: typography.weights.bold,
+    fontSize: typography.sizes.xs, // Smaller font size for premium look
+    fontWeight: '500', // Medium weight for smooth rendering
     flex: 1,
-    textShadowColor: 'rgba(0, 0, 0, 0.1)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 1,
+    color: '#6B7280', // Gray color for subtle appearance
+    fontFamily: 'System',
+    letterSpacing: 0.1, // Slight letter spacing for smoother look
   },
   senderActions: {
     flexDirection: 'row',
@@ -607,27 +809,51 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     borderBottomRightRadius: 4,
   },
-  ownMessageBubbleInner: {
-    backgroundColor: '#F0F9FF', // Light blue background for self messages
-    borderRadius: 16,
-    borderBottomRightRadius: 3,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    margin: 1.5, // This creates the gradient border effect
-  },
-  otherMessageBubble: {
-    backgroundColor: '#E5E7EB', // bg-gray-200 from HTML
-    borderBottomLeftRadius: 4,
-    borderRadius: 18,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-  },
+    ownMessageBubbleInner: {
+      backgroundColor: '#F0F9FF', // Light blue background for self messages
+      borderRadius: 16,
+      borderBottomRightRadius: 3,
+      paddingHorizontal: 14,
+      paddingVertical: 10,
+      margin: 1.5, // This creates the gradient border effect
+      // Clean styling without extra borders (gradient border is handled by parent)
+    },
+    otherMessageBubble: {
+      backgroundColor: 'rgba(16, 185, 129, 0.12)', // Glassmorphism emerald for others messages
+      borderBottomLeftRadius: 4,
+      borderRadius: 18,
+      paddingHorizontal: 14,
+      paddingVertical: 10,
+      // Glassmorphism effects - different from self messages
+      borderWidth: 1,
+      borderColor: 'rgba(16, 185, 129, 0.18)',
+      shadowColor: '#10B981',
+      shadowOffset: {
+        width: 0,
+        height: 3,
+      },
+      shadowOpacity: 0.08,
+      shadowRadius: 6,
+      elevation: 2, // Slightly less elevation than self messages
+    },
   groupMessageBubble: {
     // No special styling needed since sender info is now inside
+  },
+  flippedMessageBubble: {
+    backgroundColor: 'rgba(245, 158, 11, 0.15)', // Gold/amber tint for flipped messages
+    borderWidth: 1,
+    borderColor: 'rgba(245, 158, 11, 0.3)',
+    shadowColor: '#F59E0B',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
   },
   messageText: {
     fontSize: typography.sizes.sm, // Improved font size (14px)
     lineHeight: 20,
+    fontWeight: '400', // Normal weight for smooth rendering
+    fontFamily: 'System', // Use system font for smooth rendering
   },
   messageBottomRow: {
     flexDirection: 'row',
@@ -644,17 +870,39 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.xs,
   },
+  swipeIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 1,
+    marginRight: spacing.md,
+    paddingHorizontal: spacing.xs,
+  },
+  individualArrow: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   messageActionButton: {
     padding: spacing.xs,
     borderRadius: 6,
     opacity: 0.7,
   },
-  ownMessageText: {
-    color: '#1F2937', // text-gray-800 from HTML (same as other messages)
-  },
-  otherMessageText: {
-    color: '#1F2937', // text-gray-800 from HTML
-  },
+    ownMessageText: {
+      color: '#1F2937', // Dark gray for better contrast with light blue background
+      fontWeight: '500', // Medium weight for smooth rendering
+      fontFamily: 'System',
+      letterSpacing: 0.2, // Slight letter spacing for smoother look
+    },
+    otherMessageText: {
+      color: '#1F2937', // Dark gray for better contrast with glassmorphism
+      fontWeight: '500', // Medium weight for smooth rendering
+      lineHeight: 20,
+      fontFamily: 'System',
+      letterSpacing: 0.2, // Slight letter spacing for smoother look
+    },
+    flippedMessageText: {
+      color: '#1F2937', // Keep text black for readability
+      fontWeight: '600', // Slightly bolder for emphasis
+    },
   replyContainer: {
     flexDirection: 'row',
     marginBottom: spacing.xs,
@@ -712,29 +960,36 @@ const styles = StyleSheet.create({
     fontWeight: typography.weights.medium,
   },
   inputContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.8)', // bg-white/80 from HTML
+    backgroundColor: '#FFFFFF', // Full white background
     borderTopWidth: 1,
     borderTopColor: '#E5E7EB', // border-gray-200 from HTML
     paddingHorizontal: spacing.md,
-    paddingTop: spacing.sm,
-    paddingBottom: 0, // Move input bar all the way to bottom
+    paddingTop: spacing.xs, // Reduced from spacing.sm
+    paddingBottom: 25, // Reduced from 35
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   inputRow: {
     flexDirection: 'row',
     alignItems: 'flex-end',
+    paddingVertical: spacing.xs, // Reduced vertical padding
   },
   inputButton: {
-    padding: spacing.sm,
+    padding: spacing.xs, // Reduced from spacing.sm
     marginRight: spacing.xs,
   },
   textInputContainer: {
     flex: 1,
     backgroundColor: '#F3F4F6', // bg-gray-100 from HTML
     borderRadius: 20,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.sm, // Reduced from spacing.md
+    paddingVertical: spacing.xs, // Reduced from spacing.sm
     marginRight: spacing.sm,
     maxHeight: 100,
+    minHeight: 36, // Added minimum height
   },
   textInputContainerExpanded: {
     flex: 2, // Expand more when typing
@@ -745,11 +1000,14 @@ const styles = StyleSheet.create({
     color: '#111827', // text-gray-900 from HTML
     lineHeight: 20,
     textAlignVertical: 'center', // Center align text vertically
+    fontWeight: '400', // Normal weight for smooth rendering
+    fontFamily: 'System',
+    letterSpacing: 0.1, // Slight letter spacing for smoother look
   },
   sendButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36, // Reduced from 40
+    height: 36, // Reduced from 40
+    borderRadius: 18, // Reduced from 20
     shadowColor: gradients.peacock[0],
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
@@ -757,9 +1015,9 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   sendButtonGradient: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36, // Reduced from 40
+    height: 36, // Reduced from 40
+    borderRadius: 18, // Reduced from 20
     justifyContent: 'center',
     alignItems: 'center',
   },

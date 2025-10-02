@@ -12,6 +12,8 @@ export interface ChatMessage {
   content: string;
   timestamp: string;
   isOwnMessage: boolean;
+  hiddenContent?: string; // Hidden message content
+  hasHiddenContent?: boolean; // Flag to indicate if message has hidden content
   replyTo?: {
     id: string;
     senderName: string;
@@ -316,6 +318,8 @@ export const mockGroupChats: ChatConversation[] = [
         senderName: 'Dad',
         senderAvatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB3fhAQL1gzMLSGG9fVGiJkcvJISvVDALmsSSSf46tPxFnuYQFuRpUdVumeU140iCuUMj5QnJ1pxXD-b7mzXv3ssIVfLOSo-wQlkuQRfntNVQV_KK46BT7LhknEc1WEu6Ugaoowhb6-mIB9yGijisrul6ds_xvM_8BuZ2PwSUeMby0b4RtYHIMlKy2nC_5Rdui7ZwHXcBdo8LNZyhtIYwKnbOXNw4E-mETPhphWGbLHDDPRJ7A_iEhOnOYSvZUZ3rSUkuvriBLWnbU',
         content: "Don't forget the giant oak tree in the backyard. We spent countless hours climbing it. 🌳",
+        hiddenContent: "That's where I taught you to tie your first knot. You were so proud when you finally got it right! Remember how you wanted to live up there? 😊",
+        hasHiddenContent: true,
         timestamp: '10:55 AM',
         isOwnMessage: false,
         reactions: [
