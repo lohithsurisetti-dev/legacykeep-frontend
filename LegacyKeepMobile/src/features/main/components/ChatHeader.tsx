@@ -92,7 +92,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
         <View style={styles.headerContent}>
           {/* Back Button */}
           <TouchableOpacity style={styles.backButton} onPress={onBack}>
-            <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
+            <Ionicons name="chevron-back" size={24} color={colors.text.primary} />
           </TouchableOpacity>
 
           {/* User/Group Info */}

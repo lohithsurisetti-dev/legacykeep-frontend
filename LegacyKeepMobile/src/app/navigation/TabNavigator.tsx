@@ -12,7 +12,7 @@ import { ROUTES } from './types';
 // Import screens
 import HomeScreen from '../../features/main/screens/HomeScreen';
 import FamilyScreen from '../../features/main/screens/FamilyScreen';
-import StoriesScreen from '../../features/main/screens/StoriesScreen';
+import CreateScreen from '../../features/main/screens/CreateScreen';
 import ChatStackNavigator from '../../features/main/navigation/ChatStackNavigator';
 
 // Import our custom bottom navigation
@@ -27,7 +27,7 @@ const CustomTabBar = ({ state, descriptors, navigation }: any) => {
     const routeMap: { [key: string]: string } = {
       'home': 'Home',
       'family': 'Family', 
-      'stories': 'Stories',
+      'stories': 'Stories', // Keep the route name as 'Stories' for consistency
       'chat': 'Chat',
     };
     
@@ -83,9 +83,9 @@ const TabNavigator: React.FC = () => {
       
       <Tab.Screen
         name={ROUTES.STORIES}
-        component={StoriesScreen}
+        component={CreateScreen}
         options={{
-          title: 'Stories',
+          title: 'Create',
         }}
       />
       

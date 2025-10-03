@@ -37,9 +37,9 @@ const tabs: TabItem[] = [
   },
   {
     id: 'stories',
-    label: 'Stories',
-    icon: 'bookmark-outline',
-    activeIcon: 'bookmark',
+    label: 'Create',
+    icon: 'add-circle-outline',
+    activeIcon: 'add-circle',
   },
   {
     id: 'chat',
@@ -57,7 +57,7 @@ const getTabColor = (tabIndex: number, isActive: boolean, themeColors: any) => {
   const gradientColors = [
     gradients.peacock[0],           // Home: Pure teal
     '#3B9B9F',                      // Family: Teal-purple blend  
-    '#7B7BC8',                      // Stories: Purple-teal blend
+    '#7B7BC8',                      // Create: Purple-teal blend
     gradients.peacock[1],           // Chat: Pure purple
   ];
   

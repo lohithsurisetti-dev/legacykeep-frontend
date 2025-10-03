@@ -83,6 +83,7 @@ export const useStatusViewer = () => {
       const nextUserIndex = prev.currentUserIndex + 1;
       if (nextUserIndex < prev.allUsers.length) {
         const nextUser = prev.allUsers[nextUserIndex];
+        console.log('Moving to next user:', nextUser.name, 'at index:', nextUserIndex);
         return {
           ...prev,
           stories: nextUser.stories,
@@ -92,11 +93,12 @@ export const useStatusViewer = () => {
             avatar: nextUser.avatar,
             initials: nextUser.initials,
           },
-          initialStoryIndex: 0,
+          initialStoryIndex: 0, // Always start from first story of new user
           currentUserIndex: nextUserIndex,
         };
       } else {
         // No more users, close the viewer
+        console.log('No more users, closing viewer');
         return {
           ...prev,
           isVisible: false,
@@ -110,6 +112,7 @@ export const useStatusViewer = () => {
       const prevUserIndex = prev.currentUserIndex - 1;
       if (prevUserIndex >= 0) {
         const prevUser = prev.allUsers[prevUserIndex];
+        console.log('Moving to previous user:', prevUser.name, 'at index:', prevUserIndex);
         return {
           ...prev,
           stories: prevUser.stories,
@@ -119,7 +122,7 @@ export const useStatusViewer = () => {
             avatar: prevUser.avatar,
             initials: prevUser.initials,
           },
-          initialStoryIndex: prevUser.stories.length - 1, // Start from last story
+          initialStoryIndex: prevUser.stories.length - 1, // Start from last story of previous user
           currentUserIndex: prevUserIndex,
         };
       } else {

@@ -168,58 +168,50 @@ const StatusViewer: React.FC<StatusViewerProps> = ({
 
   useEffect(() => {
     if (isPlaying && currentStory) {
+      console.log('Animation effect triggered - currentStoryIndex:', currentStoryIndex, 'isPlaying:', isPlaying);
+      
       // Set all previous stories to full progress
       for (let i = 0; i < currentStoryIndex && i < progressAnimations.length; i++) {
-        progressAnimations[i].setValue(1);
+        if (progressAnimations[i]) {
+          progressAnimations[i].setValue(1);
+        }
       }
       
       // Only start animation if not currently paused and likes modal is not open
       if (!isLongPressing && !showLikesModal) {
-        // Get current progress value (start from 0 if no current progress)
+        // Get current progress value - start from 0 for each story
         const currentProgress = 0;
         
-        console.log('Starting animation - currentProgress:', currentProgress, 'storyDuration:', storyDuration);
+        console.log('Starting animation for story', currentStoryIndex, '- currentProgress:', currentProgress, 'storyDuration:', storyDuration);
         
         // Calculate remaining duration based on current progress
         const remainingDuration = storyDuration * (1 - currentProgress);
         
         console.log('Remaining duration:', remainingDuration);
         
-        // Only animate if there's remaining time
-        if (remainingDuration > 0) {
+        // Only animate if there's remaining time and we have a valid progress animation
+        if (remainingDuration > 0 && progressAnimations[currentStoryIndex]) {
           // Reset progress to current value first
-          if (progressAnimations[currentStoryIndex]) {
-            progressAnimations[currentStoryIndex].setValue(currentProgress);
-          }
+          progressAnimations[currentStoryIndex].setValue(currentProgress);
           
           // Animate from current progress to 1
-          if (progressAnimations[currentStoryIndex]) {
-            Animated.timing(progressAnimations[currentStoryIndex], {
+          Animated.timing(progressAnimations[currentStoryIndex], {
             toValue: 1,
             duration: remainingDuration,
             useNativeDriver: false,
-            }).start(() => {
-              console.log('Animation completed');
-              // Move to next story when current one finishes
-              if (currentStoryIndex < stories.length - 1) {
-                nextStory();
-              } else if (onNextUser) {
-                onNextUser();
-              } else {
-                onClose();
-              }
-            });
-          }
+          }).start(() => {
+            console.log('Animation completed for story', currentStoryIndex);
+            // Move to next story when current one finishes
+            if (currentStoryIndex < stories.length - 1) {
+              nextStory();
+            } else if (onNextUser) {
+              onNextUser();
+            } else {
+              onClose();
+            }
+          });
         } else {
-          // If no time left, move to next story immediately
-          console.log('No time left, moving to next story');
-          if (currentStoryIndex < stories.length - 1) {
-            nextStory();
-          } else if (onNextUser) {
-            onNextUser();
-          } else {
-            onClose();
-          }
+          console.log('Cannot animate - remainingDuration:', remainingDuration, 'hasProgressAnim:', !!progressAnimations[currentStoryIndex]);
         }
       } else {
         console.log('Not starting animation - isLongPressing:', isLongPressing, 'showLikesModal:', showLikesModal);
@@ -231,8 +223,9 @@ const StatusViewer: React.FC<StatusViewerProps> = ({
   useEffect(() => {
     if (visible && stories.length > 0) {
       console.log('Component mounted, starting initial animation');
-      setIsPlaying(true);
-      // Reset all progress animations
+      console.log('Initial currentStoryIndex:', currentStoryIndex);
+      
+      // Reset all progress animations first
       progressAnimations.forEach((anim, index) => {
         if (anim) {
           if (index < currentStoryIndex) {
@@ -242,6 +235,11 @@ const StatusViewer: React.FC<StatusViewerProps> = ({
           }
         }
       });
+      
+      // Start playing after a small delay to ensure progress animations are set
+      setTimeout(() => {
+        setIsPlaying(true);
+      }, 50);
     }
   }, [visible]);
 
@@ -257,13 +255,25 @@ const StatusViewer: React.FC<StatusViewerProps> = ({
       for (let i = 0; i < stories.length; i++) {
         progressAnimations.push(new Animated.Value(0));
       }
+      
+      // Set initial progress values based on current story index
+      progressAnimations.forEach((anim, index) => {
+        if (anim) {
+          if (index < currentStoryIndex) {
+            anim.setValue(1); // Previous stories are complete
+          } else {
+            anim.setValue(0); // Current and future stories start at 0
+          }
+        }
+      });
     }
-  }, [stories.length]);
+  }, [stories.length, currentStoryIndex]);
 
   // Handle user transitions with page turn animation
   useEffect(() => {
     if (visible && stories.length > 0) {
       console.log('User transition detected, playing page turn animation');
+      console.log('Setting currentStoryIndex to:', initialStoryIndex);
       
       // Use initialStoryIndex from props (set by the hook)
       setCurrentStoryIndex(initialStoryIndex);
@@ -293,19 +303,24 @@ const StatusViewer: React.FC<StatusViewerProps> = ({
       ]).start(() => {
         // Reset page turn animation
         pageTurnAnim.setValue(0);
-        // Start playing the new user's stories
-        setIsPlaying(true);
         
-        // Reset all progress animations for new user
+        // Reset all progress animations for new user BEFORE starting to play
         progressAnimations.forEach((anim, index) => {
           if (anim) {
             if (index < initialStoryIndex) {
               anim.setValue(1); // Previous stories are complete
+            } else if (index === initialStoryIndex) {
+              anim.setValue(0); // Current story starts at 0
             } else {
-              anim.setValue(0); // Current and future stories start at 0
+              anim.setValue(0); // Future stories start at 0
             }
           }
         });
+        
+        // Start playing the new user's stories AFTER setting up progress
+        setTimeout(() => {
+          setIsPlaying(true);
+        }, 100); // Small delay to ensure progress animations are set
       });
     }
   }, [author?.id]); // Trigger when author changes
@@ -322,26 +337,30 @@ const StatusViewer: React.FC<StatusViewerProps> = ({
         progressAnimations[currentStoryIndex].setValue(1);
       }
       
-      // Fade transition
+      // Smooth slide transition
       Animated.sequence([
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 150,
+        Animated.timing(slideAnim, {
+          toValue: -screenWidth,
+          duration: 200,
           useNativeDriver: true,
         }),
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 150,
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 0,
           useNativeDriver: true,
         }),
       ]).start();
       
       setCurrentStoryIndex(currentStoryIndex + 1);
       setProgress(0);
+      setIsPlaying(true); // Resume playing
     } else {
+      // Move to next user
       if (onNextUser) {
+        console.log('Moving to next user');
         onNextUser();
       } else {
+        console.log('No next user, closing viewer');
         onClose();
       }
     }
@@ -359,28 +378,31 @@ const StatusViewer: React.FC<StatusViewerProps> = ({
         progressAnimations[currentStoryIndex].setValue(0);
       }
       
-      // Fade transition
+      // Smooth slide transition (reverse direction)
       Animated.sequence([
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 150,
+        Animated.timing(slideAnim, {
+          toValue: screenWidth,
+          duration: 200,
           useNativeDriver: true,
         }),
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 150,
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 0,
           useNativeDriver: true,
         }),
       ]).start();
       
       setCurrentStoryIndex(currentStoryIndex - 1);
       setProgress(0);
+      setIsPlaying(true); // Resume playing
     } else {
+      // Move to previous user
       if (onPreviousUser) {
+        console.log('Moving to previous user');
         onPreviousUser();
       } else {
-        // Don't close, just stay on the first story
-        return;
+        console.log('No previous user, staying on current story');
+        // Stay on first story, don't close
       }
     }
   };
@@ -496,6 +518,9 @@ const StatusViewer: React.FC<StatusViewerProps> = ({
             { 
               opacity: fadeAnim,
               transform: [
+                {
+                  translateX: slideAnim,
+                },
                 {
                   perspective: 1000,
                 },

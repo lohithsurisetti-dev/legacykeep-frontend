@@ -68,20 +68,19 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) => {
 
   const userStoryData = getUserStoryData();
 
-  // Mock data for stories
+  // Mock data for stories - single "Your Story" entry
   const stories: Story[] = [
     { 
-      id: '1', 
+      id: 'your-story', 
       name: 'Your Story', 
       isAddStory: !userStoryData.hasStories, // Only show as add story if no stories exist
-      photo: userStoryData.hasStories ? userStoryData.latestStoryThumbnail : undefined,
-      hasGradient: userStoryData.hasStories // Show gradient border if has stories
+      photo: userStoryData.hasStories ? userStoryData.latestStoryThumbnail : user?.profilePictureUrl || 'https://picsum.photos/100/100?random=you',
+      hasGradient: userStoryData.hasStories || true // Show gradient border if has stories or always for user
     },
-    { id: 'your-story', name: user?.firstName || 'Your Story', photo: user?.profilePictureUrl || 'https://picsum.photos/100/100?random=you', hasGradient: true },
     { id: '2', name: 'Grandma', photo: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBEspB2KJLDukV50HUQc5Q1aGjO1xvkVCLbdsPShSpwVLoRAWOQHGh9ntJlYEANRRIzTgQHNnSN3xH5U42ReRdfgYY9VaVfFAXh5A_Fp3qIGq2a3D1MJKu8p00-JDbD0pQZQ8iWZAnql_covJmvmEy1vvikpJ-kn_IVC26h_tIYHuhqAZMyABZcJQ8UnA15KPJD8f1dhPwwFfmOPVOU5Z-qwOSF4hsQsRAD7ReNIBLq-eAjeeu4f4pktfVrAOx7NpOE2hjsji-d_8Q', hasGradient: true },
     { id: '3', name: 'Sarah', photo: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBWU95jILiA6O2GEDVhrqB1imTQTWW2dPoQbCoRuFo36BvT31Vxt1FKU14tTAJuV06ntD9QGeQET4Y_M-MwS4YfxGOSmkLnpilwnavc9zPh17YCWzAQNjkfGadiNU1maoB6ANit9SeaoBsD1t_3QWKf0eLgjvzUJI56QTqJ5ZeC8lLyrAf9ZKIAt02L9LD6v9PNKLgQhWt9zwBj1VKjWICP5r8XwdzugVbK4SOhbqfzBuvnNbRFOle2sKEyKYv4eVgIlcWL4-R-vxY', hasGradient: true },
-    { id: '4', name: 'Dad', photo: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB3fhAQL1gzMLSGG9fVGiJkcvJISvVDALmsSSSf46tPxFnuYQFuRpUdVumeU140iCuUMj5QnJ1pxXD-b7mzXv3ssIVfLOSo-wQlkuQRfntNVQV_KK46BT7LhknEc1WEu6Ugaoowhb6-mIB9yGijisrul6ds_xvM_8BuZ2PwSUeMby0b4RtYHIMlKy2nC_5Rdui7ZwHXcBdo8LNZyhtIYwKnbOXNw4E-mETPhphWGbLHDDPRJ7A_iEhOnOYSvZUZ3rSUkuvriBLWnbU' },
-    { id: '5', name: 'Mom', photo: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBTMQkiqGs31U0m7kN-Cast77R5Jw8Bi2Trs3yLeA8eGmf22oNML3FHQrFfs1tU5ZB8FCDZwx2YdcAvZYgJ-14RZDUb9TKPTyT8qnrj8qZErG6FXzQKa9waZjqGYKuIHlxTUwISV7QGNRRq-qtE-t-etC9J-t8M2JVPbsyablujnk4AeSb0bXwNPPAeH63-Ju16Vzvx5Jr4k9NKn-dLppSQ-G6LvMvcaBGJzx3PseuEJn3BOYqYD6gsDNnEGnJE6FT6Dqnu2va6O68' },
+    { id: '4', name: 'Dad', photo: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB3fhAQL1gzMLSGG9fVGiJkcvJISvVDALmsSSSf46tPxFnuYQFuRpUdVumeU140iCuUMj5QnJ1pxXD-b7mzXv3ssIVfLOSo-wQlkuQRfntNVQV_KK46BT7LhknEc1WEu6Ugaoowhb6-mIB9yGijisrul6ds_xvM_8BuZ2PwSUeMby0b4RtYHIMlKy2nC_5Rdui7ZwHXcBdo8LNZyhtIYwKnbOXNw4E-mETPhphWGbLHDDPRJ7A_iEhOnOYSvZUZ3rSUkuvriBLWnbU', hasGradient: true },
+    { id: '5', name: 'Mom', photo: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBTMQkiqGs31U0m7kN-Cast77R5Jw8Bi2Trs3yLeA8eGmf22oNML3FHQrFfs1tU5ZB8FCDZwx2YdcAvZYgJ-14RZDUb9TKPTyT8qnrj8qZErG6FXzQKa9waZjqGYKuIHlxTUwISV7QGNRRq-qtE-t-etC9J-t8M2JVPbsyablujnk4AeSb0bXwNPPAeH63-Ju16Vzvx5Jr4k9NKn-dLppSQ-G6LvMvcaBGJzx3PseuEJn3BOYqYD6gsDNnEGnJE6FT6Dqnu2va6O68', hasGradient: true },
   ];
 
   // Convert mock chat data to Chat interface format
@@ -112,15 +111,15 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) => {
     if (story.isAddStory) {
       // TODO: Open camera or story creation
       console.log('Add story');
-    } else if (story.id === '1' && userStoryData.hasStories) {
-      // Handle "Your Story" when user has existing stories
-      console.log('Opening your existing stories');
+    } else {
+      // Create all users with stories in consistent order
+      const allUsersWithStories = [];
       
-      // Create your stories data
-      const yourStories = [
-        {
-          id: user?.id || 'current-user',
-          name: user?.firstName || 'Your Story',
+      // Always include "Your Story" first if user has stories, regardless of which story was tapped
+      if (userStoryData.hasStories) {
+        allUsersWithStories.push({
+          id: 'your-story',
+          name: 'Your Story',
           avatar: user?.profilePictureUrl,
           initials: userInitials,
           stories: [
@@ -141,14 +140,12 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) => {
               likes: Math.floor(Math.random() * 30) + 3,
             },
           ],
-        },
-      ];
+        });
+      }
       
-      statusViewer.openStatusViewer(yourStories, 0, 0);
-    } else {
-      // Create all users with stories (including the one tapped)
-      const allUsersWithStories = stories
-        .filter(s => !s.isAddStory && s.hasGradient) // Only users with stories
+      // Add other users with stories in the same order as they appear in the stories array
+      const otherUsersWithStories = stories
+        .filter(s => !s.isAddStory && s.hasGradient && s.id !== 'your-story')
         .map((s, index) => ({
           id: s.id,
           name: s.name,
@@ -173,12 +170,15 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) => {
             },
           ],
         }));
+      
+      // Combine all users maintaining consistent order
+      allUsersWithStories.push(...otherUsersWithStories);
 
       // Find the index of the tapped user
       const tappedUserIndex = allUsersWithStories.findIndex(user => user.id === story.id);
 
       console.log('Opening status viewer for user:', story.name, 'with ID:', story.id);
-      console.log('Current user ID:', user?.id);
+      console.log('All users:', allUsersWithStories.map(u => u.name));
       console.log('Tapped user index:', tappedUserIndex);
       
       statusViewer.openStatusViewer(

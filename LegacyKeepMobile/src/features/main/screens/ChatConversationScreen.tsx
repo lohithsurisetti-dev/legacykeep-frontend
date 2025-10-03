@@ -820,7 +820,7 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
-          <Ionicons name="arrow-back" size={24} color="#6B7280" />
+          <Ionicons name="chevron-back" size={24} color="#6B7280" />
         </TouchableOpacity>
         
         {renderHeader()}
