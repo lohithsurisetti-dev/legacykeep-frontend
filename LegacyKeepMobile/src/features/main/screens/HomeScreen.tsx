@@ -4,7 +4,7 @@
  * Main dashboard screen for authenticated users
  */
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, Animated, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -16,6 +16,10 @@ import { useTheme } from '../../../app/providers/ThemeContext';
 import type { InsightItem } from '../../../shared/components/ui/QuickInsightsBar';
 import { useAuth } from '../../../app/providers/AuthContext';
 import { ROUTES } from '../../../app/navigation/types';
+import PingCard from '../components/PingCard';
+import PongActions from '../components/PongActions';
+import { Ping, SendPongRequest } from '../types/pingpong.types';
+import { getActivePings, createMockPong } from '../data/mockPingPongData';
 
 const HomeScreen: React.FC = () => {
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -23,6 +27,25 @@ const HomeScreen: React.FC = () => {
   const { user } = useAuth();
   const { t } = useLanguage();
   const { colors, gradients } = useTheme();
+
+  // Ping & Pong state
+  const [activePings, setActivePings] = useState<Ping[]>([]);
+  const [showPongActions, setShowPongActions] = useState(false);
+  const [selectedPingId, setSelectedPingId] = useState<string>('');
+
+  // Load active pings on component mount
+  useEffect(() => {
+    const loadActivePings = () => {
+      const pings = getActivePings('family_1'); // Mock family ID
+      setActivePings(pings);
+    };
+    
+    loadActivePings();
+    
+    // Refresh pings every 30 seconds
+    const interval = setInterval(loadActivePings, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleProfilePress = () => {
     (navigation as any).navigate(ROUTES.PROFILE);
@@ -41,6 +64,59 @@ const HomeScreen: React.FC = () => {
   const handleViewDetails = (insight: InsightItem) => {
     // TODO: Navigate to event/person details
     console.log('View details for:', insight);
+  };
+
+  // Ping & Pong handlers
+  const handlePongSent = async (pingId: string, pongRequest: SendPongRequest) => {
+    try {
+      // Create mock pong
+      const newPong = createMockPong(pingId, pongRequest.pongType, pongRequest.content);
+      
+      // Update ping aggregation (simplified for demo)
+      setActivePings(prev => prev.map(ping => {
+        if (ping.id === pingId) {
+          const updatedAggregation = { ...ping.aggregation };
+          switch (pongRequest.pongType) {
+            case 'HUG':
+              updatedAggregation.hugCount += 1;
+              break;
+            case 'PRAYER':
+              updatedAggregation.prayerCount += 1;
+              break;
+            case 'TIP':
+              updatedAggregation.tipCount += 1;
+              break;
+            case 'CALL_OFFER':
+              updatedAggregation.callOfferCount += 1;
+              break;
+            case 'CHECKLIST':
+              updatedAggregation.checklistCount += 1;
+              break;
+            case 'TIMER':
+              updatedAggregation.timerCount += 1;
+              break;
+          }
+          updatedAggregation.totalPongs += 1;
+          updatedAggregation.lastUpdated = new Date().toISOString();
+          
+          return { ...ping, aggregation: updatedAggregation };
+        }
+        return ping;
+      }));
+      
+      setShowPongActions(false);
+    } catch (error) {
+      console.error('Failed to send pong:', error);
+    }
+  };
+
+  const handlePongPress = (pingId: string) => {
+    setSelectedPingId(pingId);
+    setShowPongActions(true);
+  };
+
+  const handlePingExpire = (pingId: string) => {
+    setActivePings(prev => prev.filter(ping => ping.id !== pingId));
   };
 
   // Dynamic content based on user data
@@ -112,6 +188,32 @@ const HomeScreen: React.FC = () => {
               onCreateStory={handleCreateStory}
               onViewDetails={handleViewDetails}
             />
+
+            {/* Active Family Pings */}
+            {activePings.length > 0 && (
+              <View style={styles.activePingsSection}>
+                <View style={styles.activePingsHeader}>
+                  <Text style={styles.activePingsTitle}>Active Family Support</Text>
+                  <Text style={styles.activePingsSubtitle}>{activePings.length} active requests</Text>
+                </View>
+                <ScrollView 
+                  horizontal 
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.pingsScrollView}
+                  contentContainerStyle={styles.pingsScrollContent}
+                >
+                  {activePings.map((ping) => (
+                    <PingCard
+                      key={ping.id}
+                      ping={ping}
+                      currentUserId={user?.id || 'user_1'}
+                      onPong={handlePongPress}
+                      onExpire={handlePingExpire}
+                    />
+                  ))}
+                </ScrollView>
+              </View>
+            )}
 
             {/* Explore - Unique Asymmetric Layout */}
             <View style={styles.timelineHeader}>
@@ -236,6 +338,14 @@ const HomeScreen: React.FC = () => {
             </View>
       </View>
         </Animated.ScrollView>
+
+        {/* Pong Actions Modal */}
+        <PongActions
+          isVisible={showPongActions}
+          pingId={selectedPingId}
+          onClose={() => setShowPongActions(false)}
+          onPongSent={handlePongSent}
+        />
     </SafeAreaView>
     </View>
   );
@@ -258,6 +368,31 @@ const createStyles = (colors: any) => StyleSheet.create({
   content: {
     paddingTop: spacing.md,
   },
+  
+  // Active Pings Section
+  activePingsSection: {
+    marginBottom: spacing.lg,
+  },
+  activePingsHeader: {
+    marginBottom: spacing.md,
+  },
+  activePingsTitle: {
+    fontSize: typography.sizes.lg,
+    fontWeight: typography.weights.bold,
+    color: colors.text,
+    marginBottom: spacing.xs,
+  },
+  activePingsSubtitle: {
+    fontSize: typography.sizes.sm,
+    color: colors.textSecondary,
+  },
+  pingsScrollView: {
+    marginHorizontal: -spacing.lg,
+  },
+  pingsScrollContent: {
+    paddingHorizontal: spacing.lg,
+  },
+  
   // Timeline Styles
   timelineHeader: {
     flexDirection: 'row',

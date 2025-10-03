@@ -4,7 +4,7 @@
  * Premium content creation screen for legacy preservation and family sharing
  */
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   View, 
   Text, 
@@ -23,8 +23,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { colors, typography, spacing, gradients } from '../../../shared/constants';
-// import HomeHeader from '../../../shared/components/ui/HomeHeader'; // Removed unused import
+import { HomeHeader } from '../../../shared/components/ui';
 import { useAuth } from '../../../app/providers/AuthContext';
+import { useNavigation } from '@react-navigation/native';
+import { ROUTES } from '../../../app/navigation/types';
+import PingCreator from '../components/PingCreator';
+import { CreatePingRequest } from '../types/pingpong.types';
+import { createMockPing } from '../data/mockPingPongData';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -47,12 +52,17 @@ interface FamilyMember {
 
 const CreateScreen: React.FC = () => {
   const { user } = useAuth();
+  const navigation = useNavigation();
+  const scrollY = useRef(new Animated.Value(0)).current;
   const [selectedContentType, setSelectedContentType] = useState<ContentType | null>(null);
   const [showContentModal, setShowContentModal] = useState(false);
   const [showFamilySelector, setShowFamilySelector] = useState(false);
   const [selectedFamilyMembers, setSelectedFamilyMembers] = useState<string[]>([]);
   const [contentTitle, setContentTitle] = useState('');
   const [contentDescription, setContentDescription] = useState('');
+  
+  // Ping & Pong state
+  const [showPingCreator, setShowPingCreator] = useState(false);
 
   const contentTypes: ContentType[] = [
     {
@@ -132,6 +142,7 @@ const CreateScreen: React.FC = () => {
 
   // Removed handleProfilePress - was only used for HomeHeader
 
+
   const handleContentTypePress = (contentType: ContentType) => {
     setSelectedContentType(contentType);
     setShowContentModal(true);
@@ -170,7 +181,35 @@ const CreateScreen: React.FC = () => {
     );
   };
 
-  // Removed userInitials - was only used for HomeHeader
+  // Ping handler
+  const handlePingCreated = async (pingRequest: CreatePingRequest) => {
+    try {
+      // Create mock ping
+      const newPing = createMockPing({
+        intent: pingRequest.intent,
+        message: pingRequest.message,
+        durationMinutes: pingRequest.durationMinutes,
+        contextData: pingRequest.contextData,
+        expiresAt: new Date(Date.now() + pingRequest.durationMinutes * 60 * 1000).toISOString(),
+        timeRemaining: pingRequest.durationMinutes * 60,
+      });
+      
+      Alert.alert(
+        'Ping Sent! 🏓',
+        'Your ping has been sent to family members. They can now respond with support!'
+      );
+    } catch (error) {
+      Alert.alert('Error', 'Failed to send ping. Please try again.');
+    }
+  };
+
+  const handleProfilePress = () => {
+    (navigation as any).navigate(ROUTES.PROFILE);
+  };
+
+  const userInitials = user?.firstName && user?.lastName 
+    ? `${user.firstName[0]}${user.lastName[0]}` 
+    : 'U';
 
   const renderContentTypeCard = (contentType: ContentType, index: number) => (
     <TouchableOpacity
@@ -226,128 +265,94 @@ const CreateScreen: React.FC = () => {
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Create</Text>
-        </View>
+        <HomeHeader 
+          title="Create"
+          onProfilePress={handleProfilePress} 
+          userInitials={userInitials}
+          scrollY={scrollY}
+        />
         
         {/* Main Content */}
-         <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+        <Animated.ScrollView 
+          style={styles.scrollContainer} 
+          showsVerticalScrollIndicator={false}
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+            { useNativeDriver: false }
+          )}
+          scrollEventThrottle={16}
+        >
         <View style={styles.content}>
-             {/* Header */}
-             <View style={styles.header}>
-               <Text style={styles.headerTitle}>Create</Text>
-             </View>
 
-             {/* Content Types Grid */}
-             <View style={styles.contentGrid}>
-               {contentTypes.slice(0, 8).map((contentType) => (
-                 <TouchableOpacity
-                   key={contentType.id}
-                   style={styles.contentCard}
-                   onPress={() => handleContentTypePress(contentType)}
-                   activeOpacity={0.7}
-                 >
-                   <View style={[styles.cardIcon, { backgroundColor: contentType.gradient[0] + '15' }]}>
-                     <Ionicons name={contentType.icon} size={20} color={contentType.gradient[0]} />
-                   </View>
-                   <Text style={styles.cardTitle}>{contentType.title}</Text>
-                 </TouchableOpacity>
-               ))}
-             </View>
+             {/* Ping Feature Card - Compact Showcase */}
+             <TouchableOpacity 
+               style={styles.pingFeatureCard}
+               onPress={() => setShowPingCreator(true)}
+               activeOpacity={0.8}
+             >
+                <View style={styles.pingFeatureGlassmorphism}>
+                  <View style={styles.pingFeatureContent}>
+                    <View style={styles.pingFeatureIcon}>
+                      <Ionicons name="radio" size={24} color="#247B7B" />
+                    </View>
+                    <View style={styles.pingFeatureText}>
+                      <Text style={styles.pingFeatureTitle}>Ping & Pong</Text>
+                      <Text style={styles.pingFeatureSubtitle}>Quick family support</Text>
+                    </View>
+                    <View style={styles.pingFeatureArrow}>
+                      <Ionicons name="chevron-forward" size={20} color="#247B7B" />
+                    </View>
+                  </View>
+                </View>
+             </TouchableOpacity>
 
              {/* Dream Vault */}
-             <View style={styles.dreamSection}>
-               <View style={styles.sectionHeader}>
-                 <View style={styles.headerLeft}>
+             <TouchableOpacity style={styles.dreamSection}>
+               <View style={styles.dreamGlassmorphism}>
+                 <View style={styles.dreamContent}>
                    <View style={styles.dreamIcon}>
-                     <Ionicons name="moon-outline" size={18} color="#6366f1" />
+                     <Ionicons name="moon-outline" size={24} color="#3b5998" />
                    </View>
-                   <View style={styles.headerTextContainer}>
-                     <Text style={styles.sectionTitle}>Dream Vault</Text>
-                     <Text style={styles.sectionSubtitle}>Record dreams and discover connections</Text>
+                   <View style={styles.dreamText}>
+                     <Text style={styles.dreamTitle}>Dream Vault</Text>
+                     <Text style={styles.dreamSubtitle}>Record and visualise dreams</Text>
                    </View>
-                 </View>
-                 <View style={styles.dreamCountBadge}>
-                   <Text style={styles.dreamCountText}>12</Text>
+                   <View style={styles.dreamArrow}>
+                     <Ionicons name="chevron-forward" size={20} color="#3b5998" />
+                   </View>
                  </View>
                </View>
-             </View>
+             </TouchableOpacity>
 
-             {/* AI Tools (Premium) */}
-             <View style={styles.aiSection}>
-               <View style={styles.sectionHeader}>
-                 <View style={styles.headerLeft}>
-                   <View style={styles.aiIcon}>
-                     <Ionicons name="diamond-outline" size={18} color="#dc2626" />
-                   </View>
-                   <View style={styles.headerTextContainer}>
-                     <View style={styles.titleRow}>
-                       <Text style={styles.sectionTitle}>AI Tools</Text>
-                       <View style={styles.premiumBadge}>
-                         <Text style={styles.premiumText}>Premium</Text>
+             {/* Content Types Grid */}
+             <ScrollView 
+               horizontal 
+               showsHorizontalScrollIndicator={false}
+               style={styles.contentScrollView}
+               contentContainerStyle={styles.contentScrollContent}
+             >
+               {Array.from({ length: Math.ceil(contentTypes.length / 4) }, (_, groupIndex) => (
+                 <View key={groupIndex} style={styles.contentGroup}>
+                   {contentTypes.slice(groupIndex * 4, (groupIndex + 1) * 4).map((contentType) => (
+                     <TouchableOpacity
+                       key={contentType.id}
+                       style={[styles.contentCard, { borderColor: contentType.gradient[0] }]}
+                       onPress={() => handleContentTypePress(contentType)}
+                       activeOpacity={0.7}
+                     >
+                       <View style={[styles.cardIcon, { backgroundColor: contentType.gradient[0] + '15' }]}>
+                         <Ionicons name={contentType.icon} size={20} color={contentType.gradient[0]} />
                        </View>
-                     </View>
-                     <Text style={styles.sectionSubtitle}>Advanced AI-powered creation tools</Text>
-                   </View>
+                       <Text style={styles.cardTitle}>{contentType.title}</Text>
+                     </TouchableOpacity>
+                   ))}
                  </View>
-               </View>
-               <View style={styles.aiToolsGrid}>
-                 <View style={styles.aiToolItem}>
-                   <View style={styles.aiToolIcon}>
-                     <Ionicons name="create-outline" size={16} color="#6366f1" />
-                   </View>
-                   <Text style={styles.aiToolText}>Story Writer</Text>
-                 </View>
-                 <View style={styles.aiToolItem}>
-                   <View style={styles.aiToolIcon}>
-                     <Ionicons name="camera-outline" size={16} color="#dc2626" />
-                   </View>
-                   <Text style={styles.aiToolText}>Photo Restore</Text>
-                 </View>
-                 <View style={styles.aiToolItem}>
-                   <View style={styles.aiToolIcon}>
-                     <Ionicons name="mic-outline" size={16} color="#7c3aed" />
-                   </View>
-                   <Text style={styles.aiToolText}>Voice Cloning</Text>
-                 </View>
-                 <View style={styles.aiToolItem}>
-                   <View style={styles.aiToolIcon}>
-                     <Ionicons name="map-outline" size={16} color="#059669" />
-                   </View>
-                   <Text style={styles.aiToolText}>Ancestry Tracker</Text>
-                 </View>
-               </View>
-             </View>
+               ))}
+             </ScrollView>
 
-             {/* Recent Work */}
-             <View style={styles.recentSection}>
-               <Text style={styles.sectionTitle}>Recent Work</Text>
-               <View style={styles.recentList}>
-                 <View style={styles.recentItem}>
-                   <View style={styles.recentIcon}>
-                     <Ionicons name="library-outline" size={14} color="#64748b" />
-                   </View>
-                   <Text style={styles.recentTitle}>Grandma's Story</Text>
-                   <Text style={styles.recentStatus}>Draft</Text>
-                 </View>
-                 <View style={styles.recentItem}>
-                   <View style={styles.recentIcon}>
-                     <Ionicons name="restaurant-outline" size={14} color="#0f766e" />
-                   </View>
-                   <Text style={styles.recentTitle}>Apple Pie Recipe</Text>
-                   <Text style={[styles.recentStatus, { color: '#059669' }]}>Published</Text>
-                 </View>
-                 <View style={styles.recentItem}>
-                   <View style={styles.recentIcon}>
-                     <Ionicons name="camera-outline" size={14} color="#059669" />
-                   </View>
-                   <Text style={styles.recentTitle}>Wedding Photos</Text>
-                   <Text style={[styles.recentStatus, { color: '#059669' }]}>Published</Text>
-                 </View>
-               </View>
-             </View>
+
            </View>
-         </ScrollView>
+         </Animated.ScrollView>
 
         {/* Content Creation Modal */}
         <Modal
@@ -437,6 +442,13 @@ const CreateScreen: React.FC = () => {
         </View>
           </SafeAreaView>
         </Modal>
+
+        {/* Ping Creator Modal */}
+        <PingCreator
+          isVisible={showPingCreator}
+          onClose={() => setShowPingCreator(false)}
+          onPingCreated={handlePingCreated}
+        />
       </SafeAreaView>
     </View>
   );
@@ -467,21 +479,86 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
   },
 
-  // Content Grid
-  contentGrid: {
+  // Ping Feature Card - Glassmorphism Style
+  pingFeatureCard: {
+    marginBottom: spacing.md,
+    borderRadius: 20,
+    overflow: 'hidden',
+    elevation: 8,
+    shadowColor: '#247B7B',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    minHeight: 64,
+  },
+  pingFeatureGlassmorphism: {
+    backgroundColor: 'rgba(36, 123, 123, 0.15)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(36, 123, 123, 0.3)',
+    borderRadius: 20,
+    padding: spacing.md,
+  },
+  pingFeatureContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  pingFeatureIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.35)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.md,
+    borderWidth: 1.5,
+    borderColor: 'rgba(90, 90, 154, 0.3)',
+    shadowColor: '#4A4A8A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  pingFeatureText: {
+    flex: 1,
+  },
+  pingFeatureTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#247B7B',
+    marginBottom: 2,
+  },
+  pingFeatureSubtitle: {
+    fontSize: 12,
+    color: '#1E5A5A',
+    fontWeight: '500',
+  },
+  pingFeatureArrow: {
+    marginLeft: spacing.sm,
+  },
+
+  // Content Grid - Horizontal Scroll
+  contentScrollView: {
+    marginBottom: spacing.md,
+  },
+  contentScrollContent: {
+    paddingHorizontal: spacing.md,
+    gap: spacing.md,
+  },
+  contentGroup: {
+    width: 180, // 2 cards * 80px + gap
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    marginBottom: spacing.lg,
   },
   contentCard: {
-    width: '22%',
-    aspectRatio: 1,
+    width: 80,
+    height: 80,
     backgroundColor: 'white',
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.md,
+    borderWidth: 1,
+    marginBottom: spacing.sm,
     elevation: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -503,67 +580,46 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  // Recent Work
-  recentSection: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: spacing.md,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text.primary,
-    marginBottom: spacing.md,
-  },
-  recentList: {
-    gap: spacing.sm,
-  },
-  recentItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: spacing.xs,
-  },
-  recentIcon: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: colors.neutral[100],
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: spacing.sm,
-  },
-  recentTitle: {
-    flex: 1,
-    fontSize: 14,
-    fontWeight: '500',
-    color: colors.text.primary,
-  },
-  recentStatus: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: colors.text.secondary,
-    backgroundColor: colors.neutral[100],
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
-    borderRadius: 8,
-  },
 
   // Dream Vault
   dreamSection: {
-    backgroundColor: 'white',
-    borderRadius: 16,
-    padding: spacing.lg,
-    marginBottom: spacing.lg,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
+    marginBottom: spacing.md,
+    borderRadius: 20,
+    overflow: 'hidden',
+    elevation: 8,
+    shadowColor: '#3b5998',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    minHeight: 64,
+  },
+  dreamGlassmorphism: {
+    backgroundColor: 'rgba(59, 89, 152, 0.15)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(59, 89, 152, 0.3)',
+    borderRadius: 20,
+    padding: spacing.md,
+  },
+  dreamContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  dreamText: {
+    flex: 1,
+  },
+  dreamTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#3b5998',
+    marginBottom: 2,
+  },
+  dreamSubtitle: {
+    fontSize: 12,
+    color: '#2E4A7A',
+    fontWeight: '500',
+  },
+  dreamArrow: {
+    marginLeft: spacing.sm,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -590,93 +646,119 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   dreamIcon: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#f0f4ff',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.35)',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  dreamCountBadge: {
-    backgroundColor: '#6366f1',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    borderRadius: 12,
-    minWidth: 32,
-    alignItems: 'center',
-  },
-  dreamCountText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: 'white',
+    borderWidth: 1.5,
+    borderColor: 'rgba(59, 89, 152, 0.3)',
+    marginRight: spacing.md,
+    shadowColor: '#3b5998',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
 
-  // AI Tools (Premium)
-  aiSection: {
+
+  // Content Type Card Styles
+  contentTypeCard: {
+    width: '22%',
+    aspectRatio: 1,
     backgroundColor: 'white',
-    borderRadius: 16,
-    padding: spacing.lg,
-    marginBottom: spacing.lg,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-  },
-  aiIcon: {
-    width: 24,
-    height: 24,
     borderRadius: 12,
-    backgroundColor: '#fef2f2',
+    alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'center',
-  },
-  premiumBadge: {
-    backgroundColor: '#dc2626',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
-    borderRadius: 8,
-    marginLeft: spacing.sm,
-  },
-  premiumText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: 'white',
-  },
-  aiToolsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginTop: spacing.md,
-  },
-  aiToolItem: {
-    width: '48%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f8fafc',
-    padding: spacing.sm,
-    borderRadius: 8,
-    marginBottom: spacing.sm,
-  },
-  aiToolIcon: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: 'white',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: spacing.sm,
+    marginBottom: spacing.md,
     elevation: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
   },
-  aiToolText: {
-    fontSize: 11,
-    fontWeight: '500',
+  cardContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
+  iconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing.xs,
+  },
+  cardTextContainer: {
+    alignItems: 'center',
+  },
+  cardSubtitle: {
+    fontSize: 10,
+    color: colors.text.secondary,
+    textAlign: 'center',
+    marginTop: 2,
+  },
+
+  // Family Member Styles
+  familyMemberCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing.sm,
+    backgroundColor: colors.neutral[50],
+    borderRadius: 12,
+    marginBottom: spacing.sm,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  selectedFamilyMember: {
+    borderColor: colors.primary[500],
+    backgroundColor: colors.primary[50],
+  },
+  memberAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: spacing.sm,
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    width: '100%',
+    height: '100%',
+  },
+  avatarPlaceholder: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: colors.primary[200],
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.primary[700],
+  },
+  memberInfo: {
+    flex: 1,
+  },
+  memberName: {
+    fontSize: 14,
+    fontWeight: '600',
     color: colors.text.primary,
-    marginLeft: spacing.xs,
+  },
+  memberRelationship: {
+    fontSize: 12,
+    color: colors.text.secondary,
+    marginTop: 2,
+  },
+  selectedIndicator: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: colors.primary[500],
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
 
