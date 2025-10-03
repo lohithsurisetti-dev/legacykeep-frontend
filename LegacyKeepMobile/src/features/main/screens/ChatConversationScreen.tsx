@@ -18,13 +18,15 @@ import {
   KeyboardAvoidingView,
   Platform,
   Modal,
-  StatusBar
+  StatusBar,
+  Pressable,
+  Animated
 } from 'react-native';
 import { PanGestureHandler, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, typography, spacing, gradients } from '../../../shared/constants';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, {
+import ReanimatedAnimated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
@@ -32,9 +34,58 @@ import Animated, {
   withSequence,
   interpolate,
   runOnJS,
+  Easing,
 } from 'react-native-reanimated';
+import { BlurView } from 'expo-blur';
 
 const { width: screenWidth } = Dimensions.get('window');
+
+// Helper function for time formatting
+const formatTime = (timestamp: string) => {
+  // Simple time formatting - in real app, use proper date formatting
+  return timestamp;
+};
+
+// Simple Reactions Bar Component
+const ReactionsBar: React.FC<{
+  reactions: string[];
+  onReaction: (emoji: string) => void;
+  onAddReaction?: () => void;
+  showAddButton?: boolean;
+  style?: any;
+}> = ({ reactions, onReaction, onAddReaction, showAddButton = true, style }) => {
+  return (
+    <View style={[styles.reactionsBarWrapper, style]}>
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.reactionsScrollContainer}
+        style={styles.reactionsScroll}
+      >
+        {reactions.map((emoji, index) => (
+          <TouchableOpacity
+            key={emoji}
+            style={styles.reactionEmojiButton}
+            onPress={() => onReaction(emoji)}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.reactionEmojiText}>{emoji}</Text>
+          </TouchableOpacity>
+        ))}
+        
+        {showAddButton && (
+          <TouchableOpacity 
+            style={styles.addReactionButton}
+            onPress={onAddReaction}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="add-circle-outline" size={20} color="#FFFFFF" />
+          </TouchableOpacity>
+        )}
+      </ScrollView>
+    </View>
+  );
+};
 
 // Swipe Indicator Component
 const SwipeIndicator: React.FC<{ hasHiddenContent: boolean }> = ({ hasHiddenContent }) => {
@@ -43,12 +94,12 @@ const SwipeIndicator: React.FC<{ hasHiddenContent: boolean }> = ({ hasHiddenCont
   useEffect(() => {
     if (hasHiddenContent) {
       arrowAnimation.value = withRepeat(
-        withTiming(1, { duration: 1600 }),
+        withTiming(1, { duration: 2000, easing: Easing.bezier(0.68, -0.55, 0.265, 1.55) }),
         -1,
         false
       );
     } else {
-      arrowAnimation.value = withTiming(0, { duration: 200 });
+      arrowAnimation.value = withTiming(0, { duration: 300, easing: Easing.out(Easing.cubic) });
     }
   }, [hasHiddenContent]);
 
@@ -58,7 +109,7 @@ const SwipeIndicator: React.FC<{ hasHiddenContent: boolean }> = ({ hasHiddenCont
 
   return (
     <View style={styles.swipeIndicator}>
-      <Animated.View style={[
+      <ReanimatedAnimated.View style={[
         styles.individualArrow,
         useAnimatedStyle(() => ({
           opacity: interpolate(arrowAnimation.value, [0.75, 0.875, 1], [0.6, 1, 0.6]),
@@ -66,8 +117,8 @@ const SwipeIndicator: React.FC<{ hasHiddenContent: boolean }> = ({ hasHiddenCont
         }))
       ]}>
         <Ionicons name="chevron-back" size={12} color="#6B7280" />
-      </Animated.View>
-      <Animated.View style={[
+      </ReanimatedAnimated.View>
+      <ReanimatedAnimated.View style={[
         styles.individualArrow,
         useAnimatedStyle(() => ({
           opacity: interpolate(arrowAnimation.value, [0.5, 0.625, 0.75], [0.6, 1, 0.6]),
@@ -75,8 +126,8 @@ const SwipeIndicator: React.FC<{ hasHiddenContent: boolean }> = ({ hasHiddenCont
         }))
       ]}>
         <Ionicons name="chevron-back" size={12} color="#6B7280" />
-      </Animated.View>
-      <Animated.View style={[
+      </ReanimatedAnimated.View>
+      <ReanimatedAnimated.View style={[
         styles.individualArrow,
         useAnimatedStyle(() => ({
           opacity: interpolate(arrowAnimation.value, [0.25, 0.375, 0.5], [0.6, 1, 0.6]),
@@ -84,8 +135,8 @@ const SwipeIndicator: React.FC<{ hasHiddenContent: boolean }> = ({ hasHiddenCont
         }))
       ]}>
         <Ionicons name="chevron-back" size={12} color="#6B7280" />
-      </Animated.View>
-      <Animated.View style={[
+      </ReanimatedAnimated.View>
+      <ReanimatedAnimated.View style={[
         styles.individualArrow,
         useAnimatedStyle(() => ({
           opacity: interpolate(arrowAnimation.value, [0, 0.125, 0.25], [0.6, 1, 0.6]),
@@ -93,8 +144,204 @@ const SwipeIndicator: React.FC<{ hasHiddenContent: boolean }> = ({ hasHiddenCont
         }))
       ]}>
         <Ionicons name="chevron-back" size={12} color="#6B7280" />
-      </Animated.View>
+      </ReanimatedAnimated.View>
     </View>
+  );
+};
+
+// Message Menu Overlay Component
+const MessageMenuOverlay: React.FC<{
+  visible: boolean;
+  message: ChatMessage | null;
+  chat: any; // Add chat prop
+  onClose: () => void;
+  onReaction: (emoji: string) => void;
+  onAction: (action: string) => void;
+  renderMessage: (msg: ChatMessage, index: number) => React.ReactNode;
+  getSenderColor: (senderId: string) => string; // Add getSenderColor prop
+}> = ({ visible, message, chat, onClose, onReaction, onAction, renderMessage, getSenderColor }) => {
+  const overlayAnimation = useSharedValue(0);
+  const messageAnimation = useSharedValue(0);
+
+  useEffect(() => {
+    if (visible) {
+      // Fast, simultaneous animations
+      overlayAnimation.value = withTiming(1, { 
+        duration: 300,
+        easing: Easing.out(Easing.quad),
+      });
+      
+      // Message animation appears immediately with overlay
+      messageAnimation.value = withTiming(1, { 
+        duration: 350,
+        easing: Easing.out(Easing.quad),
+      });
+    } else {
+      // Quick exit
+      messageAnimation.value = withTiming(0, { 
+        duration: 250,
+        easing: Easing.in(Easing.quad),
+      });
+      
+      overlayAnimation.value = withTiming(0, { 
+        duration: 300,
+        easing: Easing.in(Easing.quad),
+      });
+    }
+  }, [visible]);
+
+  const overlayStyle = useAnimatedStyle(() => ({
+    opacity: overlayAnimation.value,
+  }));
+
+  const messageStyle = useAnimatedStyle(() => ({
+    transform: [
+      { 
+        scale: interpolate(messageAnimation.value, [0, 1], [0.8, 1]), // Gentle scale
+      },
+      { 
+        translateY: interpolate(messageAnimation.value, [0, 1], [20, 0]), // Subtle movement
+      },
+      { 
+        rotateX: interpolate(messageAnimation.value, [0, 1], [8, 0]) + 'deg', // Gentle rotation
+      },
+    ],
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: interpolate(messageAnimation.value, [0, 1], [0, 0.3]),
+    shadowRadius: interpolate(messageAnimation.value, [0, 1], [0, 16]),
+    elevation: interpolate(messageAnimation.value, [0, 1], [0, 10]),
+  }));
+
+  const reactionsStyle = useAnimatedStyle(() => ({
+    opacity: messageAnimation.value, // Appears immediately with message
+    transform: [
+      { 
+        translateY: interpolate(messageAnimation.value, [0, 1], [10, 0]), // Minimal movement
+      },
+      { 
+        scale: interpolate(messageAnimation.value, [0, 1], [0.95, 1]), // Very gentle scale
+      },
+    ],
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: interpolate(messageAnimation.value, [0, 1], [0, 0.15]),
+    shadowRadius: interpolate(messageAnimation.value, [0, 1], [0, 8]),
+    elevation: interpolate(messageAnimation.value, [0, 1], [0, 4]),
+  }));
+
+  const menuStyle = useAnimatedStyle(() => ({
+    opacity: messageAnimation.value, // Appears immediately with message
+    transform: [
+      { 
+        translateY: interpolate(messageAnimation.value, [0, 1], [-10, 0]), // Minimal movement
+      },
+      { 
+        scale: interpolate(messageAnimation.value, [0, 1], [0.95, 1]), // Very gentle scale
+      },
+    ],
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: interpolate(messageAnimation.value, [0, 1], [0, 0.15]),
+    shadowRadius: interpolate(messageAnimation.value, [0, 1], [0, 8]),
+    elevation: interpolate(messageAnimation.value, [0, 1], [0, 4]),
+  }));
+
+  const reactions = ['👍', '❤️', '😂', '😮', '😢'];
+  const actions = [
+    { icon: 'chatbubble-outline', label: 'Reply', action: 'reply' },
+    { icon: 'copy-outline', label: 'Copy', action: 'copy' },
+    { icon: 'arrow-forward-outline', label: 'Forward', action: 'forward' },
+    { icon: 'bookmark-outline', label: 'Add to Story', action: 'save' },
+    { icon: 'trash-outline', label: 'Delete', action: 'delete' },
+  ];
+
+  if (!visible || !message) return null;
+
+  return (
+    <Modal transparent visible={visible} animationType="none" statusBarTranslucent>
+      <Pressable style={styles.overlayBackdrop} onPress={onClose}>
+        <View style={styles.overlayContainer}>
+          <View style={styles.overlayContent}>
+            {/* Message Bubble - Top */}
+            <ReanimatedAnimated.View style={[styles.overlayMessageBubble, messageStyle]}>
+              {/* Sender info for group chats */}
+              {chat.type === 'group' && !message.isOwnMessage && (
+                <View style={[styles.overlaySenderInfo, { borderBottomColor: getSenderColor(message.senderId) }]}>
+                  <Image 
+                    source={{ uri: message.senderAvatar }} 
+                    style={styles.overlaySenderAvatar}
+                  />
+                  <Text style={[styles.overlaySenderName, { color: getSenderColor(message.senderId) }]}>
+                    {String(message.senderName || '')}
+                  </Text>
+                </View>
+              )}
+              
+              {/* Reply content if exists */}
+              {message.replyTo && (
+                <View style={styles.overlayReplyContainer}>
+                  <View style={styles.overlayReplyContent}>
+                  <Text style={styles.overlayReplySender}>{String(message.replyTo.senderName || '')}</Text>
+                  <Text style={styles.overlayReplyText} numberOfLines={1}>{String(message.replyTo.content || '')}</Text>
+                  </View>
+                </View>
+              )}
+              
+              <Text style={styles.overlayMessageText}>{String(message.content || '')}</Text>
+              
+              {/* Message timestamp */}
+              <Text style={styles.overlayMessageTime}>
+                {formatTime(message.timestamp || '')}
+              </Text>
+            </ReanimatedAnimated.View>
+
+             {/* Reactions Bar - Middle */}
+             <ReanimatedAnimated.View style={[styles.overlayReactionsBar, reactionsStyle]}>
+               <ReactionsBar
+                 reactions={reactions}
+                 onReaction={onReaction}
+                 onAddReaction={() => {
+                   // Handle add reaction
+                 }}
+                 showAddButton={true}
+                 style={styles.overlayReactionsBarInner}
+               />
+             </ReanimatedAnimated.View>
+
+            {/* Menu Options - Bottom */}
+            <ReanimatedAnimated.View style={[styles.overlayMenuOptions, menuStyle]}>
+              {actions.map((action, index) => (
+                <TouchableOpacity
+                  key={action.action}
+                  style={[
+                    styles.overlayMenuOption,
+                    action.action === 'delete' && styles.overlayMenuOptionDelete
+                  ]}
+                  onPress={() => {
+                    onAction(action.action);
+                    onClose();
+                  }}
+                >
+                  <Text style={[
+                    styles.overlayMenuOptionText,
+                    action.action === 'delete' && styles.overlayMenuOptionTextDelete
+                  ]}>
+                    {action.label}
+                  </Text>
+                  <Ionicons 
+                    name={action.icon as any} 
+                    size={20} 
+                    color={action.action === 'delete' ? '#FF6B6B' : '#FFFFFF'}
+                    style={styles.overlayMenuOptionIcon}
+                  />
+                </TouchableOpacity>
+              ))}
+            </ReanimatedAnimated.View>
+          </View>
+        </View>
+      </Pressable>
+    </Modal>
   );
 };
 
@@ -155,6 +402,8 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
   const [showMessageMenu, setShowMessageMenu] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState<ChatMessage | null>(null);
   const [flippedMessages, setFlippedMessages] = useState<Set<string>>(new Set());
+  const [showMessageOverlay, setShowMessageOverlay] = useState(false);
+  const [selectedMessageForOverlay, setSelectedMessageForOverlay] = useState<ChatMessage | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
   
   // Generate consistent colors for each sender
@@ -216,14 +465,30 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
     setShowMessageMenu(true);
   };
 
+  const handleMessageOverlay = (msg: ChatMessage, event: any) => {
+    // Set message and show overlay
+    setSelectedMessageForOverlay(msg);
+    setShowMessageOverlay(true);
+  };
+
+  const handleReaction = (emoji: string) => {
+    if (selectedMessageForOverlay) {
+      // TODO: Add reaction to message
+      console.log(`Added reaction ${emoji} to message ${selectedMessageForOverlay.id}`);
+    }
+  };
+
+  const handleMessageAction = (action: string) => {
+    if (selectedMessageForOverlay) {
+      // TODO: Handle message action
+      console.log(`Action ${action} on message ${selectedMessageForOverlay.id}`);
+    }
+  };
+
   const handleBackPress = () => {
     navigation.goBack();
   };
 
-  const formatTime = (timestamp: string) => {
-    // Simple time formatting - in real app, use proper date formatting
-    return timestamp;
-  };
 
   const renderHeader = () => {
     if (chat.type === 'group') {
@@ -267,7 +532,8 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
     // Premium flip animation - slower and more elegant
     useEffect(() => {
       flipRotation.value = withTiming(isFlipped ? 1 : 0, { 
-        duration: 1200
+        duration: 1500,
+        easing: Easing.bezier(0.25, 0.1, 0.25, 1),
       });
     }, [isFlipped]);
 
@@ -306,9 +572,9 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
         }}
         minDist={20}
       >
-        <Animated.View style={animatedStyle}>
+        <ReanimatedAnimated.View style={animatedStyle}>
           {children}
-        </Animated.View>
+        </ReanimatedAnimated.View>
       </PanGestureHandler>
     );
   };
@@ -327,14 +593,18 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
     );
 
     // Determine which content to show
-    const displayContent = isFlipped && hasHiddenContent ? msg.hiddenContent : msg.content;
+    const displayContent = isFlipped && hasHiddenContent ? (msg.hiddenContent || '') : (msg.content || '');
     
     const messageContent = (
-      <View key={msg.id} style={[
-        styles.messageContainer,
-        isOwn ? styles.ownMessageContainer : styles.otherMessageContainer,
-        !isFirstMessageFromSender && !isOwn && styles.consecutiveMessage
-      ]}>
+      <Pressable 
+        key={msg.id} 
+        style={[
+          styles.messageContainer,
+          isOwn ? styles.ownMessageContainer : styles.otherMessageContainer,
+          !isFirstMessageFromSender && !isOwn && styles.consecutiveMessage
+        ]}
+        onLongPress={(event) => handleMessageOverlay(msg, event)}
+      >
         {isOwn ? (
           <LinearGradient
             colors={gradients.peacock}
@@ -352,10 +622,10 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
                 </View>
               )}
               <Text style={[styles.messageText, styles.ownMessageText]}>
-                {displayContent || ''}
+                {String(displayContent || '')}
               </Text>
               <Text style={styles.messageTimeInBubble}>
-                {formatTime(msg.timestamp)}
+                {formatTime(msg.timestamp || '')}
               </Text>
             </View>
           </LinearGradient>
@@ -374,7 +644,7 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
                   style={styles.senderAvatarInBubble}
                 />
                 <Text style={[styles.senderNameInBubble, { color: getSenderColor(msg.senderId) }]}>
-                  {msg.senderName || ''}
+                  {String(msg.senderName || '')}
                 </Text>
                 
                 {/* Action icons */}
@@ -387,7 +657,7 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
                   </TouchableOpacity>
                   <TouchableOpacity 
                     style={styles.senderActionButton}
-                    onPress={() => handleMessageMenu(msg)}
+                    onPress={(event) => handleMessageOverlay(msg, event)}
                   >
                     <Ionicons name="ellipsis-horizontal" size={14} color="#374151" />
                   </TouchableOpacity>
@@ -398,8 +668,8 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
             {msg.replyTo && (
               <View style={styles.replyContainer}>
                 <View style={styles.replyContent}>
-                  <Text style={styles.replySender}>{msg.replyTo.senderName || ''}</Text>
-                  <Text style={styles.replyText} numberOfLines={1}>{msg.replyTo.content || ''}</Text>
+                  <Text style={styles.replySender}>{String(msg.replyTo.senderName || '')}</Text>
+                  <Text style={styles.replyText} numberOfLines={1}>{String(msg.replyTo.content || '')}</Text>
                 </View>
               </View>
             )}
@@ -408,11 +678,11 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
               styles.otherMessageText,
               isFlipped && styles.flippedMessageText
             ]}>
-              {displayContent || ''}
+              {String(displayContent || '')}
             </Text>
             <View style={styles.messageBottomRow}>
               <Text style={styles.messageTimeInBubble}>
-                {formatTime(msg.timestamp)}
+                {formatTime(msg.timestamp || '')}
               </Text>
               
               {/* Action icons for all messages */}
@@ -444,7 +714,7 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
             ))}
           </View>
         )}
-      </View>
+      </Pressable>
     );
 
     // Wrap message with FlipMessage component if it has hidden content
@@ -539,6 +809,14 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View style={styles.container}>
         <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+        
+        {/* Blurred Background Chat Content */}
+        {showMessageOverlay && (
+          <View style={styles.blurredBackground}>
+            <BlurView intensity={100} tint="dark" style={styles.blurView} />
+            <View style={styles.darkOverlay} />
+          </View>
+        )}
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
@@ -589,7 +867,11 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
           </View>
           
           {/* Messages */}
-          {chat.messages.map((msg, index) => renderMessage(msg, index))}
+          {chat.messages.map((msg, index) => (
+            <View key={msg.id}>
+              {renderMessage(msg, index)}
+            </View>
+          ))}
         </ScrollView>
         
         {/* Input Area */}
@@ -635,6 +917,18 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
           </View>
         </TouchableOpacity>
       </Modal>
+
+      {/* Message Menu Overlay */}
+        <MessageMenuOverlay
+          visible={showMessageOverlay}
+          message={selectedMessageForOverlay}
+          chat={chat}
+          onClose={() => setShowMessageOverlay(false)}
+          onReaction={handleReaction}
+          onAction={handleMessageAction}
+          renderMessage={renderMessage}
+          getSenderColor={getSenderColor}
+        />
       </View>
     </GestureHandlerRootView>
   );
@@ -1064,6 +1358,237 @@ const styles = StyleSheet.create({
     fontSize: typography.sizes.md,
     color: '#374151',
     marginLeft: spacing.md,
+  },
+  // Message Menu Overlay Styles
+  overlayBackdrop: {
+    flex: 1,
+    backgroundColor: 'transparent',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  overlayContainer: {
+    width: '100%',
+    alignItems: 'center',
+    zIndex: 20,
+    paddingHorizontal: spacing.lg,
+  },
+  overlayContent: {
+    width: '100%',
+    maxWidth: 280, // Even smaller horizontally
+    alignItems: 'flex-start', // Left aligned
+    gap: spacing.sm,
+  },
+  overlayMessageBubble: {
+    width: '100%',
+    backgroundColor: 'rgba(255, 255, 255, 0.35)',
+    borderRadius: 20,
+    padding: spacing.md,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 20,
+    elevation: 12,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+  },
+  overlayMessageText: {
+    fontSize: 16,
+    fontWeight: '600',
+    lineHeight: 22,
+    color: '#FFFFFF',
+    textAlign: 'left', // Left aligned text
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  overlaySenderInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.xs,
+    paddingBottom: spacing.xs,
+    borderBottomWidth: 1,
+  },
+  overlaySenderAvatar: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    marginRight: spacing.xs,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.8)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  overlaySenderName: {
+    fontSize: 12,
+    fontWeight: '600',
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 1,
+  },
+  overlayReplyContainer: {
+    marginBottom: spacing.xs,
+    paddingLeft: spacing.sm,
+    borderLeftWidth: 2,
+    borderLeftColor: '#3B82F6',
+  },
+  overlayReplyContent: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    padding: spacing.xs,
+    borderRadius: 8,
+  },
+  overlayReplySender: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#3B82F6',
+    marginBottom: 2,
+  },
+  overlayReplyText: {
+    fontSize: 11,
+    color: 'rgba(255, 255, 255, 0.8)',
+    lineHeight: 14,
+  },
+  overlayMessageTime: {
+    fontSize: 11,
+    color: 'rgba(255, 255, 255, 0.7)',
+    marginTop: spacing.xs,
+    textAlign: 'right',
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 1,
+  },
+  overlayReactionsBar: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderRadius: 25,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 18,
+    elevation: 10,
+    width: '100%',
+    height: 56,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+  },
+  // Simple Reactions Bar Styles
+  reactionsBarWrapper: {
+    width: '100%',
+  },
+  reactionsScroll: {
+    flexGrow: 0,
+  },
+  reactionsScrollContainer: {
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    gap: spacing.xs,
+  },
+  reactionEmojiButton: {
+    width: 36,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+  },
+  reactionEmojiText: {
+    fontSize: 20,
+    textAlign: 'center',
+  },
+  addReactionButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    marginLeft: spacing.xs,
+  },
+  overlayReactionsBarInner: {
+    backgroundColor: 'transparent',
+    borderRadius: 0,
+    padding: 0,
+    shadowColor: 'transparent',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    elevation: 0,
+    borderWidth: 0,
+    borderColor: 'transparent',
+  },
+  overlayMessageWrapper: {
+    backgroundColor: 'transparent',
+    zIndex: 25,
+    maxWidth: '85%',
+  },
+  overlayMenuOptions: {
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 18,
+    elevation: 10,
+    width: '100%',
+    padding: spacing.sm,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+  },
+  overlayMenuOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between', // Text left, icon right
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.sm,
+    borderRadius: 8,
+    marginVertical: 1,
+  },
+  overlayMenuOptionText: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    textAlign: 'left', // Left aligned text
+    fontWeight: '600',
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 1,
+    flex: 1, // Take available space
+  },
+  overlayMenuOptionIcon: {
+    marginLeft: spacing.sm, // Icon on the right
+  },
+  overlayMenuOptionDelete: {
+    // Red background for delete option
+  },
+  overlayMenuOptionTextDelete: {
+    color: '#EF4444',
+  },
+  // Blur Background Styles
+  blurredBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 5,
+  },
+  blurView: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  darkOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
   },
 });
 
