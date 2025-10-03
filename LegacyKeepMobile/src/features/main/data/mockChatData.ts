@@ -325,11 +325,25 @@ export const mockGroupChats: ChatConversation[] = [
         reactions: [
           { emoji: '😄', count: 2, users: ['user1', 'user2'] }
         ]
+      },
+      {
+        id: '12',
+        senderId: 'mom',
+        senderName: 'Mom',
+        senderAvatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAqBgiSi3s70Q08CblD0FMv4wSOv6GLz6ol2c2J4AswyRdr9IaCrMYRlbr3UeFI9FTjpc3fyBruFPzJoRVIOJfhd05lHX4RF07_TPc_MSKod8E-uYHYuIalnmg325AvtSpQRiRAKHwAszMCuxEjWQYWNtETC5so_Q6QmuiArOjroZAH4mekmWcEcmnzNdwVKTGV6nJHsxcWqxAV3qokCfL44Y33ZRGnxN1bn7Q0acH-WYlLzwb0X8Fj_orz6nTH8wgeyJYIBzu44TQ',
+        content: "I can't wait to see everyone's faces when they taste my lemonade! 🍋",
+        hiddenContent: "I've been perfecting this recipe for 30 years. Your grandmother taught me the secret ingredient - a pinch of love and memories from our family gatherings. This will be the best batch yet! 💕",
+        hasHiddenContent: true,
+        timestamp: '10:57 AM',
+        isOwnMessage: false,
+        reactions: [
+          { emoji: '🍋', count: 3, users: ['user1', 'user2', 'user3'] }
+        ]
       }
     ],
     isOnline: true,
-    lastMessage: "Don't forget the giant oak tree in the backyard. We spent countless hours climbing it. 🌳",
-    lastMessageTime: '10:55 AM',
+    lastMessage: "I can't wait to see everyone's faces when they taste my lemonade! 🍋",
+    lastMessageTime: '10:57 AM',
     unreadCount: 2,
   }
 ];
