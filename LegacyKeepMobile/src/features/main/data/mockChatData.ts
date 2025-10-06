@@ -176,13 +176,165 @@ export const mockIndividualChats: ChatConversation[] = [
     lastMessage: "Don't forget the giant oak tree in the backyard. We spent countless hours climbing it. 🌳",
     lastMessageTime: '10:55 AM',
     unreadCount: 1,
+  },
+  {
+    id: '3',
+    type: 'individual',
+    name: 'Grandma Betty',
+    avatar: 'https://picsum.photos/100/100?random=3',
+    participants: [
+      {
+        id: 'grandma',
+        name: 'Grandma Betty',
+        avatar: 'https://picsum.photos/100/100?random=3',
+        isOnline: false,
+      }
+    ],
+    messages: [
+      {
+        id: '1',
+        senderId: 'grandma',
+        senderName: 'Grandma Betty',
+        senderAvatar: 'https://picsum.photos/100/100?random=3',
+        content: "Sweetheart, I found your grandfather's old recipe book! There are so many family secrets in here. 📖",
+        timestamp: 'Yesterday',
+        isOwnMessage: false,
+        reactions: [
+          { emoji: '❤️', count: 3, users: ['user1', 'user2', 'user3'] }
+        ]
+      },
+      {
+        id: '2',
+        senderId: 'me',
+        senderName: 'You',
+        content: "Grandma! That's amazing! Can't wait to see those recipes. 🥧",
+        timestamp: 'Yesterday',
+        isOwnMessage: true,
+      }
+    ],
+    isOnline: false,
+    lastMessage: "Sweetheart, I found your grandfather's old recipe book! There are so many family secrets in here. 📖",
+    lastMessageTime: 'Yesterday',
+    unreadCount: 0,
+  },
+  {
+    id: '4',
+    type: 'individual',
+    name: 'Uncle Mike',
+    avatar: 'https://picsum.photos/100/100?random=4',
+    participants: [
+      {
+        id: 'uncle',
+        name: 'Uncle Mike',
+        avatar: 'https://picsum.photos/100/100?random=4',
+        isOnline: true,
+      }
+    ],
+    messages: [
+      {
+        id: '1',
+        senderId: 'uncle',
+        senderName: 'Uncle Mike',
+        senderAvatar: 'https://picsum.photos/100/100?random=4',
+        content: "Hey! I'm digitizing all the old family videos. Found some gems from your childhood! 🎥",
+        timestamp: '2 hours ago',
+        isOwnMessage: false,
+      },
+      {
+        id: '2',
+        senderId: 'me',
+        senderName: 'You',
+        content: "That's incredible! I'd love to see those. Thanks for doing this! 🎬",
+        timestamp: '2 hours ago',
+        isOwnMessage: true,
+      },
+      {
+        id: '3',
+        senderId: 'uncle',
+        senderName: 'Uncle Mike',
+        senderAvatar: 'https://picsum.photos/100/100?random=4',
+        content: "I'll share the link once they're ready. Some of these are priceless! 💎",
+        timestamp: '1 hour ago',
+        isOwnMessage: false,
+      }
+    ],
+    isOnline: true,
+    lastMessage: "I'll share the link once they're ready. Some of these are priceless! 💎",
+    lastMessageTime: '1 hour ago',
+    unreadCount: 0,
+  },
+  {
+    id: '5',
+    type: 'individual',
+    name: 'Cousin Emma',
+    avatar: 'https://picsum.photos/100/100?random=5',
+    participants: [
+      {
+        id: 'emma',
+        name: 'Cousin Emma',
+        avatar: 'https://picsum.photos/100/100?random=5',
+        isOnline: false,
+      }
+    ],
+    messages: [
+      {
+        id: '1',
+        senderId: 'emma',
+        senderName: 'Cousin Emma',
+        senderAvatar: 'https://picsum.photos/100/100?random=5',
+        content: "Remember our summer adventures at the lake house? I found some photos! 🏖️",
+        timestamp: '3 days ago',
+        isOwnMessage: false,
+      }
+    ],
+    isOnline: false,
+    lastMessage: "Remember our summer adventures at the lake house? I found some photos! 🏖️",
+    lastMessageTime: '3 days ago',
+    unreadCount: 1,
+  },
+  {
+    id: '6',
+    type: 'individual',
+    name: 'Aunt Carol',
+    avatar: 'https://picsum.photos/100/100?random=6',
+    participants: [
+      {
+        id: 'aunt',
+        name: 'Aunt Carol',
+        avatar: 'https://picsum.photos/100/100?random=6',
+        isOnline: false,
+      }
+    ],
+    messages: [
+      {
+        id: '1',
+        senderId: 'aunt',
+        senderName: 'Aunt Carol',
+        senderAvatar: 'https://picsum.photos/100/100?random=6',
+        content: "I'm so excited for the reunion! I have stories from my travels that I can't wait to share. ✈️",
+        timestamp: '1 week ago',
+        isOwnMessage: false,
+      },
+      {
+        id: '2',
+        senderId: 'me',
+        senderName: 'You',
+        content: "We're all looking forward to hearing your adventures, Aunt Carol! 🌍",
+        timestamp: '1 week ago',
+        isOwnMessage: true,
+      }
+    ],
+    isOnline: false,
+    lastMessage: "I'm so excited for the reunion! I have stories from my travels that I can't wait to share. ✈️",
+    lastMessageTime: '1 week ago',
+    unreadCount: 0,
   }
 ];
 
 // Mock group chat conversations
 export const mockGroupChats: ChatConversation[] = [
   {
-    id: '3',
+    id: '7',
     type: 'group',
     name: 'The Millers',
     participants: [
@@ -345,6 +497,158 @@ export const mockGroupChats: ChatConversation[] = [
     lastMessage: "I can't wait to see everyone's faces when they taste my lemonade! 🍋",
     lastMessageTime: '10:57 AM',
     unreadCount: 2,
+  },
+  {
+    id: '8',
+    type: 'group',
+    name: 'Family Recipes',
+    participants: [
+      {
+        id: 'grandma',
+        name: 'Grandma Betty',
+        avatar: 'https://picsum.photos/100/100?random=3',
+        isOnline: false,
+      },
+      {
+        id: 'mom',
+        name: 'Mom',
+        avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAqBgiSi3s70Q08CblD0FMv4wSOv6GLz6ol2c2J4AswyRdr9IaCrMYRlbr3UeFI9FTjpc3fyBruFPzJoRVIOJfhd05lHX4RF07_TPc_MSKod8E-uYHYuIalnmg325AvtSpQRiRAKHwAszMCuxEjWQYWNtETC5so_Q6QmuiArOjroZAH4mekmWcEcmnzNdwVKTGV6nJHsxcWqxAV3qokCfL44Y33ZRGnxN1bn7Q0acH-WYlLzwb0X8Fj_orz6nTH8wgeyJYIBzu44TQ',
+        isOnline: true,
+      },
+      {
+        id: 'aunt',
+        name: 'Aunt Carol',
+        avatar: 'https://picsum.photos/100/100?random=6',
+        isOnline: false,
+      }
+    ],
+    messages: [
+      {
+        id: '1',
+        senderId: 'grandma',
+        senderName: 'Grandma Betty',
+        senderAvatar: 'https://picsum.photos/100/100?random=3',
+        content: "I'm sharing the secret ingredient for my apple pie! 🥧",
+        timestamp: 'Yesterday',
+        isOwnMessage: false,
+        reactions: [
+          { emoji: '🤫', count: 2, users: ['user1', 'user2'] }
+        ]
+      },
+      {
+        id: '2',
+        senderId: 'mom',
+        senderName: 'Mom',
+        senderAvatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAqBgiSi3s70Q08CblD0FMv4wSOv6GLz6ol2c2J4AswyRdr9IaCrMYRlbr3UeFI9FTjpc3fyBruFPzJoRVIOJfhd05lHX4RF07_TPc_MSKod8E-uYHYuIalnmg325AvtSpQRiRAKHwAszMCuxEjWQYWNtETC5so_Q6QmuiArOjroZAH4mekmWcEcmnzNdwVKTGV6nJHsxcWqxAV3qokCfL44Y33ZRGnxN1bn7Q0acH-WYlLzwb0X8Fj_orz6nTH8wgeyJYIBzu44TQ',
+        content: "Mom! You're the best! I can't wait to try this. 👩‍🍳",
+        timestamp: 'Yesterday',
+        isOwnMessage: false,
+      }
+    ],
+    isOnline: true,
+    lastMessage: "Mom! You're the best! I can't wait to try this. 👩‍🍳",
+    lastMessageTime: 'Yesterday',
+    unreadCount: 0,
+  },
+  {
+    id: '9',
+    type: 'group',
+    name: 'Family Memories',
+    participants: [
+      {
+        id: 'uncle',
+        name: 'Uncle Mike',
+        avatar: 'https://picsum.photos/100/100?random=4',
+        isOnline: true,
+      },
+      {
+        id: 'emma',
+        name: 'Cousin Emma',
+        avatar: 'https://picsum.photos/100/100?random=5',
+        isOnline: false,
+      },
+      {
+        id: 'me',
+        name: 'You',
+        isOnline: true,
+      }
+    ],
+    messages: [
+      {
+        id: '1',
+        senderId: 'uncle',
+        senderName: 'Uncle Mike',
+        senderAvatar: 'https://picsum.photos/100/100?random=4',
+        content: "I found the video from your 5th birthday party! You were so adorable! 🎂",
+        timestamp: '2 hours ago',
+        isOwnMessage: false,
+        reactions: [
+          { emoji: '🥺', count: 3, users: ['user1', 'user2', 'user3'] }
+        ]
+      },
+      {
+        id: '2',
+        senderId: 'emma',
+        senderName: 'Cousin Emma',
+        senderAvatar: 'https://picsum.photos/100/100?random=5',
+        content: "I remember that party! The cake was huge! 😄",
+        timestamp: '1 hour ago',
+        isOwnMessage: false,
+      }
+    ],
+    isOnline: true,
+    lastMessage: "I remember that party! The cake was huge! 😄",
+    lastMessageTime: '1 hour ago',
+    unreadCount: 1,
+  },
+  {
+    id: '10',
+    type: 'group',
+    name: 'Reunion Planning',
+    participants: [
+      {
+        id: 'sarah',
+        name: 'Sarah Miller',
+        avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBWU95jILiA6O2GEDVhrqB1imTQTWW2dPoQbCoRuFo36BvT31Vxt1FKU14tTAJuV06ntD9QGeQET4Y_M-MwS4YfxGOSmkLnpilwnavc9zPh17YCWzAQNjkfGadiNU1maoB6ANit9SeaoBsD1t_3QWKf0eLgjvzUJI56QTqJ5ZeC8lLyrAf9ZKIAt02L9LD6v9PNKLgQhWt9zwBj1VKjWICP5r8XwdzugVbK4SOhbqfzBuvnNbRFOle2sKEyKYv4eVgIlcWL4-R-vxY',
+        isOnline: true,
+      },
+      {
+        id: 'dad',
+        name: 'Dad',
+        avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB3fhAQL1gzMLSGG9fVGiJkcvJISvVDALmsSSSf46tPxFnuYQFuRpUdVumeU140iCuUMj5QnJ1pxXD-b7mzXv3ssIVfLOSo-wQlkuQRfntNVQV_KK46BT7LhknEc1WEu6Ugaoowhb6-mIB9yGijisrul6ds_xvM_8BuZ2PwSUeMby0b4RtYHIMlKy2nC_5Rdui7ZwHXcBdo8LNZyhtIYwKnbOXNw4E-mETPhphWGbLHDDPRJ7A_iEhOnOYSvZUZ3rSUkuvriBLWnbU',
+        isOnline: false,
+      },
+      {
+        id: 'aunt',
+        name: 'Aunt Carol',
+        avatar: 'https://picsum.photos/100/100?random=6',
+        isOnline: false,
+      }
+    ],
+    messages: [
+      {
+        id: '1',
+        senderId: 'sarah',
+        senderName: 'Sarah Miller',
+        senderAvatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBWU95jILiA6O2GEDVhrqB1imTQTWW2dPoQbCoRuFo36BvT31Vxt1FKU14tTAJuV06ntD9QGeQET4Y_M-MwS4YfxGOSmkLnpilwnavc9zPh17YCWzAQNjkfGadiNU1maoB6ANit9SeaoBsD1t_3QWKf0eLgjvzUJI56QTqJ5ZeC8lLyrAf9ZKIAt02L9LD6v9PNKLgQhWt9zwBj1VKjWICP5r8XwdzugVbK4SOhbqfzBuvnNbRFOle2sKEyKYv4eVgIlcWL4-R-vxY',
+        content: "Let's plan the reunion menu! Who's bringing what? 🍽️",
+        timestamp: '4 hours ago',
+        isOwnMessage: false,
+      },
+      {
+        id: '2',
+        senderId: 'aunt',
+        senderName: 'Aunt Carol',
+        senderAvatar: 'https://picsum.photos/100/100?random=6',
+        content: "I'll bring my famous pasta salad! 🥗",
+        timestamp: '3 hours ago',
+        isOwnMessage: false,
+      }
+    ],
+    isOnline: true,
+    lastMessage: "I'll bring my famous pasta salad! 🥗",
+    lastMessageTime: '3 hours ago',
+    unreadCount: 0,
   }
 ];
 

@@ -232,42 +232,44 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation }) => {
 
 
   const renderChatItem = (chat: Chat) => (
-    <TouchableOpacity
-      key={chat.id}
-      style={styles.chatItem}
-      onPress={() => handleChatPress(chat.id)}
-    >
-      <View style={styles.chatAvatarContainer}>
-        {chat.photo ? (
-          <Image source={{ uri: chat.photo }} style={styles.chatAvatar} />
-        ) : (
-          <View style={styles.chatAvatarPlaceholder}>
-            <Ionicons name="person" size={24} color="#9CA3AF" />
-          </View>
-        )}
-        {chat.isOnline && <View style={styles.onlineIndicator} />}
-      </View>
-      
-      <View style={styles.chatContent}>
-        <View style={styles.chatHeader}>
-          <Text style={styles.chatName}>
-            {chat.name}
-          </Text>
-          <Text style={styles.chatTimestamp}>{chat.timestamp}</Text>
-        </View>
-        
-        <View style={styles.chatFooter}>
-          <Text style={styles.chatMessage} numberOfLines={1}>
-            {chat.lastMessage}
-          </Text>
-          {chat.unreadCount && (
-            <View style={styles.unreadBadge}>
-              <Text style={styles.unreadText}>{chat.unreadCount}</Text>
+    <View key={chat.id}>
+      <TouchableOpacity
+        style={styles.chatItem}
+        onPress={() => handleChatPress(chat.id)}
+      >
+        <View style={styles.chatAvatarContainer}>
+          {chat.photo ? (
+            <Image source={{ uri: chat.photo }} style={styles.chatAvatar} />
+          ) : (
+            <View style={styles.chatAvatarPlaceholder}>
+              <Ionicons name="person" size={24} color="#9CA3AF" />
             </View>
           )}
+          {chat.isOnline && <View style={styles.onlineIndicator} />}
         </View>
-      </View>
-    </TouchableOpacity>
+        
+        <View style={styles.chatContent}>
+          <View style={styles.chatHeader}>
+            <Text style={styles.chatName}>
+              {chat.name}
+            </Text>
+            <Text style={styles.chatTimestamp}>{chat.timestamp}</Text>
+          </View>
+          
+          <View style={styles.chatFooter}>
+            <Text style={styles.chatMessage} numberOfLines={1}>
+              {chat.lastMessage}
+            </Text>
+            {chat.unreadCount && (
+              <View style={styles.unreadBadge}>
+                <Text style={styles.unreadText}>{chat.unreadCount}</Text>
+              </View>
+            )}
+          </View>
+        </View>
+      </TouchableOpacity>
+      <View style={styles.chatSeparator} />
+    </View>
   );
 
   return (
@@ -452,6 +454,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
+  },
+  chatSeparator: {
+    height: 1,
+    backgroundColor: '#E5E7EB',
+    marginLeft: spacing.lg + 56 + spacing.md, // paddingLeft + avatar width + avatar margin
   },
   chatAvatarContainer: {
     position: 'relative',

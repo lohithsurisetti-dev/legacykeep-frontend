@@ -128,6 +128,62 @@ const CreateScreen: React.FC = () => {
       icon: 'flower-outline',
       gradient: ['#7c2d12', '#991b1b'],
       description: 'Document religious practices, spiritual teachings, and sacred traditions.'
+    },
+    {
+      id: 'video',
+      title: 'Video',
+      subtitle: 'Record moments',
+      icon: 'videocam-outline',
+      gradient: ['#dc2626', '#b91c1c'],
+      description: 'Create video messages, tutorials, or capture special family moments.'
+    },
+    {
+      id: 'music',
+      title: 'Music',
+      subtitle: 'Share melodies',
+      icon: 'musical-notes-outline',
+      gradient: ['#7c3aed', '#6b21a8'],
+      description: 'Record songs, instrumental pieces, or musical memories.'
+    },
+    {
+      id: 'letter',
+      title: 'Letter',
+      subtitle: 'Write to family',
+      icon: 'mail-outline',
+      gradient: ['#059669', '#047857'],
+      description: 'Write personal letters, messages, or notes to family members.'
+    },
+    {
+      id: 'journal',
+      title: 'Journal',
+      subtitle: 'Daily thoughts',
+      icon: 'book-outline',
+      gradient: ['#0f766e', '#134e4a'],
+      description: 'Keep a personal journal or diary for future generations to read.'
+    },
+    {
+      id: 'artwork',
+      title: 'Artwork',
+      subtitle: 'Creative expression',
+      icon: 'color-palette-outline',
+      gradient: ['#ea580c', '#c2410c'],
+      description: 'Share drawings, paintings, or other creative works.'
+    },
+    {
+      id: 'poetry',
+      title: 'Poetry',
+      subtitle: 'Express feelings',
+      icon: 'heart-outline',
+      gradient: ['#be185d', '#9d174d'],
+      description: 'Write poems, verses, or creative expressions of love and memories.'
+    },
+    {
+      id: 'timeline',
+      title: 'Timeline',
+      subtitle: 'Life events',
+      icon: 'time-outline',
+      gradient: ['#64748b', '#475569'],
+      description: 'Create a timeline of important life events and milestones.'
     }
   ];
 
@@ -283,75 +339,176 @@ const CreateScreen: React.FC = () => {
           scrollEventThrottle={16}
         >
         <View style={styles.content}>
+          {/* Hero Section */}
+          <View style={styles.heroSection}>
+            <View style={styles.heroContent}>
+              <Text style={styles.heroTitle}>Create Your Legacy</Text>
+              <Text style={styles.heroSubtitle}>Preserve memories, share stories, and connect generations</Text>
+            </View>
+            <View style={styles.heroDecorative}>
+              <Ionicons name="sparkles" size={32} color="#6366F1" />
+            </View>
+          </View>
 
-             {/* Ping Feature Card - Compact Showcase */}
-             <TouchableOpacity 
-               style={styles.pingFeatureCard}
-               onPress={() => setShowPingCreator(true)}
-               activeOpacity={0.8}
-             >
-                <View style={styles.pingFeatureGlassmorphism}>
-                  <View style={styles.pingFeatureContent}>
-                    <View style={styles.pingFeatureIcon}>
-                      <Ionicons name="radio" size={24} color="#247B7B" />
-                    </View>
-                    <View style={styles.pingFeatureText}>
-                      <Text style={styles.pingFeatureTitle}>Ping & Pong</Text>
-                      <Text style={styles.pingFeatureSubtitle}>Quick family support</Text>
-                    </View>
-                    <View style={styles.pingFeatureArrow}>
-                      <Ionicons name="chevron-forward" size={20} color="#247B7B" />
+          {/* Quick Actions Row */}
+          <View style={styles.quickActionsRow}>
+            <TouchableOpacity style={styles.quickActionCard}>
+              <LinearGradient colors={['#6366F1', '#8B5CF6']} style={styles.quickActionGradient}>
+                <Ionicons name="images" size={24} color="white" />
+                <Text style={styles.quickActionText}>Media</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.quickActionCard}>
+              <LinearGradient colors={['#10B981', '#059669']} style={styles.quickActionGradient}>
+                <Ionicons name="mic" size={24} color="white" />
+                <Text style={styles.quickActionText}>Voice</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.quickActionCard}>
+              <LinearGradient colors={['#F59E0B', '#D97706']} style={styles.quickActionGradient}>
+                <Ionicons name="document-text" size={24} color="white" />
+                <Text style={styles.quickActionText}>Note</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.quickActionCard}>
+              <LinearGradient colors={['#8B5CF6', '#7C3AED']} style={styles.quickActionGradient}>
+                <Ionicons name="notifications" size={24} color="white" />
+                <Text style={styles.quickActionText}>Remind</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+
+          {/* Premium Feature Cards */}
+          <View style={styles.premiumFeaturesSection}>
+            <Text style={styles.sectionTitle}>Premium Features</Text>
+            
+            {/* Ping Feature Card */}
+            <TouchableOpacity 
+              style={styles.premiumCard}
+              onPress={() => setShowPingCreator(true)}
+              activeOpacity={0.8}
+            >
+              <LinearGradient colors={['#247B7B', '#1A5F5F']} style={styles.premiumCardGradient}>
+                <View style={styles.premiumCardContent}>
+                  <View style={styles.premiumIconContainer}>
+                    <Ionicons name="radio" size={28} color="white" />
+                  </View>
+                  <View style={styles.premiumTextContainer}>
+                    <Text style={styles.premiumCardTitle}>Ping & Pong</Text>
+                    <Text style={styles.premiumCardSubtitle}>Quick family support & connection</Text>
+                    <View style={styles.premiumBadge}>
+                      <Text style={styles.premiumBadgeText}>NEW</Text>
                     </View>
                   </View>
+                  <View style={styles.premiumArrow}>
+                    <Ionicons name="arrow-forward" size={20} color="white" />
+                  </View>
                 </View>
-             </TouchableOpacity>
+              </LinearGradient>
+            </TouchableOpacity>
 
-             {/* Dream Vault */}
-             <TouchableOpacity style={styles.dreamSection}>
-               <View style={styles.dreamGlassmorphism}>
-                 <View style={styles.dreamContent}>
-                   <View style={styles.dreamIcon}>
-                     <Ionicons name="moon-outline" size={24} color="#3b5998" />
-                   </View>
-                   <View style={styles.dreamText}>
-                     <Text style={styles.dreamTitle}>Dream Vault</Text>
-                     <Text style={styles.dreamSubtitle}>Record and visualise dreams</Text>
-                   </View>
-                   <View style={styles.dreamArrow}>
-                     <Ionicons name="chevron-forward" size={20} color="#3b5998" />
-                   </View>
-                 </View>
-               </View>
-             </TouchableOpacity>
+            {/* Dream Vault Card */}
+            <TouchableOpacity style={styles.premiumCard}>
+              <LinearGradient colors={['#3b5998', '#2E4A7A']} style={styles.premiumCardGradient}>
+                <View style={styles.premiumCardContent}>
+                  <View style={styles.premiumIconContainer}>
+                    <Ionicons name="moon" size={28} color="white" />
+                  </View>
+                  <View style={styles.premiumTextContainer}>
+                    <Text style={styles.premiumCardTitle}>Dream Vault</Text>
+                    <Text style={styles.premiumCardSubtitle}>Record and visualize dreams</Text>
+                    <View style={styles.premiumStats}>
+                      <Text style={styles.premiumStatsText}>12 dreams recorded</Text>
+                    </View>
+                  </View>
+                  <View style={styles.premiumArrow}>
+                    <Ionicons name="arrow-forward" size={20} color="white" />
+                  </View>
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
 
-             {/* Content Types Grid */}
-             <ScrollView 
-               horizontal 
-               showsHorizontalScrollIndicator={false}
-               style={styles.contentScrollView}
-               contentContainerStyle={styles.contentScrollContent}
-             >
-               {Array.from({ length: Math.ceil(contentTypes.length / 4) }, (_, groupIndex) => (
-                 <View key={groupIndex} style={styles.contentGroup}>
-                   {contentTypes.slice(groupIndex * 4, (groupIndex + 1) * 4).map((contentType) => (
-                     <TouchableOpacity
-                       key={contentType.id}
-                       style={[styles.contentCard, { borderColor: contentType.gradient[0] }]}
-                       onPress={() => handleContentTypePress(contentType)}
-                       activeOpacity={0.7}
-                     >
-                       <View style={[styles.cardIcon, { backgroundColor: contentType.gradient[0] + '15' }]}>
-                         <Ionicons name={contentType.icon} size={20} color={contentType.gradient[0]} />
-                       </View>
-                       <Text style={styles.cardTitle}>{contentType.title}</Text>
-                     </TouchableOpacity>
-                   ))}
-                 </View>
-               ))}
-             </ScrollView>
+            {/* Events & Planning Card */}
+            <TouchableOpacity style={styles.premiumCard}>
+              <LinearGradient colors={['#EA580C', '#C2410C']} style={styles.premiumCardGradient}>
+                <View style={styles.premiumCardContent}>
+                  <View style={styles.premiumIconContainer}>
+                    <Ionicons name="calendar" size={28} color="white" />
+                  </View>
+                  <View style={styles.premiumTextContainer}>
+                    <Text style={styles.premiumCardTitle}>Events & Planning</Text>
+                    <Text style={styles.premiumCardSubtitle}>Plan family gatherings</Text>
+                    <View style={styles.premiumStats}>
+                      <Text style={styles.premiumStatsText}>3 upcoming events</Text>
+                    </View>
+                  </View>
+                  <View style={styles.premiumArrow}>
+                    <Ionicons name="arrow-forward" size={20} color="white" />
+                  </View>
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
 
+          {/* Content Creation Hub */}
+          <View style={styles.contentHubSection}>
+            <View style={styles.contentHubHeader}>
+              <Text style={styles.sectionTitle}>Create Content</Text>
+              <TouchableOpacity style={styles.viewAllButton}>
+                <Text style={styles.viewAllText}>View All</Text>
+                <Ionicons name="chevron-forward" size={16} color="#6366F1" />
+              </TouchableOpacity>
+            </View>
+            
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false}
+              style={styles.contentHubScroll}
+              contentContainerStyle={styles.contentHubScrollContent}
+            >
+              {Array.from({ length: Math.ceil(contentTypes.length / 2) }, (_, groupIndex) => (
+                <View key={groupIndex} style={styles.contentHubGroup}>
+                  {contentTypes.slice(groupIndex * 2, (groupIndex + 1) * 2).map((contentType) => (
+                    <TouchableOpacity
+                      key={contentType.id}
+                      style={styles.contentHubCard}
+                      onPress={() => handleContentTypePress(contentType)}
+                      activeOpacity={0.7}
+                    >
+                      <LinearGradient 
+                        colors={[contentType.gradient[0] + '20', contentType.gradient[1] + '10']} 
+                        style={styles.contentHubCardGradient}
+                      >
+                        <View style={[styles.contentHubIcon, { backgroundColor: contentType.gradient[0] }]}>
+                          <Ionicons name={contentType.icon} size={24} color="white" />
+                        </View>
+                        <Text style={styles.contentHubTitle}>{contentType.title}</Text>
+                        <Text style={styles.contentHubSubtitle}>{contentType.subtitle}</Text>
+                      </LinearGradient>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ))}
+            </ScrollView>
+          </View>
 
-           </View>
+          {/* Inspiration Section */}
+          <View style={styles.inspirationSection}>
+            <Text style={styles.sectionTitle}>Today's Inspiration</Text>
+            <View style={styles.inspirationCard}>
+              <View style={styles.inspirationContent}>
+                <Text style={styles.inspirationQuote}>"Every family has a story worth preserving"</Text>
+                <Text style={styles.inspirationAuthor}>- LegacyKeep Team</Text>
+              </View>
+              <View style={styles.inspirationIcon}>
+                <Ionicons name="heart" size={24} color="#EF4444" />
+              </View>
+            </View>
+          </View>
+        </View>
          </Animated.ScrollView>
 
         {/* Content Creation Modal */}
@@ -469,17 +626,242 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
   },
 
-  // Header
-  header: {
-    marginBottom: spacing.lg,
+  // Hero Section
+  heroSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.xl,
+    paddingVertical: spacing.lg,
   },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: '700',
+  heroContent: {
+    flex: 1,
+  },
+  heroTitle: {
+    fontSize: 28,
+    fontWeight: '800',
     color: colors.text.primary,
+    marginBottom: spacing.xs,
+    letterSpacing: -0.5,
+  },
+  heroSubtitle: {
+    fontSize: 16,
+    color: colors.text.secondary,
+    lineHeight: 24,
+  },
+  heroDecorative: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#6366F115',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
-  // Ping Feature Card - Glassmorphism Style
+  // Quick Actions Row
+  quickActionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: spacing.xl,
+  },
+  quickActionCard: {
+    flex: 1,
+    marginHorizontal: spacing.xs,
+    borderRadius: 16,
+    overflow: 'hidden',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+  },
+  quickActionGradient: {
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 80,
+  },
+  quickActionText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
+    marginTop: spacing.xs,
+  },
+
+  // Premium Features Section
+  premiumFeaturesSection: {
+    marginBottom: spacing.xl,
+  },
+  premiumCard: {
+    marginBottom: spacing.md,
+    borderRadius: 20,
+    overflow: 'hidden',
+    elevation: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+  },
+  premiumCardGradient: {
+    padding: spacing.lg,
+  },
+  premiumCardContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  premiumIconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: spacing.lg,
+  },
+  premiumTextContainer: {
+    flex: 1,
+  },
+  premiumCardTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: 'white',
+    marginBottom: spacing.xs,
+  },
+  premiumCardSubtitle: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.8)',
+    marginBottom: spacing.sm,
+  },
+  premiumBadge: {
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    borderRadius: 12,
+    alignSelf: 'flex-start',
+  },
+  premiumBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: 'white',
+    letterSpacing: 0.5,
+  },
+  premiumStats: {
+    marginTop: spacing.xs,
+  },
+  premiumStatsText: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontWeight: '500',
+  },
+  premiumArrow: {
+    marginLeft: spacing.sm,
+  },
+
+  // Content Hub Section
+  contentHubSection: {
+    marginBottom: spacing.xl,
+  },
+  contentHubHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.lg,
+  },
+  viewAllButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+  },
+  viewAllText: {
+    fontSize: 14,
+    color: '#6366F1',
+    fontWeight: '600',
+    marginRight: 4,
+  },
+  contentHubScroll: {
+    marginHorizontal: -spacing.lg,
+  },
+  contentHubScrollContent: {
+    paddingHorizontal: spacing.lg,
+  },
+  contentHubGroup: {
+    width: 200,
+    marginRight: spacing.md,
+  },
+  contentHubCard: {
+    marginBottom: spacing.md,
+    borderRadius: 16,
+    overflow: 'hidden',
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+  },
+  contentHubCardGradient: {
+    padding: spacing.lg,
+    minHeight: 120,
+  },
+  contentHubIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+  contentHubTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text.primary,
+    marginBottom: spacing.xs,
+  },
+  contentHubSubtitle: {
+    fontSize: 12,
+    color: colors.text.secondary,
+    lineHeight: 16,
+  },
+
+  // Inspiration Section
+  inspirationSection: {
+    marginBottom: spacing.xl,
+  },
+  inspirationCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 16,
+    padding: spacing.lg,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  inspirationContent: {
+    flex: 1,
+  },
+  inspirationQuote: {
+    fontSize: 16,
+    fontStyle: 'italic',
+    color: colors.text.primary,
+    marginBottom: spacing.sm,
+    lineHeight: 24,
+  },
+  inspirationAuthor: {
+    fontSize: 14,
+    color: colors.text.secondary,
+    fontWeight: '500',
+  },
+  inspirationIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#FEF2F2',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: spacing.lg,
+  },
+
+  // Ping Feature Card - Premium Glassmorphism Style
   pingFeatureCard: {
     marginBottom: spacing.md,
     borderRadius: 20,
@@ -487,16 +869,21 @@ const styles = StyleSheet.create({
     elevation: 8,
     shadowColor: '#247B7B',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.2,
     shadowRadius: 16,
     minHeight: 64,
   },
   pingFeatureGlassmorphism: {
-    backgroundColor: 'rgba(36, 123, 123, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderWidth: 1.5,
-    borderColor: 'rgba(36, 123, 123, 0.3)',
+    borderColor: 'rgba(36, 123, 123, 0.2)',
     borderRadius: 20,
     padding: spacing.md,
+    shadowColor: '#247B7B',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
   pingFeatureContent: {
     flexDirection: 'row',
@@ -506,13 +893,13 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.35)',
+    backgroundColor: 'rgba(36, 123, 123, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: spacing.md,
     borderWidth: 1.5,
-    borderColor: 'rgba(90, 90, 154, 0.3)',
-    shadowColor: '#4A4A8A',
+    borderColor: 'rgba(36, 123, 123, 0.3)',
+    shadowColor: '#247B7B',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -537,6 +924,17 @@ const styles = StyleSheet.create({
   },
 
   // Content Grid - Horizontal Scroll
+  contentSection: {
+    marginBottom: spacing.md,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: colors.text.primary,
+    marginBottom: 0, // Remove marginBottom to prevent misalignment
+    letterSpacing: -0.3,
+    flex: 1, // Allow title to take available space
+  },
   contentScrollView: {
     marginBottom: spacing.md,
   },
@@ -581,7 +979,7 @@ const styles = StyleSheet.create({
   },
 
 
-  // Dream Vault
+  // Dream Vault - Premium Glassmorphism Style
   dreamSection: {
     marginBottom: spacing.md,
     borderRadius: 20,
@@ -589,16 +987,21 @@ const styles = StyleSheet.create({
     elevation: 8,
     shadowColor: '#3b5998',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.2,
     shadowRadius: 16,
     minHeight: 64,
   },
   dreamGlassmorphism: {
-    backgroundColor: 'rgba(59, 89, 152, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderWidth: 1.5,
-    borderColor: 'rgba(59, 89, 152, 0.3)',
+    borderColor: 'rgba(59, 89, 152, 0.2)',
     borderRadius: 20,
     padding: spacing.md,
+    shadowColor: '#3b5998',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
   dreamContent: {
     flexDirection: 'row',
@@ -649,13 +1052,75 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.35)',
+    backgroundColor: 'rgba(59, 89, 152, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1.5,
     borderColor: 'rgba(59, 89, 152, 0.3)',
     marginRight: spacing.md,
     shadowColor: '#3b5998',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+
+  // Events & Planning - Premium Glassmorphism Style
+  eventsSection: {
+    marginBottom: spacing.md,
+    borderRadius: 20,
+    overflow: 'hidden',
+    elevation: 8,
+    shadowColor: '#EA580C',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    minHeight: 64,
+  },
+  eventsGlassmorphism: {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(234, 88, 12, 0.2)',
+    borderRadius: 20,
+    padding: spacing.md,
+    shadowColor: '#EA580C',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  eventsContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  eventsText: {
+    flex: 1,
+  },
+  eventsTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#EA580C',
+    marginBottom: 2,
+  },
+  eventsSubtitle: {
+    fontSize: 12,
+    color: '#C2410C',
+    fontWeight: '500',
+  },
+  eventsArrow: {
+    marginLeft: spacing.sm,
+  },
+  eventsIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(234, 88, 12, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: 'rgba(234, 88, 12, 0.3)',
+    marginRight: spacing.md,
+    shadowColor: '#EA580C',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -851,56 +1316,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border.medium,
     maxHeight: 300,
-  },
-  familyMemberCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.sm,
-    borderRadius: 8,
-    marginBottom: spacing.sm,
-  },
-  selectedFamilyMember: {
-    backgroundColor: colors.primary[50],
-    borderWidth: 1,
-    borderColor: colors.primary[200],
-  },
-  memberAvatar: {
-    marginRight: spacing.md,
-  },
-  avatarImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-  },
-  avatarPlaceholder: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.primary[200],
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  avatarText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.primary[700],
-  },
-  memberInfo: {
-    flex: 1,
-  },
-  memberName: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: colors.text.primary,
-    marginBottom: 2,
-  },
-  memberRelationship: {
-    fontSize: 14,
-    color: colors.text.secondary,
-  },
-  selectedIndicator: {
-    marginLeft: spacing.sm,
   },
 
   // Modal Actions
