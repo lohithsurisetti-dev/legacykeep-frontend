@@ -6,24 +6,84 @@ import { Ping, Pong, PingIntent, PongType, PingStatus } from '../types/pingpong.
 
 export const mockPings: Ping[] = [
   {
+    id: 'ping_6',
+    userId: 'user_7',
+    familyId: 'family_1',
+    intent: PingIntent.CHECK_IN,
+    message: 'Quick family meetup at the park? Anyone free in 30 mins?',
+    durationMinutes: 30,
+    expiresAt: new Date(Date.now() + 25 * 60 * 1000).toISOString(), // 25 minutes from now
+    status: PingStatus.ACTIVE,
+    contextData: {
+      eventType: 'MEETUP',
+      location: 'Central Park',
+      urgency: 'LOW'
+    },
+    createdAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(), // 5 minutes ago
+    updatedAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+    userName: 'Kamala Devi',
+    userAvatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face',
+    timeRemaining: 25 * 60, // 25 minutes in seconds
+    aggregation: {
+      hugCount: 2,
+      prayerCount: 0,
+      tipCount: 1,
+      callOfferCount: 3,
+      checklistCount: 0,
+      timerCount: 0,
+      totalPongs: 6,
+      lastUpdated: new Date(Date.now() - 2 * 60 * 1000).toISOString()
+    }
+  },
+  {
+    id: 'ping_7',
+    userId: 'user_8',
+    familyId: 'family_1',
+    intent: PingIntent.BOOST,
+    message: 'Gaming night! Who\'s up for some family Mario Kart? 🎮',
+    durationMinutes: 30,
+    expiresAt: new Date(Date.now() + 20 * 60 * 1000).toISOString(), // 20 minutes from now
+    status: PingStatus.ACTIVE,
+    contextData: {
+      eventType: 'GAMING',
+      gameType: 'Mario Kart',
+      urgency: 'MEDIUM'
+    },
+    createdAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(), // 10 minutes ago
+    updatedAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+    userName: 'Mike Thompson',
+    userAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
+    timeRemaining: 20 * 60, // 20 minutes in seconds
+    aggregation: {
+      hugCount: 1,
+      prayerCount: 0,
+      tipCount: 0,
+      callOfferCount: 4,
+      checklistCount: 1,
+      timerCount: 0,
+      totalPongs: 6,
+      lastUpdated: new Date(Date.now() - 1 * 60 * 1000).toISOString()
+    }
+  },
+  {
     id: 'ping_1',
     userId: 'user_2',
     familyId: 'family_1',
     intent: PingIntent.BOOST,
     message: 'Interview in 10 minutes!',
     durationMinutes: 30,
-    expiresAt: new Date(Date.now() + 25 * 60 * 1000).toISOString(), // 25 minutes from now
+    expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(), // 5 minutes from now
     status: PingStatus.ACTIVE,
     contextData: {
       eventType: 'INTERVIEW',
       location: 'Tech Corp Office',
       urgency: 'HIGH'
     },
-    createdAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(), // 5 minutes ago
-    updatedAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+    createdAt: new Date(Date.now() - 25 * 60 * 1000).toISOString(), // 25 minutes ago
+    updatedAt: new Date(Date.now() - 25 * 60 * 1000).toISOString(),
     userName: 'John Doe',
-    userAvatar: 'https://example.com/avatar1.jpg',
-    timeRemaining: 25 * 60, // 25 minutes in seconds
+    userAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+    timeRemaining: 5 * 60, // 5 minutes in seconds
     aggregation: {
       hugCount: 3,
       prayerCount: 1,
@@ -51,7 +111,7 @@ export const mockPings: Ping[] = [
     createdAt: new Date(Date.now() - 15 * 60 * 1000).toISOString(), // 15 minutes ago
     updatedAt: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
     userName: 'Sarah Johnson',
-    userAvatar: 'https://example.com/avatar2.jpg',
+    userAvatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
     timeRemaining: 45 * 60, // 45 minutes in seconds
     aggregation: {
       hugCount: 1,
@@ -79,8 +139,8 @@ export const mockPings: Ping[] = [
     },
     createdAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(), // 10 minutes ago
     updatedAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
-    userName: 'Mom',
-    userAvatar: 'https://example.com/avatar3.jpg',
+    userName: 'Priya Sharma',
+    userAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face',
     timeRemaining: 20 * 60, // 20 minutes in seconds
     aggregation: {
       hugCount: 5,
@@ -108,8 +168,8 @@ export const mockPings: Ping[] = [
     },
     createdAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(), // 5 minutes ago
     updatedAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
-    userName: 'Dad',
-    userAvatar: 'https://example.com/avatar4.jpg',
+    userName: 'Rajesh Kumar',
+    userAvatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
     timeRemaining: 5 * 60, // 5 minutes in seconds
     aggregation: {
       hugCount: 4,
@@ -138,7 +198,7 @@ export const mockPings: Ping[] = [
     createdAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(), // 10 minutes ago
     updatedAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
     userName: 'Emma Wilson',
-    userAvatar: 'https://example.com/avatar5.jpg',
+    userAvatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
     timeRemaining: 50 * 60, // 50 minutes in seconds
     aggregation: {
       hugCount: 2,
@@ -161,7 +221,7 @@ export const mockPongs: Pong[] = [
     pongType: PongType.HUG,
     createdAt: new Date(Date.now() - 4 * 60 * 1000).toISOString(),
     userName: 'Sarah Johnson',
-    userAvatar: 'https://example.com/avatar2.jpg'
+    userAvatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face'
   },
   {
     id: 'pong_2',
@@ -169,8 +229,8 @@ export const mockPongs: Pong[] = [
     userId: 'user_4',
     pongType: PongType.HUG,
     createdAt: new Date(Date.now() - 3 * 60 * 1000).toISOString(),
-    userName: 'Mom',
-    userAvatar: 'https://example.com/avatar3.jpg'
+    userName: 'Priya Sharma',
+    userAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face'
   },
   {
     id: 'pong_3',
@@ -179,8 +239,8 @@ export const mockPongs: Pong[] = [
     pongType: PongType.TIP,
     content: 'Remember to mention your project experience!',
     createdAt: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
-    userName: 'Dad',
-    userAvatar: 'https://example.com/avatar4.jpg'
+    userName: 'Rajesh Kumar',
+    userAvatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
   },
   {
     id: 'pong_4',
@@ -190,7 +250,7 @@ export const mockPongs: Pong[] = [
     content: 'You got this! Stay confident and be yourself.',
     createdAt: new Date(Date.now() - 1 * 60 * 1000).toISOString(),
     userName: 'Emma Wilson',
-    userAvatar: 'https://example.com/avatar5.jpg'
+    userAvatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face'
   },
   {
     id: 'pong_5',
@@ -198,8 +258,8 @@ export const mockPongs: Pong[] = [
     userId: 'user_7',
     pongType: PongType.PRAYER,
     createdAt: new Date(Date.now() - 1 * 60 * 1000).toISOString(),
-    userName: 'Grandma',
-    userAvatar: 'https://example.com/avatar6.jpg'
+    userName: 'Kamala Devi',
+    userAvatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face'
   },
   {
     id: 'pong_6',
@@ -207,8 +267,8 @@ export const mockPongs: Pong[] = [
     userId: 'user_8',
     pongType: PongType.CALL_OFFER,
     createdAt: new Date(Date.now() - 30 * 1000).toISOString(),
-    userName: 'Uncle Mike',
-    userAvatar: 'https://example.com/avatar7.jpg'
+    userName: 'Mike Thompson',
+    userAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face'
   },
   {
     id: 'pong_7',
@@ -216,8 +276,53 @@ export const mockPongs: Pong[] = [
     userId: 'user_9',
     pongType: PongType.HUG,
     createdAt: new Date(Date.now() - 20 * 1000).toISOString(),
-    userName: 'Aunt Lisa',
-    userAvatar: 'https://example.com/avatar8.jpg'
+    userName: 'Lisa Chen',
+    userAvatar: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=150&h=150&fit=crop&crop=face'
+  },
+  {
+    id: 'pong_8',
+    pingId: 'ping_6',
+    userId: 'user_2',
+    pongType: PongType.CALL_OFFER,
+    createdAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+    userName: 'John Doe',
+    userAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
+  },
+  {
+    id: 'pong_9',
+    pingId: 'ping_6',
+    userId: 'user_3',
+    pongType: PongType.HUG,
+    createdAt: new Date(Date.now() - 8 * 60 * 1000).toISOString(),
+    userName: 'Sarah Johnson',
+    userAvatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face'
+  },
+  {
+    id: 'pong_10',
+    pingId: 'ping_7',
+    userId: 'user_4',
+    pongType: PongType.CALL_OFFER,
+    createdAt: new Date(Date.now() - 12 * 60 * 1000).toISOString(),
+    userName: 'Priya Sharma',
+    userAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face'
+  },
+  {
+    id: 'pong_11',
+    pingId: 'ping_7',
+    userId: 'user_5',
+    pongType: PongType.CALL_OFFER,
+    createdAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+    userName: 'Rajesh Kumar',
+    userAvatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
+  },
+  {
+    id: 'pong_12',
+    pingId: 'ping_7',
+    userId: 'user_6',
+    pongType: PongType.CALL_OFFER,
+    createdAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+    userName: 'Emma Wilson',
+    userAvatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face'
   }
 ];
 
@@ -232,49 +337,49 @@ export const mockFamilyMembers = [
   {
     id: 'user_2',
     name: 'John Doe',
-    avatar: 'https://example.com/avatar1.jpg',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
     relationship: 'brother'
   },
   {
     id: 'user_3',
     name: 'Sarah Johnson',
-    avatar: 'https://example.com/avatar2.jpg',
+    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
     relationship: 'sister'
   },
   {
     id: 'user_4',
-    name: 'Mom',
-    avatar: 'https://example.com/avatar3.jpg',
+    name: 'Priya Sharma',
+    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face',
     relationship: 'mother'
   },
   {
     id: 'user_5',
-    name: 'Dad',
-    avatar: 'https://example.com/avatar4.jpg',
+    name: 'Rajesh Kumar',
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
     relationship: 'father'
   },
   {
     id: 'user_6',
     name: 'Emma Wilson',
-    avatar: 'https://example.com/avatar5.jpg',
+    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
     relationship: 'cousin'
   },
   {
     id: 'user_7',
-    name: 'Grandma',
-    avatar: 'https://example.com/avatar6.jpg',
+    name: 'Kamala Devi',
+    avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face',
     relationship: 'grandmother'
   },
   {
     id: 'user_8',
-    name: 'Uncle Mike',
-    avatar: 'https://example.com/avatar7.jpg',
+    name: 'Mike Thompson',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
     relationship: 'uncle'
   },
   {
     id: 'user_9',
-    name: 'Aunt Lisa',
-    avatar: 'https://example.com/avatar8.jpg',
+    name: 'Lisa Chen',
+    avatar: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=150&h=150&fit=crop&crop=face',
     relationship: 'aunt'
   }
 ];

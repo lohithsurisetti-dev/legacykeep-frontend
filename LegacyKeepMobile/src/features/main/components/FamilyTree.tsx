@@ -7,6 +7,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Animated } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { typography, spacing } from '../../../shared/constants';
 import GenerationSection from './GenerationSection';
@@ -64,6 +65,12 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({
 }) => {
   const styles = createStyles(size);
   const scrollViewRef = useRef<ScrollView>(null);
+  
+  // Animation states
+  const [isLoading, setIsLoading] = useState(true);
+  const [fadeAnim] = useState(new Animated.Value(0));
+  const [shimmerAnim] = useState(new Animated.Value(0));
+  const [slideAnim] = useState(new Animated.Value(50));
 
   // Dynamic state management for expandable sections
   const [expandedSections, setExpandedSections] = useState<Set<string>>(() => {
@@ -91,23 +98,70 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({
     return defaultExpanded;
   });
 
+  // Shimmer animation
+  useEffect(() => {
+    const shimmerAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(shimmerAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shimmerAnim, {
+          toValue: 0,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    shimmerAnimation.start();
+
+    return () => shimmerAnimation.stop();
+  }, [shimmerAnim]);
+
+  // Loading and entrance animations
+  useEffect(() => {
+    // Simulate loading time
+    const loadingTimer = setTimeout(() => {
+      setIsLoading(false);
+      
+      // Entrance animations
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }, 1500);
+
+    return () => clearTimeout(loadingTimer);
+  }, [fadeAnim, slideAnim]);
+
   // Auto-scroll to "Your Generation" section on initial mount only
   useEffect(() => {
-    const timer = setTimeout(() => {
-      // Find the "Your Generation" section and scroll to it
-      const yourGenerationIndex = data.generations.findIndex(gen => gen.id === 'siblings');
-      if (yourGenerationIndex !== -1 && scrollViewRef.current) {
-        // Calculate approximate scroll position to center "Your Generation"
-        const scrollY = (yourGenerationIndex + 1) * 200; // Approximate height per section
-        scrollViewRef.current.scrollTo({
-          y: scrollY,
-          animated: true,
-        });
-      }
-    }, 500); // Small delay to ensure content is rendered
+    if (!isLoading) {
+      const timer = setTimeout(() => {
+        // Find the "Your Generation" section and scroll to it
+        const yourGenerationIndex = data.generations.findIndex(gen => gen.id === 'siblings');
+        if (yourGenerationIndex !== -1 && scrollViewRef.current) {
+          // Calculate approximate scroll position to center "Your Generation"
+          const scrollY = (yourGenerationIndex + 1) * 200; // Approximate height per section
+          scrollViewRef.current.scrollTo({
+            y: scrollY,
+            animated: true,
+          });
+        }
+      }, 500); // Small delay to ensure content is rendered
 
-    return () => clearTimeout(timer);
-  }, []); // Only run once on mount
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading]); // Run when loading finishes
 
   const toggleSection = (sectionId: string) => {
     setExpandedSections(prev => {
@@ -120,6 +174,33 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({
       return newSet;
     });
   };
+
+  // Shimmer skeleton component
+  const ShimmerSkeleton = () => (
+    <View style={styles.shimmerContainer}>
+      {[1, 2, 3, 4].map((item) => (
+        <Animated.View 
+          key={item} 
+          style={[
+            styles.shimmerItem,
+            {
+              opacity: shimmerAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0.3, 0.7],
+              }),
+            }
+          ]}
+        >
+          <LinearGradient
+            colors={['#f0f0f0', '#e0e0e0', '#f0f0f0']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.shimmerGradient}
+          />
+        </Animated.View>
+      ))}
+    </View>
+  );
 
   const renderGeneration = (generation: any) => (
     <GenerationSection
@@ -173,10 +254,20 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({
     </View>
   );
 
+  if (isLoading) {
+    return <ShimmerSkeleton />;
+  }
+
   return (
     <Animated.ScrollView 
       ref={scrollViewRef}
-      style={styles.container}
+      style={[
+        styles.container,
+        {
+          opacity: fadeAnim,
+          transform: [{ translateY: slideAnim }],
+        }
+      ]}
       showsVerticalScrollIndicator={false}
       onScroll={scrollY ? Animated.event(
         [{ nativeEvent: { contentOffset: { y: scrollY } } }],
@@ -185,24 +276,45 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({
       scrollEventThrottle={16}
     >
       {/* Tree Header */}
-      <View style={styles.header}>
-        <View style={styles.headerIconContainer}>
+      <Animated.View style={[
+        styles.header,
+        {
+          opacity: fadeAnim,
+          transform: [{ translateY: slideAnim }],
+        }
+      ]}>
+        <Animated.View style={[
+          styles.headerIconContainer,
+          {
+            transform: [{
+              scale: fadeAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0.8, 1],
+              })
+            }]
+          }
+        ]}>
           <Ionicons name="people" size={24} color="#3B9B9F" />
-        </View>
+        </Animated.View>
         <Text style={[styles.headerSubtitle, { color: themeColors.textSecondary }]}>
           Tap generations to explore your family
         </Text>
-      </View>
-
+      </Animated.View>
 
       {/* Family Tree Content */}
-      <View style={styles.treeContainer}>
+      <Animated.View style={[
+        styles.treeContainer,
+        {
+          opacity: fadeAnim,
+          transform: [{ translateY: slideAnim }],
+        }
+      ]}>
         {/* Render Generations */}
         {data.generations.map(renderGeneration)}
 
         {/* Render Side Sections */}
         {data.sideSections?.map(renderSideSection)}
-      </View>
+      </Animated.View>
     </Animated.ScrollView>
   );
 };
@@ -322,6 +434,22 @@ const createStyles = (size: 'small' | 'medium' | 'large') => StyleSheet.create({
     gap: spacing.lg,
     paddingHorizontal: spacing.md,
     marginBottom: spacing.sm,
+  },
+  // Shimmer styles
+  shimmerContainer: {
+    flex: 1,
+    padding: spacing.lg,
+  },
+  shimmerItem: {
+    height: 120,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 16,
+    marginBottom: spacing.md,
+    overflow: 'hidden',
+  },
+  shimmerGradient: {
+    flex: 1,
+    width: '100%',
   },
 });
 

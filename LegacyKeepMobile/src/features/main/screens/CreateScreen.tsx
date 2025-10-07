@@ -4,7 +4,7 @@
  * Premium content creation screen for legacy preservation and family sharing
  */
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -17,7 +17,9 @@ import {
   TextInput,
   Modal,
   Animated,
-  Alert
+  Alert,
+  Easing,
+  Vibration
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -63,6 +65,18 @@ const CreateScreen: React.FC = () => {
   
   // Ping & Pong state
   const [showPingCreator, setShowPingCreator] = useState(false);
+
+  // Animation values for micro-interactions
+  const heroAnim = useRef(new Animated.Value(0)).current;
+  const quickActionsAnim = useRef(new Animated.Value(0)).current;
+  const premiumCardsAnim = useRef(new Animated.Value(0)).current;
+  const contentHubAnim = useRef(new Animated.Value(0)).current;
+  const inspirationAnim = useRef(new Animated.Value(0)).current;
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  // Shimmer animation
+  const shimmerAnim = useRef(new Animated.Value(0)).current;
+  const [isLoading, setIsLoading] = useState(true);
 
   const contentTypes: ContentType[] = [
     {
@@ -267,6 +281,158 @@ const CreateScreen: React.FC = () => {
     ? `${user.firstName[0]}${user.lastName[0]}` 
     : 'U';
 
+  // Animation effects on mount
+  useEffect(() => {
+    const startAnimations = () => {
+      // Start shimmer animation
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(shimmerAnim, {
+            toValue: 1,
+            duration: 1000,
+            easing: Easing.linear,
+            useNativeDriver: true,
+          }),
+          Animated.timing(shimmerAnim, {
+            toValue: 0,
+            duration: 1000,
+            easing: Easing.linear,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+
+      // Main entrance animations
+      Animated.stagger(200, [
+        Animated.timing(heroAnim, {
+          toValue: 1,
+          duration: 800,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.timing(quickActionsAnim, {
+          toValue: 1,
+          duration: 600,
+          easing: Easing.out(Easing.back(1.2)),
+          useNativeDriver: true,
+        }),
+        Animated.timing(premiumCardsAnim, {
+          toValue: 1,
+          duration: 700,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.timing(contentHubAnim, {
+          toValue: 1,
+          duration: 600,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.timing(inspirationAnim, {
+          toValue: 1,
+          duration: 500,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        setIsLoading(false);
+        shimmerAnim.stopAnimation();
+      });
+
+    };
+
+    startAnimations();
+  }, []);
+
+  // Enhanced interaction handlers with haptic feedback
+  const handleQuickActionPress = (action: string) => {
+    Vibration.vibrate(50); // Light haptic feedback
+    setIsAnimating(true);
+    
+    // Success animation
+    Animated.sequence([
+      Animated.timing(quickActionsAnim, {
+        toValue: 1.05,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.timing(quickActionsAnim, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setIsAnimating(false);
+      // Handle action based on type
+      switch (action) {
+        case 'Media':
+          triggerSuccessAnimation('Media');
+          // Open camera/gallery
+          break;
+        case 'Voice':
+          triggerSuccessAnimation('Voice Note');
+          // Start voice recording
+          break;
+        case 'Note':
+          triggerSuccessAnimation('Text Note');
+          // Open note creation
+          break;
+        case 'Remind':
+          triggerSuccessAnimation('Reminder');
+          // Open reminder creation
+          break;
+      }
+    });
+  };
+
+  const handlePremiumCardPress = (feature: string) => {
+    Vibration.vibrate(30);
+    
+    Animated.sequence([
+      Animated.timing(premiumCardsAnim, {
+        toValue: 0.95,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(premiumCardsAnim, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    if (feature === 'ping') {
+      setShowPingCreator(true);
+    }
+  };
+
+  // Success celebration animation
+  const triggerSuccessAnimation = (element: string) => {
+    Vibration.vibrate([0, 100, 50, 100]); // Success pattern
+    
+    // Create a temporary success indicator
+    const successAnim = new Animated.Value(0);
+    
+    Animated.sequence([
+      Animated.timing(successAnim, {
+        toValue: 1,
+        duration: 300,
+        easing: Easing.out(Easing.back(1.5)),
+        useNativeDriver: true,
+      }),
+      Animated.timing(successAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    // Show success message
+    setTimeout(() => {
+      Alert.alert('Success!', `${element} created successfully! 🎉`);
+    }, 500);
+  };
+
   const renderContentTypeCard = (contentType: ContentType, index: number) => (
     <TouchableOpacity
       key={contentType.id}
@@ -319,6 +485,10 @@ const CreateScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
+      <LinearGradient
+        colors={['#F8FAFC', '#FFFFFF', '#F1F5F9']}
+        style={styles.backgroundGradient}
+      >
       <SafeAreaView style={styles.safeArea}>
         {/* Header */}
         <HomeHeader 
@@ -350,46 +520,129 @@ const CreateScreen: React.FC = () => {
             </View>
           </View>
 
+          {/* Shimmer Effect for Loading */}
+          {isLoading && (
+            <Animated.View style={[
+              styles.shimmerContainer,
+              {
+                opacity: shimmerAnim.interpolate({
+                  inputRange: [0, 0.5, 1],
+                  outputRange: [0.3, 0.7, 0.3],
+                }),
+              }
+            ]}>
+              <LinearGradient
+                colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.3)', 'rgba(255,255,255,0)']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.shimmerGradient}
+              />
+            </Animated.View>
+          )}
+
           {/* Quick Actions Row */}
-          <View style={styles.quickActionsRow}>
-            <TouchableOpacity style={styles.quickActionCard}>
+          <Animated.View style={[
+            styles.quickActionsRow,
+            {
+              transform: [
+                { 
+                  scale: quickActionsAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.8, 1],
+                  })
+                },
+                { 
+                  translateY: quickActionsAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [50, 0],
+                  })
+                }
+              ],
+              opacity: quickActionsAnim,
+            }
+          ]}>
+            <TouchableOpacity 
+              style={styles.quickActionCard}
+              onPress={() => handleQuickActionPress('Media')}
+              activeOpacity={0.8}
+            >
               <LinearGradient colors={['#6366F1', '#8B5CF6']} style={styles.quickActionGradient}>
                 <Ionicons name="images" size={24} color="white" />
                 <Text style={styles.quickActionText}>Media</Text>
               </LinearGradient>
             </TouchableOpacity>
             
-            <TouchableOpacity style={styles.quickActionCard}>
+            <TouchableOpacity 
+              style={styles.quickActionCard}
+              onPress={() => handleQuickActionPress('Voice')}
+              activeOpacity={0.8}
+            >
               <LinearGradient colors={['#10B981', '#059669']} style={styles.quickActionGradient}>
                 <Ionicons name="mic" size={24} color="white" />
                 <Text style={styles.quickActionText}>Voice</Text>
               </LinearGradient>
             </TouchableOpacity>
             
-            <TouchableOpacity style={styles.quickActionCard}>
+            <TouchableOpacity 
+              style={styles.quickActionCard}
+              onPress={() => handleQuickActionPress('Note')}
+              activeOpacity={0.8}
+            >
               <LinearGradient colors={['#F59E0B', '#D97706']} style={styles.quickActionGradient}>
                 <Ionicons name="document-text" size={24} color="white" />
                 <Text style={styles.quickActionText}>Note</Text>
               </LinearGradient>
             </TouchableOpacity>
             
-            <TouchableOpacity style={styles.quickActionCard}>
+            <TouchableOpacity 
+              style={styles.quickActionCard}
+              onPress={() => handleQuickActionPress('Remind')}
+              activeOpacity={0.8}
+            >
               <LinearGradient colors={['#8B5CF6', '#7C3AED']} style={styles.quickActionGradient}>
                 <Ionicons name="notifications" size={24} color="white" />
                 <Text style={styles.quickActionText}>Remind</Text>
               </LinearGradient>
             </TouchableOpacity>
-          </View>
+          </Animated.View>
 
           {/* Premium Feature Cards */}
-          <View style={styles.premiumFeaturesSection}>
+          <Animated.View style={[
+            styles.premiumFeaturesSection,
+            {
+              transform: [
+                { 
+                  scale: premiumCardsAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.9, 1],
+                  })
+                },
+                { 
+                  translateY: premiumCardsAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [30, 0],
+                  })
+                }
+              ],
+              opacity: premiumCardsAnim,
+            }
+          ]}>
             <Text style={styles.sectionTitle}>Premium Features</Text>
             
             {/* Ping Feature Card */}
             <TouchableOpacity 
               style={styles.premiumCard}
-              onPress={() => setShowPingCreator(true)}
+              onPress={() => handlePremiumCardPress('ping')}
+              onLongPress={() => {
+                Vibration.vibrate(200);
+                Alert.alert(
+                  'Ping & Pong',
+                  'Send quick support requests to family members. Perfect for when you need immediate help or just want to check in!',
+                  [{ text: 'Got it!', style: 'default' }]
+                );
+              }}
               activeOpacity={0.8}
+              delayLongPress={500}
             >
               <LinearGradient colors={['#247B7B', '#1A5F5F']} style={styles.premiumCardGradient}>
                 <View style={styles.premiumCardContent}>
@@ -411,7 +664,20 @@ const CreateScreen: React.FC = () => {
             </TouchableOpacity>
 
             {/* Dream Vault Card */}
-            <TouchableOpacity style={styles.premiumCard}>
+            <TouchableOpacity 
+              style={styles.premiumCard}
+              onPress={() => handlePremiumCardPress('dream')}
+              onLongPress={() => {
+                Vibration.vibrate(200);
+                Alert.alert(
+                  'Dream Vault',
+                  'Record and visualize your dreams. Track patterns, emotions, and recurring themes in your subconscious mind.',
+                  [{ text: 'Interesting!', style: 'default' }]
+                );
+              }}
+              activeOpacity={0.8}
+              delayLongPress={500}
+            >
               <LinearGradient colors={['#3b5998', '#2E4A7A']} style={styles.premiumCardGradient}>
                 <View style={styles.premiumCardContent}>
                   <View style={styles.premiumIconContainer}>
@@ -432,8 +698,21 @@ const CreateScreen: React.FC = () => {
             </TouchableOpacity>
 
             {/* Events & Planning Card */}
-            <TouchableOpacity style={styles.premiumCard}>
-              <LinearGradient colors={['#EA580C', '#C2410C']} style={styles.premiumCardGradient}>
+            <TouchableOpacity 
+              style={styles.premiumCard}
+              onPress={() => handlePremiumCardPress('events')}
+              onLongPress={() => {
+                Vibration.vibrate(200);
+                Alert.alert(
+                  'Events & Planning',
+                  'Plan family gatherings, track important dates, and coordinate events with your loved ones all in one place.',
+                  [{ text: 'Perfect!', style: 'default' }]
+                );
+              }}
+              activeOpacity={0.8}
+              delayLongPress={500}
+            >
+              <LinearGradient colors={['#F59E0B', '#D97706']} style={styles.premiumCardGradient}>
                 <View style={styles.premiumCardContent}>
                   <View style={styles.premiumIconContainer}>
                     <Ionicons name="calendar" size={28} color="white" />
@@ -451,10 +730,29 @@ const CreateScreen: React.FC = () => {
                 </View>
               </LinearGradient>
             </TouchableOpacity>
-          </View>
+          </Animated.View>
 
           {/* Content Creation Hub */}
-          <View style={styles.contentHubSection}>
+          <Animated.View style={[
+            styles.contentHubSection,
+            {
+              transform: [
+                { 
+                  scale: contentHubAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.95, 1],
+                  })
+                },
+                { 
+                  translateY: contentHubAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [20, 0],
+                  })
+                }
+              ],
+              opacity: contentHubAnim,
+            }
+          ]}>
             <View style={styles.contentHubHeader}>
               <Text style={styles.sectionTitle}>Create Content</Text>
               <TouchableOpacity style={styles.viewAllButton}>
@@ -493,10 +791,23 @@ const CreateScreen: React.FC = () => {
                 </View>
               ))}
             </ScrollView>
-          </View>
+          </Animated.View>
 
           {/* Inspiration Section */}
-          <View style={styles.inspirationSection}>
+          <Animated.View style={[
+            styles.inspirationSection,
+            {
+              transform: [
+                { 
+                  translateY: inspirationAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [15, 0],
+                  })
+                }
+              ],
+              opacity: inspirationAnim,
+            }
+          ]}>
             <Text style={styles.sectionTitle}>Today's Inspiration</Text>
             <View style={styles.inspirationCard}>
               <View style={styles.inspirationContent}>
@@ -507,7 +818,7 @@ const CreateScreen: React.FC = () => {
                 <Ionicons name="heart" size={24} color="#EF4444" />
               </View>
             </View>
-          </View>
+          </Animated.View>
         </View>
          </Animated.ScrollView>
 
@@ -530,9 +841,9 @@ const CreateScreen: React.FC = () => {
                 </TouchableOpacity>
                 <Text style={styles.modalTitle}>
                   Create {selectedContentType?.title}
-                </Text>
+            </Text>
                 <View style={styles.modalSpacer} />
-              </View>
+          </View>
 
               {/* Content Form */}
               <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
@@ -597,7 +908,7 @@ const CreateScreen: React.FC = () => {
           </View>
               </ScrollView>
         </View>
-          </SafeAreaView>
+      </SafeAreaView>
         </Modal>
 
         {/* Ping Creator Modal */}
@@ -606,7 +917,8 @@ const CreateScreen: React.FC = () => {
           onClose={() => setShowPingCreator(false)}
           onPingCreated={handlePingCreated}
         />
-      </SafeAreaView>
+        </SafeAreaView>
+      </LinearGradient>
     </View>
   );
 };
@@ -614,7 +926,9 @@ const CreateScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.neutral[50],
+  },
+  backgroundGradient: {
+    flex: 1,
   },
   safeArea: {
     flex: 1,
@@ -826,6 +1140,20 @@ const styles = StyleSheet.create({
   // Inspiration Section
   inspirationSection: {
     marginBottom: spacing.xl,
+  },
+
+  // Shimmer Effects
+  shimmerContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 4,
+    zIndex: 100,
+  },
+  shimmerGradient: {
+    flex: 1,
+    width: '100%',
   },
   inspirationCard: {
     flexDirection: 'row',
