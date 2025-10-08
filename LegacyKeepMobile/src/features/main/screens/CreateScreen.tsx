@@ -35,6 +35,12 @@ import { createMockPing } from '../data/mockPingPongData';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
+// Responsive scaling based on screen size
+const baseWidth = 375; // iPhone SE width as base
+const scale = screenWidth / baseWidth;
+const normalize = (size: number) => Math.round(size * scale);
+const responsiveIconSize = (base: number) => Math.min(normalize(base), base * 1.3); // Cap at 130% of base
+
 interface ContentType {
   id: string;
   title: string;
@@ -442,7 +448,7 @@ const CreateScreen: React.FC = () => {
     >
       <View style={styles.cardContent}>
         <View style={[styles.iconContainer, { backgroundColor: contentType.gradient[0] + '20' }]}>
-          <Ionicons name={contentType.icon} size={28} color={contentType.gradient[0]} />
+          <Ionicons name={contentType.icon} size={responsiveIconSize(28)} color={contentType.gradient[0]} />
         </View>
         <View style={styles.cardTextContainer}>
           <Text style={styles.cardTitle}>{contentType.title}</Text>
@@ -477,7 +483,7 @@ const CreateScreen: React.FC = () => {
       </View>
       {selectedFamilyMembers.includes(member.id) && (
         <View style={styles.selectedIndicator}>
-          <Ionicons name="checkmark-circle" size={24} color={colors.primary[500]} />
+          <Ionicons name="checkmark-circle" size={responsiveIconSize(24)} color={colors.primary[500]} />
         </View>
       )}
     </TouchableOpacity>
@@ -516,7 +522,7 @@ const CreateScreen: React.FC = () => {
               <Text style={styles.heroSubtitle}>Preserve memories, share stories, and connect generations</Text>
             </View>
             <View style={styles.heroDecorative}>
-              <Ionicons name="sparkles" size={32} color="#6366F1" />
+              <Ionicons name="sparkles" size={responsiveIconSize(32)} color="#6366F1" />
             </View>
           </View>
 
@@ -567,7 +573,7 @@ const CreateScreen: React.FC = () => {
               activeOpacity={0.8}
             >
               <LinearGradient colors={['#6366F1', '#8B5CF6']} style={styles.quickActionGradient}>
-                <Ionicons name="images" size={24} color="white" />
+                <Ionicons name="images" size={responsiveIconSize(24)} color="white" />
                 <Text style={styles.quickActionText}>Media</Text>
               </LinearGradient>
             </TouchableOpacity>
@@ -578,7 +584,7 @@ const CreateScreen: React.FC = () => {
               activeOpacity={0.8}
             >
               <LinearGradient colors={['#10B981', '#059669']} style={styles.quickActionGradient}>
-                <Ionicons name="mic" size={24} color="white" />
+                <Ionicons name="mic" size={responsiveIconSize(24)} color="white" />
                 <Text style={styles.quickActionText}>Voice</Text>
               </LinearGradient>
             </TouchableOpacity>
@@ -589,7 +595,7 @@ const CreateScreen: React.FC = () => {
               activeOpacity={0.8}
             >
               <LinearGradient colors={['#F59E0B', '#D97706']} style={styles.quickActionGradient}>
-                <Ionicons name="document-text" size={24} color="white" />
+                <Ionicons name="document-text" size={responsiveIconSize(24)} color="white" />
                 <Text style={styles.quickActionText}>Note</Text>
               </LinearGradient>
             </TouchableOpacity>
@@ -600,7 +606,7 @@ const CreateScreen: React.FC = () => {
               activeOpacity={0.8}
             >
               <LinearGradient colors={['#8B5CF6', '#7C3AED']} style={styles.quickActionGradient}>
-                <Ionicons name="notifications" size={24} color="white" />
+                <Ionicons name="notifications" size={responsiveIconSize(24)} color="white" />
                 <Text style={styles.quickActionText}>Remind</Text>
               </LinearGradient>
             </TouchableOpacity>
@@ -647,7 +653,7 @@ const CreateScreen: React.FC = () => {
               <LinearGradient colors={['#247B7B', '#1A5F5F']} style={styles.premiumCardGradient}>
                 <View style={styles.premiumCardContent}>
                   <View style={styles.premiumIconContainer}>
-                    <Ionicons name="radio" size={28} color="white" />
+                    <Ionicons name="radio" size={responsiveIconSize(28)} color="white" />
                   </View>
                   <View style={styles.premiumTextContainer}>
                     <Text style={styles.premiumCardTitle}>Ping & Pong</Text>
@@ -657,7 +663,7 @@ const CreateScreen: React.FC = () => {
                     </View>
                   </View>
                   <View style={styles.premiumArrow}>
-                    <Ionicons name="arrow-forward" size={20} color="white" />
+                    <Ionicons name="arrow-forward" size={responsiveIconSize(20)} color="white" />
                   </View>
                 </View>
               </LinearGradient>
@@ -681,7 +687,7 @@ const CreateScreen: React.FC = () => {
               <LinearGradient colors={['#3b5998', '#2E4A7A']} style={styles.premiumCardGradient}>
                 <View style={styles.premiumCardContent}>
                   <View style={styles.premiumIconContainer}>
-                    <Ionicons name="moon" size={28} color="white" />
+                    <Ionicons name="moon" size={responsiveIconSize(28)} color="white" />
                   </View>
                   <View style={styles.premiumTextContainer}>
                     <Text style={styles.premiumCardTitle}>Dream Vault</Text>
@@ -691,7 +697,7 @@ const CreateScreen: React.FC = () => {
                     </View>
                   </View>
                   <View style={styles.premiumArrow}>
-                    <Ionicons name="arrow-forward" size={20} color="white" />
+                    <Ionicons name="arrow-forward" size={responsiveIconSize(20)} color="white" />
                   </View>
                 </View>
               </LinearGradient>
@@ -715,7 +721,7 @@ const CreateScreen: React.FC = () => {
               <LinearGradient colors={['#F59E0B', '#D97706']} style={styles.premiumCardGradient}>
                 <View style={styles.premiumCardContent}>
                   <View style={styles.premiumIconContainer}>
-                    <Ionicons name="calendar" size={28} color="white" />
+                    <Ionicons name="calendar" size={responsiveIconSize(28)} color="white" />
                   </View>
                   <View style={styles.premiumTextContainer}>
                     <Text style={styles.premiumCardTitle}>Events & Planning</Text>
@@ -725,7 +731,7 @@ const CreateScreen: React.FC = () => {
                     </View>
                   </View>
                   <View style={styles.premiumArrow}>
-                    <Ionicons name="arrow-forward" size={20} color="white" />
+                    <Ionicons name="arrow-forward" size={responsiveIconSize(20)} color="white" />
                   </View>
                 </View>
               </LinearGradient>
@@ -757,7 +763,7 @@ const CreateScreen: React.FC = () => {
               <Text style={styles.sectionTitle}>Create Content</Text>
               <TouchableOpacity style={styles.viewAllButton}>
                 <Text style={styles.viewAllText}>View All</Text>
-                <Ionicons name="chevron-forward" size={16} color="#6366F1" />
+                <Ionicons name="chevron-forward" size={responsiveIconSize(16)} color="#6366F1" />
               </TouchableOpacity>
             </View>
             
@@ -781,7 +787,7 @@ const CreateScreen: React.FC = () => {
                         style={styles.contentHubCardGradient}
                       >
                         <View style={[styles.contentHubIcon, { backgroundColor: contentType.gradient[0] }]}>
-                          <Ionicons name={contentType.icon} size={24} color="white" />
+                          <Ionicons name={contentType.icon} size={responsiveIconSize(24)} color="white" />
                         </View>
                         <Text style={styles.contentHubTitle}>{contentType.title}</Text>
                         <Text style={styles.contentHubSubtitle}>{contentType.subtitle}</Text>
@@ -815,7 +821,7 @@ const CreateScreen: React.FC = () => {
                 <Text style={styles.inspirationAuthor}>- LegacyKeep Team</Text>
               </View>
               <View style={styles.inspirationIcon}>
-                <Ionicons name="heart" size={24} color="#EF4444" />
+                <Ionicons name="heart" size={responsiveIconSize(24)} color="#EF4444" />
               </View>
             </View>
           </Animated.View>
@@ -837,7 +843,7 @@ const CreateScreen: React.FC = () => {
                   onPress={() => setShowContentModal(false)}
                   style={styles.modalCloseButton}
                 >
-                  <Ionicons name="close" size={24} color={colors.text.primary} />
+                  <Ionicons name="close" size={responsiveIconSize(24)} color={colors.text.primary} />
                 </TouchableOpacity>
                 <Text style={styles.modalTitle}>
                   Create {selectedContentType?.title}
@@ -884,7 +890,7 @@ const CreateScreen: React.FC = () => {
             </Text>
                          <Ionicons
                            name={showFamilySelector ? "chevron-up" : "chevron-down"}
-                           size={16}
+                           size={responsiveIconSize(16)}
                            color={colors.primary[500]}
                          />
                        </TouchableOpacity>
@@ -952,21 +958,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   heroTitle: {
-    fontSize: 28,
+    fontSize: Math.max(normalize(28), 24),
     fontWeight: '800',
     color: colors.text.primary,
     marginBottom: spacing.xs,
     letterSpacing: -0.5,
   },
   heroSubtitle: {
-    fontSize: 16,
+    fontSize: Math.max(normalize(16), 14),
     color: colors.text.secondary,
-    lineHeight: 24,
+    lineHeight: normalize(24),
   },
   heroDecorative: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: normalize(60),
+    height: normalize(60),
+    borderRadius: normalize(30),
     backgroundColor: '#6366F115',
     justifyContent: 'center',
     alignItems: 'center',
@@ -994,7 +1000,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 80,
+    minHeight: normalize(80),
   },
   quickActionText: {
     color: 'white',
@@ -1025,9 +1031,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   premiumIconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: normalize(56),
+    height: normalize(56),
+    borderRadius: normalize(28),
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -1037,13 +1043,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   premiumCardTitle: {
-    fontSize: 18,
+    fontSize: Math.max(normalize(18), 16),
     fontWeight: '700',
     color: 'white',
     marginBottom: spacing.xs,
   },
   premiumCardSubtitle: {
-    fontSize: 14,
+    fontSize: Math.max(normalize(14), 12),
     color: 'rgba(255, 255, 255, 0.8)',
     marginBottom: spacing.sm,
   },
@@ -1300,7 +1306,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   cardTitle: {
-    fontSize: 11,
+    fontSize: Math.max(normalize(11), 10),
     fontWeight: '500',
     color: colors.text.primary,
     textAlign: 'center',
@@ -1477,9 +1483,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   iconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: normalize(32),
+    height: normalize(32),
+    borderRadius: normalize(16),
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: spacing.xs,
@@ -1488,7 +1494,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cardSubtitle: {
-    fontSize: 10,
+    fontSize: Math.max(normalize(10), 9),
     color: colors.text.secondary,
     textAlign: 'center',
     marginTop: 2,

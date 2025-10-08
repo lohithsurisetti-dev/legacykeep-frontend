@@ -16,6 +16,7 @@ import {
   Dimensions,
   Animated,
   StatusBar,
+  Vibration,
 } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
@@ -904,7 +905,7 @@ const ProfileScreen: React.FC<Props> = () => {
   const renderMiniTabs = () => {
     const tabs = [
       { id: 'photos', label: 'Photos', icon: 'images-outline' },
-      { id: 'timeline', label: 'Timeline', icon: 'time-outline' },
+      { id: 'inspirations', label: 'Inspirations', icon: 'heart-outline' },
       { id: 'tagged', label: 'Tagged', icon: 'person-outline' },
       { id: 'stories', label: 'Stories', icon: 'book-outline' },
     ];
@@ -950,181 +951,242 @@ const ProfileScreen: React.FC<Props> = () => {
      );
   };
 
-  const renderLifeTimeline = () => (
-    <View style={styles.legacyJourneyContainer}>
-      {/* Journey Overview */}
-      <View style={styles.journeyOverview}>
-        <View style={styles.overviewCard}>
-          <View style={styles.overviewHeader}>
-            <Ionicons name="compass" size={24} color={colors.primary[600]} />
-            <Text style={[styles.overviewTitle, { color: themeColors.text }]}>My Legacy Journey</Text>
-                </View>
-          <Text style={[styles.overviewSubtitle, { color: themeColors.textSecondary }]}>
-            A timeline of meaningful moments that shaped who I am today
+  // Inspirations data - role models, loved ones, people who inspire
+  const inspirations = [
+    {
+      id: 1,
+      name: 'Mahatma Gandhi',
+      role: 'Role Model',
+      quote: 'Be the change you wish to see in the world',
+      image: 'https://images.unsplash.com/photo-1605811324610-1e4d0fdfb0e1?w=600&h=800&fit=crop',
+      impact: 'Taught me the power of non-violence and truth',
+      category: 'Historical Figure',
+      resonanceCount: 127,
+      sharedWith: [
+        { name: 'Priya', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100' },
+        { name: 'John', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100' },
+        { name: 'Sarah', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100' },
+      ]
+    },
+    {
+      id: 2,
+      name: 'Mom',
+      role: 'First Teacher',
+      quote: 'Family is everything, never forget your roots',
+      image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&h=800&fit=crop',
+      impact: 'Showed me unconditional love and sacrifice',
+      category: 'Family',
+      resonanceCount: 245,
+      sharedWith: [
+        { name: 'Emma', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100' },
+        { name: 'Michael', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100' },
+      ]
+    },
+    {
+      id: 3,
+      name: 'APJ Abdul Kalam',
+      role: 'Inspiration',
+      quote: 'Dream is not what you see in sleep, it is the thing which doesn\'t let you sleep',
+      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=800&fit=crop',
+      impact: 'Inspired my passion for science and innovation',
+      category: 'Mentor',
+      resonanceCount: 189,
+      sharedWith: [
+        { name: 'David', avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=100' },
+        { name: 'Rajesh', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100' },
+        { name: 'Amit', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100' },
+        { name: '+5', avatar: '' },
+      ]
+    },
+    {
+      id: 4,
+      name: 'Grandpa',
+      role: 'Wisdom Keeper',
+      quote: 'Hard work never betrays, but dreams without action do',
+      image: 'https://images.unsplash.com/photo-1595152772835-219674b2a8a6?w=600&h=800&fit=crop',
+      impact: 'Taught me perseverance and family values',
+      category: 'Family',
+      resonanceCount: 312,
+      sharedWith: [
+        { name: 'Mom', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100' },
+      ]
+    },
+    {
+      id: 5,
+      name: 'Nelson Mandela',
+      role: 'Freedom Fighter',
+      quote: 'Education is the most powerful weapon to change the world',
+      image: 'https://images.unsplash.com/photo-1566753323558-f4e0952af115?w=600&h=800&fit=crop',
+      impact: 'Showed me the meaning of forgiveness and resilience',
+      category: 'Historical Figure',
+      resonanceCount: 201,
+      sharedWith: [
+        { name: 'Sarah', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100' },
+        { name: 'Emma', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100' },
+      ]
+    },
+  ];
+
+  const [currentInspiration, setCurrentInspiration] = useState(0);
+  const [resonatedInspirations, setResonatedInspirations] = useState<Set<number>>(new Set());
+  const inspirationScrollX = useRef(new Animated.Value(0)).current;
+
+  const handleResonance = (inspirationId: number) => {
+    Vibration.vibrate(30);
+    setResonatedInspirations(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(inspirationId)) {
+        newSet.delete(inspirationId);
+      } else {
+        newSet.add(inspirationId);
+      }
+      return newSet;
+    });
+  };
+
+  const renderInspirations = () => {
+    const cardWidth = width - 100;
+    const cardSpacing = 16;
+
+    return (
+      <View style={styles.inspirationsContainer}>
+        {/* Section Header */}
+        <View style={styles.inspirationsHeader}>
+          <Text style={styles.inspirationsTitle}>My Inspirations</Text>
+          <Text style={styles.inspirationsSubtitle}>
+            People who shaped my journey and inspired my path
           </Text>
-            </View>
-          </View>
-
-      {/* Journey Stats */}
-      <View style={styles.journeyStatsGrid}>
-        <View style={styles.statCard}>
-          <Text style={[styles.journeyStatNumber, { color: colors.primary[600] }]}>28</Text>
-          <Text style={[styles.journeyStatLabel, { color: themeColors.textSecondary }]}>Years</Text>
-                </View>
-        <View style={styles.statCard}>
-          <Text style={[styles.journeyStatNumber, { color: colors.secondary.teal[600] }]}>12</Text>
-          <Text style={[styles.journeyStatLabel, { color: themeColors.textSecondary }]}>Milestones</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Text style={[styles.journeyStatNumber, { color: colors.app.accent }]}>3</Text>
-          <Text style={[styles.journeyStatLabel, { color: themeColors.textSecondary }]}>Generations</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Text style={[styles.journeyStatNumber, { color: colors.success[600] }]}>∞</Text>
-          <Text style={[styles.journeyStatLabel, { color: themeColors.textSecondary }]}>Memories</Text>
-        </View>
-      </View>
-
-      {/* Life Chapters */}
-      <View style={styles.chaptersContainer}>
-        <Text style={[styles.chaptersTitle, { color: themeColors.text }]}>Life Chapters</Text>
-        
-        {/* Chapter 1: Foundation */}
-        <View style={styles.chapterCard}>
-          <View style={styles.chapterHeader}>
-            <View style={[styles.chapterIcon, { backgroundColor: colors.primary[100] }]}>
-              <Ionicons name="flower" size={20} color={colors.primary[600]} />
-                </View>
-            <View style={styles.chapterInfo}>
-              <Text style={[styles.chapterTitle, { color: themeColors.text }]}>Foundation Years</Text>
-              <Text style={[styles.chapterPeriod, { color: themeColors.textSecondary }]}>1995 - 2005</Text>
-            </View>
-            <View style={[styles.chapterBadge, { backgroundColor: colors.primary[50] }]}>
-              <Text style={[styles.chapterBadgeText, { color: colors.primary[600] }]}>Childhood</Text>
-            </View>
-          </View>
-          <Text style={[styles.chapterDescription, { color: themeColors.textSecondary }]}>
-            The formative years filled with wonder, learning, and family bonds that established my core values and character.
-          </Text>
-          <View style={styles.chapterHighlights}>
-            <View style={styles.highlightTag}>
-              <Ionicons name="school" size={14} color={colors.primary[600]} />
-              <Text style={[styles.highlightText, { color: colors.primary[600] }]}>First School Day</Text>
-            </View>
-            <View style={styles.highlightTag}>
-              <Ionicons name="heart" size={14} color={colors.primary[600]} />
-              <Text style={[styles.highlightText, { color: colors.primary[600] }]}>Family Traditions</Text>
-            </View>
-            <View style={styles.highlightTag}>
-              <Ionicons name="book" size={14} color={colors.primary[600]} />
-              <Text style={[styles.highlightText, { color: colors.primary[600] }]}>Learning to Read</Text>
-            </View>
-          </View>
         </View>
 
-        {/* Chapter 2: Growth */}
-        <View style={styles.chapterCard}>
-          <View style={styles.chapterHeader}>
-            <View style={[styles.chapterIcon, { backgroundColor: colors.secondary.teal[100] }]}>
-              <Ionicons name="trending-up" size={20} color={colors.secondary.teal[600]} />
+        {/* Premium Carousel */}
+        <Animated.ScrollView
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          snapToInterval={cardWidth + cardSpacing}
+          decelerationRate="fast"
+          contentContainerStyle={styles.carouselContent}
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { x: inspirationScrollX } } }],
+            { useNativeDriver: true }
+          )}
+          scrollEventThrottle={16}
+          onMomentumScrollEnd={(event) => {
+            const index = Math.round(event.nativeEvent.contentOffset.x / (cardWidth + cardSpacing));
+            setCurrentInspiration(index);
+          }}
+        >
+          {inspirations.map((person, index) => {
+            const inputRange = [
+              (index - 1) * (cardWidth + cardSpacing),
+              index * (cardWidth + cardSpacing),
+              (index + 1) * (cardWidth + cardSpacing),
+            ];
+
+            const scale = inspirationScrollX.interpolate({
+              inputRange,
+              outputRange: [0.85, 1, 0.85],
+              extrapolate: 'clamp',
+            });
+
+            const opacity = inspirationScrollX.interpolate({
+              inputRange,
+              outputRange: [0.5, 1, 0.5],
+              extrapolate: 'clamp',
+            });
+
+            const rotateY = inspirationScrollX.interpolate({
+              inputRange,
+              outputRange: ['20deg', '0deg', '-20deg'],
+              extrapolate: 'clamp',
+            });
+
+            return (
+              <Animated.View
+                key={person.id}
+                style={[
+                  styles.inspirationCard,
+                  {
+                    width: cardWidth,
+                    transform: [
+                      { perspective: 1000 },
+                      { scale },
+                      { rotateY },
+                    ],
+                    opacity,
+                  },
+                ]}
+              >
+                <LinearGradient
+                  colors={['rgba(255, 255, 255, 0.98)', 'rgba(249, 250, 251, 0.95)']}
+                  style={styles.inspirationGradient}
+                >
+                  {/* Image with Spotlight Effect */}
+                  <View style={styles.inspirationImageContainer}>
+                    <Image
+                      source={{ uri: person.image }}
+                      style={styles.inspirationImage}
+                      resizeMode="cover"
+                    />
+                    <LinearGradient
+                      colors={['transparent', 'rgba(0, 0, 0, 0.85)']}
+                      style={styles.imageOverlay}
+                    />
+                    {/* Category Badge */}
+                    <View style={styles.categoryBadge}>
+                      <Text style={styles.categoryText}>{person.category}</Text>
                 </View>
-            <View style={styles.chapterInfo}>
-              <Text style={[styles.chapterTitle, { color: themeColors.text }]}>Growth & Discovery</Text>
-              <Text style={[styles.chapterPeriod, { color: themeColors.textSecondary }]}>2005 - 2015</Text>
-            </View>
-            <View style={[styles.chapterBadge, { backgroundColor: colors.secondary.teal[50] }]}>
-              <Text style={[styles.chapterBadgeText, { color: colors.secondary.teal[600] }]}>Teenage</Text>
-            </View>
-          </View>
-          <Text style={[styles.chapterDescription, { color: themeColors.textSecondary }]}>
-            Years of self-discovery, building lasting friendships, and developing passions that would guide my future path.
-          </Text>
-          <View style={styles.chapterHighlights}>
-            <View style={styles.highlightTag}>
-              <Ionicons name="people" size={14} color={colors.secondary.teal[600]} />
-              <Text style={[styles.highlightText, { color: colors.secondary.teal[600] }]}>Lifelong Friends</Text>
-            </View>
-            <View style={styles.highlightTag}>
-              <Ionicons name="musical-notes" size={14} color={colors.secondary.teal[600]} />
-              <Text style={[styles.highlightText, { color: colors.secondary.teal[600] }]}>Music Passion</Text>
-            </View>
-            <View style={styles.highlightTag}>
-              <Ionicons name="trophy" size={14} color={colors.secondary.teal[600]} />
-              <Text style={[styles.highlightText, { color: colors.secondary.teal[600] }]}>First Achievements</Text>
-            </View>
-            </View>
+                    
+                    {/* Resonance Button - Overlay on Image */}
+                    <TouchableOpacity
+                      style={styles.resonanceButtonOverlay}
+                      onPress={() => handleResonance(person.id)}
+                      activeOpacity={0.7}
+                    >
+                      <Ionicons
+                        name={resonatedInspirations.has(person.id) ? "sparkles" : "sparkles-outline"}
+                        size={20}
+                        color={resonatedInspirations.has(person.id) ? "#F59E0B" : "#FFFFFF"}
+                      />
+                      <Text style={[
+                        styles.resonanceCountOverlay,
+                        resonatedInspirations.has(person.id) && styles.resonanceCountOverlayActive
+                      ]}>
+                        {person.resonanceCount + (resonatedInspirations.has(person.id) ? 1 : 0)}
+                      </Text>
+                    </TouchableOpacity>
           </View>
 
-        {/* Chapter 3: Legacy Building */}
-        <View style={styles.chapterCard}>
-          <View style={styles.chapterHeader}>
-            <View style={[styles.chapterIcon, { backgroundColor: colors.warning[100] }]}>
-              <Ionicons name="star" size={20} color={colors.app.accent} />
-                </View>
-            <View style={styles.chapterInfo}>
-              <Text style={[styles.chapterTitle, { color: themeColors.text }]}>Building Legacy</Text>
-              <Text style={[styles.chapterPeriod, { color: themeColors.textSecondary }]}>2015 - Present</Text>
-            </View>
-            <View style={[styles.chapterBadge, { backgroundColor: colors.warning[50] }]}>
-              <Text style={[styles.chapterBadgeText, { color: colors.app.accent }]}>Adult</Text>
-            </View>
-          </View>
-          <Text style={[styles.chapterDescription, { color: themeColors.textSecondary }]}>
-            Creating meaningful impact, preserving family stories, and building connections that will last for generations.
-          </Text>
-          <View style={styles.chapterHighlights}>
-            <View style={styles.highlightTag}>
-              <Ionicons name="camera" size={14} color={colors.app.accent} />
-              <Text style={[styles.highlightText, { color: colors.app.accent }]}>Photography Journey</Text>
-            </View>
-            <View style={styles.highlightTag}>
-              <Ionicons name="library" size={14} color={colors.app.accent} />
-              <Text style={[styles.highlightText, { color: colors.app.accent }]}>Story Preservation</Text>
-            </View>
-            <View style={styles.highlightTag}>
-              <Ionicons name="people-circle" size={14} color={colors.app.accent} />
-              <Text style={[styles.highlightText, { color: colors.app.accent }]}>Family Connections</Text>
-            </View>
-          </View>
-        </View>
-      </View>
+                  {/* Content */}
+                  <View style={styles.inspirationContent}>
+                    <Text style={styles.inspirationName}>{person.name}</Text>
+                    <Text style={styles.inspirationRole}>{person.role}</Text>
 
-      {/* Legacy Impact */}
-      <View style={styles.impactSection}>
-        <Text style={[styles.impactTitle, { color: themeColors.text }]}>My Legacy Impact</Text>
-        <View style={styles.impactGrid}>
-          <View style={styles.impactCard}>
-            <View style={[styles.impactIcon, { backgroundColor: colors.primary[100] }]}>
-              <Ionicons name="people-circle" size={24} color={colors.primary[600]} />
+                    {/* Impact */}
+                    <Text style={styles.impactText}>{person.impact}</Text>
                 </View>
-            <Text style={[styles.impactNumber, { color: colors.primary[600] }]}>50+</Text>
-            <Text style={[styles.impactLabel, { color: themeColors.textSecondary }]}>Lives Touched</Text>
-          </View>
-          <View style={styles.impactCard}>
-            <View style={[styles.impactIcon, { backgroundColor: colors.secondary.teal[100] }]}>
-              <Ionicons name="book" size={24} color={colors.secondary.teal[600]} />
-            </View>
-            <Text style={[styles.impactNumber, { color: colors.secondary.teal[600] }]}>200+</Text>
-            <Text style={[styles.impactLabel, { color: themeColors.textSecondary }]}>Stories Preserved</Text>
-          </View>
-          <View style={styles.impactCard}>
-            <View style={[styles.impactIcon, { backgroundColor: colors.warning[100] }]}>
-              <Ionicons name="heart" size={24} color={colors.app.accent} />
-            </View>
-            <Text style={[styles.impactNumber, { color: colors.app.accent }]}>3</Text>
-            <Text style={[styles.impactLabel, { color: themeColors.textSecondary }]}>Generations</Text>
-          </View>
-          <View style={styles.impactCard}>
-            <View style={[styles.impactIcon, { backgroundColor: colors.success[100] }]}>
-              <Ionicons name="time" size={24} color={colors.success[600]} />
-            </View>
-            <Text style={[styles.impactNumber, { color: colors.success[600] }]}>∞</Text>
-            <Text style={[styles.impactLabel, { color: themeColors.textSecondary }]}>Memories</Text>
-          </View>
-        </View>
+                </LinearGradient>
+              </Animated.View>
+            );
+          })}
+        </Animated.ScrollView>
+
+        {/* Pagination Dots */}
+        <View style={styles.paginationDots}>
+          {inspirations.map((_, index) => (
+            <View
+              key={index}
+              style={[
+                styles.dot,
+                currentInspiration === index && styles.activeDot,
+              ]}
+            />
+          ))}
       </View>
     </View>
   );
+  };
+
 
   const renderPhotos = () => (
     <View style={styles.photosSection}>
@@ -1260,7 +1322,7 @@ const ProfileScreen: React.FC<Props> = () => {
 
         {/* Tab Content */}
         {activeTab === 'photos' && renderPhotos()}
-        {activeTab === 'timeline' && renderLifeTimeline()}
+        {activeTab === 'inspirations' && renderInspirations()}
         {activeTab === 'tagged' && (
           <View style={styles.photosSection}>
             <View style={styles.emptyState}>
@@ -1979,6 +2041,216 @@ const styles = StyleSheet.create({
     color: colors.neutral[600],
     textAlign: 'center',
     fontWeight: typography.weights.medium,
+  },
+
+  // Inspirations Carousel Styles
+  inspirationsContainer: {
+    paddingVertical: spacing.xl,
+  },
+  inspirationsHeader: {
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.xl,
+  },
+  inspirationsTitle: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: colors.text.primary,
+    marginBottom: spacing.xs,
+  },
+  inspirationsSubtitle: {
+    fontSize: 16,
+    color: colors.text.secondary,
+    lineHeight: 24,
+  },
+  carouselContent: {
+    paddingHorizontal: 40,
+    gap: 20,
+  },
+  inspirationCard: {
+    height: 460,
+    borderRadius: 20,
+    overflow: 'hidden',
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#F59E0B',
+    shadowOffset: {
+      width: 0,
+      height: 12,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 14,
+  },
+  inspirationGradient: {
+    flex: 1,
+    borderRadius: 24,
+  },
+  inspirationImageContainer: {
+    height: 280,
+    position: 'relative',
+  },
+  inspirationImage: {
+    width: '100%',
+    height: '100%',
+  },
+  imageOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '50%',
+  },
+  categoryBadge: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    backgroundColor: 'rgba(245, 158, 11, 0.95)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+    shadowColor: '#F59E0B',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  categoryText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  inspirationContent: {
+    padding: spacing.lg,
+  },
+  inspirationName: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: colors.text.primary,
+    marginBottom: 4,
+  },
+  inspirationRole: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#F59E0B',
+    marginBottom: spacing.md,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  quoteContainer: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(16, 185, 129, 0.08)',
+    padding: spacing.md,
+    borderRadius: 12,
+    marginBottom: spacing.md,
+    borderLeftWidth: 3,
+    borderLeftColor: '#10B981',
+  },
+  quoteIcon: {
+    marginRight: spacing.sm,
+    marginTop: 2,
+  },
+  quoteText: {
+    flex: 1,
+    fontSize: 14,
+    fontStyle: 'italic',
+    color: colors.text.secondary,
+    lineHeight: 22,
+  },
+  impactContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  impactText: {
+    fontSize: 14,
+    color: colors.text.secondary,
+    lineHeight: 22,
+    marginBottom: spacing.md,
+  },
+  resonanceButtonOverlay: {
+    position: 'absolute',
+    bottom: 12,
+    right: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 18,
+    gap: 6,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  resonanceCountOverlay: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  resonanceCountOverlayActive: {
+    color: '#F59E0B',
+  },
+  sharedLoveContainer: {
+    backgroundColor: 'rgba(245, 158, 11, 0.08)',
+    padding: spacing.sm,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(245, 158, 11, 0.15)',
+  },
+  sharedAvatars: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.xs,
+  },
+  sharedAvatar: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+    backgroundColor: '#F3F4F6',
+  },
+  moreCount: {
+    backgroundColor: '#F59E0B',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  moreCountText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  sharedLoveText: {
+    fontSize: 12,
+    color: '#F59E0B',
+    fontWeight: '500',
+  },
+  paginationDots: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: spacing.xl,
+    gap: 8,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(102, 126, 234, 0.2)',
+  },
+  activeDot: {
+    width: 24,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#F59E0B',
   },
 });
 
