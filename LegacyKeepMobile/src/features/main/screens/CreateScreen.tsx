@@ -1165,13 +1165,14 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 12,
+    height: normalize(100),
   },
   quickActionGradient: {
+    flex: 1,
     paddingVertical: spacing.lg,
     paddingHorizontal: spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: normalize(80),
   },
   quickActionText: {
     color: 'white',

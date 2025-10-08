@@ -27,6 +27,7 @@ import { PanGestureHandler, GestureHandlerRootView } from 'react-native-gesture-
 import { Ionicons } from '@expo/vector-icons';
 import { colors, typography, spacing, gradients } from '../../../shared/constants';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useNavigation } from '@react-navigation/native';
 import ReanimatedAnimated, {
   useSharedValue,
   useAnimatedStyle,
@@ -968,7 +969,12 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
           {/* Audio Call */}
           <TouchableOpacity 
             style={styles.callButton}
-            onPress={() => {/* Handle audio call */}}
+            onPress={() => navigation.navigate('AudioCall' as never, { 
+              contact: { 
+                name: chat.type === 'individual' ? chat.name : 'Group',
+                avatar: chat.avatar 
+              } 
+            } as never)}
           >
             <Ionicons name="call-outline" size={22} color="#6B7280" />
           </TouchableOpacity>
@@ -976,7 +982,12 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
           {/* Video Call */}
           <TouchableOpacity 
             style={styles.callButton}
-            onPress={() => {/* Handle video call */}}
+            onPress={() => navigation.navigate('VideoCall' as never, { 
+              contact: { 
+                name: chat.type === 'individual' ? chat.name : 'Group',
+                avatar: chat.avatar 
+              } 
+            } as never)}
           >
             <Ionicons name="videocam-outline" size={22} color="#6B7280" />
           </TouchableOpacity>

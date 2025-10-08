@@ -33,6 +33,8 @@ import DocumentScreen from '../../features/main/components/samples/DocumentScree
 import VideoScreen from '../../features/main/components/samples/VideoScreen';
 import MusicScreen from '../../features/main/components/samples/MusicScreen';
 import DreamScreen from '../../features/main/components/samples/DreamScreen';
+import AudioCallScreen from '../../features/main/screens/AudioCallScreen';
+import VideoCallScreen from '../../features/main/screens/VideoCallScreen';
 
 const Stack = createStackNavigator<MainStackParamList>();
 
@@ -222,6 +224,24 @@ const MainStack: React.FC = () => {
         component={DreamScreen}
         options={{
           headerShown: false,
+        }}
+      />
+      
+      <Stack.Screen
+        name="AudioCall"
+        component={AudioCallScreen}
+        options={{
+          headerShown: false,
+          presentation: 'fullScreenModal',
+        }}
+      />
+      
+      <Stack.Screen
+        name="VideoCall"
+        component={VideoCallScreen}
+        options={{
+          headerShown: false,
+          presentation: 'fullScreenModal',
         }}
       />
     </Stack.Navigator>
