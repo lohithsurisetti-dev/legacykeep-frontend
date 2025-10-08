@@ -21,6 +21,13 @@ import HelpSupportScreen from '../../features/main/screens/HelpSupportScreen';
 import AboutScreen from '../../features/main/screens/AboutScreen';
 import MediaScreen from '../../features/main/screens/MediaScreen';
 
+// Import sample screens
+import WisdomScreen from '../../features/main/components/samples/WisdomScreen';
+import RecipeScreen from '../../features/main/components/samples/RecipeScreen';
+import StoryScreen from '../../features/main/components/samples/StoryScreen';
+import ReminderScreen from '../../features/main/components/samples/ReminderScreen';
+import RitualScreen from '../../features/main/components/samples/RitualScreen';
+
 const Stack = createStackNavigator<MainStackParamList>();
 
 const MainStack: React.FC = () => {
@@ -120,6 +127,47 @@ const MainStack: React.FC = () => {
         component={MediaScreen}
         options={{
           title: 'Media',
+        }}
+      />
+      
+      {/* Sample Screens */}
+      <Stack.Screen
+        name="WisdomSample"
+        component={WisdomScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      
+      <Stack.Screen
+        name="RecipeSample"
+        component={RecipeScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      
+      <Stack.Screen
+        name="StorySample"
+        component={StoryScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      
+      <Stack.Screen
+        name="ReminderSample"
+        component={ReminderScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      
+      <Stack.Screen
+        name="RitualSample"
+        component={RitualScreen}
+        options={{
+          headerShown: false,
         }}
       />
     </Stack.Navigator>

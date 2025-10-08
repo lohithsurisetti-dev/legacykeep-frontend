@@ -825,6 +825,84 @@ const CreateScreen: React.FC = () => {
               </View>
             </View>
           </Animated.View>
+
+          {/* Sample Screens Showcase */}
+          <View style={styles.sampleScreensSection}>
+            <Text style={styles.sectionTitle}>Content Preview Samples</Text>
+            <Text style={styles.sampleSectionSubtitle}>See how different content types will look</Text>
+            
+            <View style={styles.sampleScreensGrid}>
+              <TouchableOpacity 
+                style={styles.sampleScreenCard}
+                onPress={() => navigation.navigate('WisdomSample' as never)}
+              >
+                <LinearGradient
+                  colors={['#F59E0B', '#D97706']}
+                  style={styles.sampleScreenGradient}
+                >
+                  <Ionicons name="bulb" size={32} color="white" />
+                  <Text style={styles.sampleScreenTitle}>Wisdom</Text>
+                  <Text style={styles.sampleScreenSubtitle}>Elder wisdom sharing</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.sampleScreenCard}
+                onPress={() => navigation.navigate('RecipeSample' as never)}
+              >
+                <LinearGradient
+                  colors={['#10B981', '#059669']}
+                  style={styles.sampleScreenGradient}
+                >
+                  <Ionicons name="restaurant" size={32} color="white" />
+                  <Text style={styles.sampleScreenTitle}>Recipe</Text>
+                  <Text style={styles.sampleScreenSubtitle}>Family recipes</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.sampleScreenCard}
+                onPress={() => navigation.navigate('StorySample' as never)}
+              >
+                <LinearGradient
+                  colors={['#8B5CF6', '#7C3AED']}
+                  style={styles.sampleScreenGradient}
+                >
+                  <Ionicons name="book" size={32} color="white" />
+                  <Text style={styles.sampleScreenTitle}>Story</Text>
+                  <Text style={styles.sampleScreenSubtitle}>Family narratives</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.sampleScreenCard}
+                onPress={() => navigation.navigate('ReminderSample' as never)}
+              >
+                <LinearGradient
+                  colors={['#3B82F6', '#2563EB']}
+                  style={styles.sampleScreenGradient}
+                >
+                  <Ionicons name="checkbox" size={32} color="white" />
+                  <Text style={styles.sampleScreenTitle}>Reminder</Text>
+                  <Text style={styles.sampleScreenSubtitle}>Daily chores & lists</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.sampleScreenCard}
+                onPress={() => navigation.navigate('RitualSample' as never)}
+              >
+                <LinearGradient
+                  colors={['#EF4444', '#DC2626']}
+                  style={styles.sampleScreenGradient}
+                >
+                  <Ionicons name="flame" size={32} color="white" />
+                  <Text style={styles.sampleScreenTitle}>Ritual</Text>
+                  <Text style={styles.sampleScreenSubtitle}>Traditions & culture</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
          </Animated.ScrollView>
 
@@ -1669,6 +1747,55 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: 'white',
+  },
+
+  // Sample Screens Section
+  sampleScreensSection: {
+    marginTop: spacing.xxl,
+    marginBottom: spacing.xl,
+  },
+  sampleSectionSubtitle: {
+    fontSize: normalize(14),
+    color: colors.text.secondary,
+    textAlign: 'center',
+    marginBottom: spacing.lg,
+    fontWeight: '500',
+  },
+  sampleScreensGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.md,
+    paddingHorizontal: spacing.lg,
+  },
+  sampleScreenCard: {
+    width: (screenWidth - spacing.lg * 2 - spacing.md) / 2,
+    height: normalize(160),
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  sampleScreenGradient: {
+    flex: 1,
+    padding: spacing.lg,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  sampleScreenTitle: {
+    fontSize: normalize(18),
+    fontWeight: '800',
+    color: 'white',
+    textAlign: 'center',
+  },
+  sampleScreenSubtitle: {
+    fontSize: normalize(12),
+    color: 'rgba(255, 255, 255, 0.9)',
+    textAlign: 'center',
+    fontWeight: '500',
   },
 });
 
