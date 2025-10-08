@@ -27,6 +27,11 @@ import RecipeScreen from '../../features/main/components/samples/RecipeScreen';
 import StoryScreen from '../../features/main/components/samples/StoryScreen';
 import ReminderScreen from '../../features/main/components/samples/ReminderScreen';
 import RitualScreen from '../../features/main/components/samples/RitualScreen';
+import PhotoScreen from '../../features/main/components/samples/PhotoScreen';
+import VoiceScreen from '../../features/main/components/samples/VoiceScreen';
+import DocumentScreen from '../../features/main/components/samples/DocumentScreen';
+import VideoScreen from '../../features/main/components/samples/VideoScreen';
+import MusicScreen from '../../features/main/components/samples/MusicScreen';
 
 const Stack = createStackNavigator<MainStackParamList>();
 
@@ -166,6 +171,46 @@ const MainStack: React.FC = () => {
       <Stack.Screen
         name="RitualSample"
         component={RitualScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      
+      <Stack.Screen
+        name="PhotoSample"
+        component={PhotoScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      
+      <Stack.Screen
+        name="VoiceSample"
+        component={VoiceScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      
+      <Stack.Screen
+        name="DocumentSample"
+        component={DocumentScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      
+      <Stack.Screen
+        name="VideoSample"
+        component={VideoScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      
+      <Stack.Screen
+        name="MusicSample"
+        component={MusicScreen}
         options={{
           headerShown: false,
         }}

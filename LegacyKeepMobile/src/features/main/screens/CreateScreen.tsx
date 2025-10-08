@@ -842,7 +842,7 @@ const CreateScreen: React.FC = () => {
                 >
                   <Ionicons name="bulb" size={32} color="white" />
                   <Text style={styles.sampleScreenTitle}>Wisdom</Text>
-                  <Text style={styles.sampleScreenSubtitle}>Elder wisdom sharing</Text>
+                  <Text style={styles.sampleScreenSubtitle}>Elder wisdom</Text>
                 </LinearGradient>
               </TouchableOpacity>
 
@@ -870,7 +870,7 @@ const CreateScreen: React.FC = () => {
                 >
                   <Ionicons name="book" size={32} color="white" />
                   <Text style={styles.sampleScreenTitle}>Story</Text>
-                  <Text style={styles.sampleScreenSubtitle}>Family narratives</Text>
+                  <Text style={styles.sampleScreenSubtitle}>Narratives</Text>
                 </LinearGradient>
               </TouchableOpacity>
 
@@ -884,7 +884,7 @@ const CreateScreen: React.FC = () => {
                 >
                   <Ionicons name="checkbox" size={32} color="white" />
                   <Text style={styles.sampleScreenTitle}>Reminder</Text>
-                  <Text style={styles.sampleScreenSubtitle}>Daily chores & lists</Text>
+                  <Text style={styles.sampleScreenSubtitle}>Chores & lists</Text>
                 </LinearGradient>
               </TouchableOpacity>
 
@@ -898,7 +898,77 @@ const CreateScreen: React.FC = () => {
                 >
                   <Ionicons name="flame" size={32} color="white" />
                   <Text style={styles.sampleScreenTitle}>Ritual</Text>
-                  <Text style={styles.sampleScreenSubtitle}>Traditions & culture</Text>
+                  <Text style={styles.sampleScreenSubtitle}>Traditions</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.sampleScreenCard}
+                onPress={() => navigation.navigate('PhotoSample' as never)}
+              >
+                <LinearGradient
+                  colors={['#059669', '#047857']}
+                  style={styles.sampleScreenGradient}
+                >
+                  <Ionicons name="camera" size={32} color="white" />
+                  <Text style={styles.sampleScreenTitle}>Photo</Text>
+                  <Text style={styles.sampleScreenSubtitle}>Memories</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.sampleScreenCard}
+                onPress={() => navigation.navigate('VoiceSample' as never)}
+              >
+                <LinearGradient
+                  colors={['#0d9488', '#0f766e']}
+                  style={styles.sampleScreenGradient}
+                >
+                  <Ionicons name="mic" size={32} color="white" />
+                  <Text style={styles.sampleScreenTitle}>Voice</Text>
+                  <Text style={styles.sampleScreenSubtitle}>Messages</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.sampleScreenCard}
+                onPress={() => navigation.navigate('DocumentSample' as never)}
+              >
+                <LinearGradient
+                  colors={['#be185d', '#9d174d']}
+                  style={styles.sampleScreenGradient}
+                >
+                  <Ionicons name="document-text" size={32} color="white" />
+                  <Text style={styles.sampleScreenTitle}>Document</Text>
+                  <Text style={styles.sampleScreenSubtitle}>Records</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.sampleScreenCard}
+                onPress={() => navigation.navigate('VideoSample' as never)}
+              >
+                <LinearGradient
+                  colors={['#dc2626', '#b91c1c']}
+                  style={styles.sampleScreenGradient}
+                >
+                  <Ionicons name="videocam" size={32} color="white" />
+                  <Text style={styles.sampleScreenTitle}>Video</Text>
+                  <Text style={styles.sampleScreenSubtitle}>Moments</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.sampleScreenCard}
+                onPress={() => navigation.navigate('MusicSample' as never)}
+              >
+                <LinearGradient
+                  colors={['#7c3aed', '#6b21a8']}
+                  style={styles.sampleScreenGradient}
+                >
+                  <Ionicons name="musical-notes" size={32} color="white" />
+                  <Text style={styles.sampleScreenTitle}>Music</Text>
+                  <Text style={styles.sampleScreenSubtitle}>Songs</Text>
                 </LinearGradient>
               </TouchableOpacity>
             </View>
