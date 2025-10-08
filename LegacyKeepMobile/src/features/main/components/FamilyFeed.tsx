@@ -903,11 +903,24 @@ export const FamilyFeed: React.FC<FamilyFeedProps> = ({ scrollY: parentScrollY }
           const { translationX, state } = event.nativeEvent;
           
           if (state === State.ACTIVE) {
-            // Follow finger smoothly
-            swipeAnimations[post.id].setValue(translationX);
+            // Add extra friction when at newest post (index 0) and swiping left (trying to go newer)
+            const isAtNewest = currentIndex === 0;
+            const isSwipingLeft = translationX < 0;
             
-            // Scale down as user swipes
-            const scaleValue = 1 - (Math.abs(translationX) / screenWidth) * 0.15;
+            let resistance = 1;
+            if (isAtNewest && isSwipingLeft) {
+              // Heavy friction - 70% resistance for API boundary
+              resistance = 0.3;
+            } else if (currentIndex === authorPosts.length - 1 && translationX > 0) {
+              // Medium friction at oldest post - 50% resistance
+              resistance = 0.5;
+            }
+            
+            // Follow finger with dynamic resistance
+            swipeAnimations[post.id].setValue(translationX * resistance);
+            
+            // Scale down as user swipes (less scaling at boundaries)
+            const scaleValue = 1 - (Math.abs(translationX * resistance) / screenWidth) * 0.15;
             cardSwapAnimations[post.id].setValue(Math.max(0.85, scaleValue));
           } else if (state === State.END) {
             // Determine if swipe threshold met
