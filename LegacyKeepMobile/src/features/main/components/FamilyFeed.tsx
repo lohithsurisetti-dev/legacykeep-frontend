@@ -811,6 +811,13 @@ export const FamilyFeed: React.FC<FamilyFeedProps> = ({ scrollY: parentScrollY }
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   };
 
+  // Get unique authors (only show one card per author in vertical feed)
+  const uniqueAuthors = Array.from(new Set(posts.map(p => p.author.id)));
+  const feedPosts = uniqueAuthors.map(authorId => {
+    const authorPosts = getAuthorPosts(authorId);
+    return authorPosts[0]; // Show the newest post by default
+  }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
   // Initialize animations for each post
   useEffect(() => {
     posts.forEach((post, index) => {
@@ -1082,7 +1089,7 @@ export const FamilyFeed: React.FC<FamilyFeedProps> = ({ scrollY: parentScrollY }
 
   return (
     <View style={styles.feedContainer}>
-      {posts.map((post, index) => {
+      {feedPosts.map((post, index) => {
         // Tesseract Grid Logic: Get all posts by this author
         const authorPosts = getAuthorPosts(post.author.id);
         const currentIndex = authorPostIndex[post.author.id] || 0;
