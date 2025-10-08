@@ -1095,13 +1095,16 @@ export const FamilyFeed: React.FC<FamilyFeedProps> = ({ scrollY: parentScrollY }
         const currentIndex = authorPostIndex[post.author.id] || 0;
         const currentPost = authorPosts[currentIndex] || post;
         const hasMultiplePosts = authorPosts.length > 1;
+        
+        // Use author ID as animation key (not post ID, since post changes)
+        const animationKey = post.author.id;
 
-        // Initialize animations
-        if (!swipeAnimations[post.id]) {
-          swipeAnimations[post.id] = new Animated.Value(0);
+        // Initialize animations using author ID
+        if (!swipeAnimations[animationKey]) {
+          swipeAnimations[animationKey] = new Animated.Value(0);
         }
-        if (!cardSwapAnimations[post.id]) {
-          cardSwapAnimations[post.id] = new Animated.Value(1);
+        if (!cardSwapAnimations[animationKey]) {
+          cardSwapAnimations[animationKey] = new Animated.Value(1);
         }
 
         // Handle horizontal swipe for author's posts with smooth slide transition
@@ -1117,24 +1120,24 @@ export const FamilyFeed: React.FC<FamilyFeedProps> = ({ scrollY: parentScrollY }
             
             // Block swipe right at newest post (no newer content)
             if (isAtNewest && isSwipingRight) {
-              swipeAnimations[post.id].setValue(0);
-              cardSwapAnimations[post.id].setValue(1);
+              swipeAnimations[animationKey].setValue(0);
+              cardSwapAnimations[animationKey].setValue(1);
               return;
             }
             
             // Block swipe left at oldest post (no older content)
             if (isAtOldest && isSwipingLeft) {
-              swipeAnimations[post.id].setValue(0);
-              cardSwapAnimations[post.id].setValue(1);
+              swipeAnimations[animationKey].setValue(0);
+              cardSwapAnimations[animationKey].setValue(1);
               return;
             }
             
             // Follow finger smoothly when within valid range
-            swipeAnimations[post.id].setValue(translationX);
+            swipeAnimations[animationKey].setValue(translationX);
             
             // Scale down as user swipes
             const scaleValue = 1 - (Math.abs(translationX) / screenWidth) * 0.15;
-            cardSwapAnimations[post.id].setValue(Math.max(0.85, scaleValue));
+            cardSwapAnimations[animationKey].setValue(Math.max(0.85, scaleValue));
           } else if (state === State.END) {
             const isAtNewest = currentIndex === 0;
             const isAtOldest = currentIndex === authorPosts.length - 1;
@@ -1143,7 +1146,7 @@ export const FamilyFeed: React.FC<FamilyFeedProps> = ({ scrollY: parentScrollY }
             
             // Block invalid swipes at boundaries
             if ((isAtNewest && isSwipingRight) || (isAtOldest && isSwipingLeft)) {
-              Animated.spring(swipeAnimations[post.id], {
+              Animated.spring(swipeAnimations[animationKey], {
                 toValue: 0,
                 useNativeDriver: true,
                 friction: 8,
@@ -1160,12 +1163,12 @@ export const FamilyFeed: React.FC<FamilyFeedProps> = ({ scrollY: parentScrollY }
               
               // Slide out current card completely with scale
               Animated.parallel([
-                Animated.timing(swipeAnimations[post.id], {
+                Animated.timing(swipeAnimations[animationKey], {
                   toValue: direction * screenWidth,
                   duration: 200,
                   useNativeDriver: true,
                 }),
-                Animated.timing(cardSwapAnimations[post.id], {
+                Animated.timing(cardSwapAnimations[animationKey], {
                   toValue: 0.85,
                   duration: 200,
                   useNativeDriver: true,
@@ -1187,18 +1190,18 @@ export const FamilyFeed: React.FC<FamilyFeedProps> = ({ scrollY: parentScrollY }
                 }
                 
                 // Position new card off-screen on opposite side, scaled down
-                swipeAnimations[post.id].setValue(-direction * screenWidth);
-                cardSwapAnimations[post.id].setValue(0.85);
+                swipeAnimations[animationKey].setValue(-direction * screenWidth);
+                cardSwapAnimations[animationKey].setValue(0.85);
                 
                 // Slide in new card with scale up
                 Animated.parallel([
-                  Animated.spring(swipeAnimations[post.id], {
+                  Animated.spring(swipeAnimations[animationKey], {
                     toValue: 0,
                     useNativeDriver: true,
                     friction: 7,
                     tension: 35,
                   }),
-                  Animated.spring(cardSwapAnimations[post.id], {
+                  Animated.spring(cardSwapAnimations[animationKey], {
                     toValue: 1,
                     useNativeDriver: true,
                     friction: 7,
@@ -1209,13 +1212,13 @@ export const FamilyFeed: React.FC<FamilyFeedProps> = ({ scrollY: parentScrollY }
             } else {
               // Spring back to center if threshold not met
               Animated.parallel([
-                Animated.spring(swipeAnimations[post.id], {
+                Animated.spring(swipeAnimations[animationKey], {
                   toValue: 0,
                   useNativeDriver: true,
                   friction: 8,
                   tension: 40,
                 }),
-                Animated.spring(cardSwapAnimations[post.id], {
+                Animated.spring(cardSwapAnimations[animationKey], {
                   toValue: 1,
                   useNativeDriver: true,
                   friction: 8,
@@ -1228,16 +1231,16 @@ export const FamilyFeed: React.FC<FamilyFeedProps> = ({ scrollY: parentScrollY }
 
         const postContent = (
           <Animated.View 
-            key={post.id} 
+            key={post.author.id}
             style={[
               styles.postContainer,
               {
                 transform: [
                   {
-                    translateX: swipeAnimations[post.id],
+                    translateX: swipeAnimations[animationKey],
                   },
                   {
-                    scale: cardSwapAnimations[post.id],
+                    scale: cardSwapAnimations[animationKey],
                   },
                 ],
               },
@@ -1385,7 +1388,7 @@ export const FamilyFeed: React.FC<FamilyFeedProps> = ({ scrollY: parentScrollY }
         if (hasMultiplePosts) {
           return (
             <PanGestureHandler
-              key={post.id}
+              key={post.author.id}
               onGestureEvent={handleSwipeGesture}
               onHandlerStateChange={handleSwipeGesture}
               activeOffsetX={[-20, 20]}
