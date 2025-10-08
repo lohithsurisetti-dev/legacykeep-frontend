@@ -1,72 +1,40 @@
 /**
  * Ritual/Tradition Screen Sample
- * Cultural heritage and family traditions
+ * Clean, premium design with red theme
  */
 
-import React from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { spacing } from '../../../../shared/constants';
 
-const { width } = Dimensions.get('window');
+// Red theme
+const THEME = {
+  primary: '#EF4444',
+  light: '#FEE2E2',
+  dark: '#DC2626',
+};
 
 const RitualScreen = () => {
+  const [isParticipating, setIsParticipating] = useState(false);
+
   const ritual = {
     title: 'Diwali Family Tradition',
-    subtitle: 'Annual Festival of Lights Celebration',
+    subtitle: 'Festival of Lights',
     origin: {
       startedBy: 'Great-Grandmother Kamala',
       year: '1952',
       generations: 4
     },
-    coverImage: 'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=800&h=400&fit=crop',
-    description: 'Every Diwali, our family gathers at the ancestral home to light 108 diyas together. Each family member lights their own diya while sharing a wish for the family. This tradition started when our great-grandmother wanted to ensure the family stays connected despite growing distances.',
-    significance: 'The 108 diyas represent the 108 family members who have been part of our lineage. Each light symbolizes a life, a story, and a connection that transcends time.',
+    coverImage: 'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=800&h=300&fit=crop',
+    description: 'Every Diwali, our family gathers at the ancestral home to light 108 diyas together. Each family member lights their own diya while sharing a wish for the family.',
     whenCelebrated: 'Every year on Diwali night',
-    whoParticipates: 'All family members, from youngest to eldest',
-    ritualSteps: [
-      {
-        step: 'Preparation',
-        description: 'Family members arrive by sunset. Elders prepare the prayer area.',
-        time: '5:00 PM',
-        icon: 'home'
-      },
-      {
-        step: 'Gathering',
-        description: 'Everyone gathers in the courtyard. Youngest members distribute diyas.',
-        time: '6:00 PM',
-        icon: 'people'
-      },
-      {
-        step: 'Prayer',
-        description: 'Eldest family member leads the traditional prayer and blessing.',
-        time: '6:30 PM',
-        icon: 'flower'
-      },
-      {
-        step: 'Lighting',
-        description: 'Each person lights their diya and shares their wish for the family.',
-        time: '7:00 PM',
-        icon: 'flame'
-      },
-      {
-        step: 'Feast',
-        description: 'Traditional dinner prepared by all the women in the family.',
-        time: '8:00 PM',
-        icon: 'restaurant'
-      },
-      {
-        step: 'Stories',
-        description: 'Elders share stories of past celebrations and family history.',
-        time: '9:00 PM',
-        icon: 'book'
-      }
-    ],
-    photos: [
-      'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=300&h=300&fit=crop',
-      'https://images.unsplash.com/photo-1606293926075-69a00dbfde81?w=300&h=300&fit=crop',
-      'https://images.unsplash.com/photo-1609166214994-502d326bafee?w=300&h=300&fit=crop'
+    steps: [
+      { time: '5:00 PM', activity: 'Family arrives, elders prepare prayer area', icon: 'home' },
+      { time: '6:00 PM', activity: 'Gathering in courtyard', icon: 'people' },
+      { time: '6:30 PM', activity: 'Traditional prayer and blessing', icon: 'flower' },
+      { time: '7:00 PM', activity: 'Light diyas and share wishes', icon: 'flame' },
+      { time: '8:00 PM', activity: 'Traditional dinner together', icon: 'restaurant' },
     ],
     participants: 42,
     yearsActive: 72
@@ -75,156 +43,107 @@ const RitualScreen = () => {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.imageHeader}>
-        <Image source={{ uri: ritual.coverImage }} style={styles.coverImage} />
-        <LinearGradient
-          colors={['rgba(0, 0, 0, 0.6)', 'transparent', 'rgba(0, 0, 0, 0.8)']}
-          style={styles.headerGradient}
-        >
-          <TouchableOpacity style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="white" />
-          </TouchableOpacity>
-          
-          <View style={styles.headerContent}>
-            <View style={styles.traditionBadge}>
-              <Ionicons name="sparkles" size={16} color="#F59E0B" />
-              <Text style={styles.traditionBadgeText}>Family Tradition</Text>
-            </View>
-            <Text style={styles.headerTitle}>{ritual.title}</Text>
-            <Text style={styles.headerSubtitle}>{ritual.subtitle}</Text>
-          </View>
-        </LinearGradient>
+      <View style={styles.header}>
+        <TouchableOpacity>
+          <Ionicons name="arrow-back" size={24} color="#1F2937" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Ritual</Text>
+        <View style={{ width: 24 }} />
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Cover Image */}
+        <Image source={{ uri: ritual.coverImage }} style={styles.coverImage} />
+
+        {/* Ritual Header */}
+        <View style={styles.ritualHeader}>
+          <View style={[styles.badge, { backgroundColor: THEME.light }]}>
+            <Text style={[styles.badgeText, { color: THEME.dark }]}>Family Tradition</Text>
+          </View>
+          <Text style={styles.ritualTitle}>{ritual.title}</Text>
+          <Text style={styles.ritualSubtitle}>{ritual.subtitle}</Text>
+        </View>
+
         {/* Origin Card */}
-        <View style={styles.originCard}>
-          <LinearGradient
-            colors={['#F59E0B', '#D97706']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.originGradient}
-          >
-            <View style={styles.originRow}>
-              <View style={styles.originItem}>
-                <Text style={styles.originLabel}>Started By</Text>
-                <Text style={styles.originValue}>{ritual.origin.startedBy}</Text>
-              </View>
-              <View style={styles.originDivider} />
-              <View style={styles.originItem}>
-                <Text style={styles.originLabel}>Since</Text>
-                <Text style={styles.originValue}>{ritual.origin.year}</Text>
-              </View>
-              <View style={styles.originDivider} />
-              <View style={styles.originItem}>
-                <Text style={styles.originLabel}>Generations</Text>
-                <Text style={styles.originValue}>{ritual.origin.generations}</Text>
-              </View>
+        <View style={[styles.originCard, { backgroundColor: THEME.light }]}>
+          <View style={styles.originRow}>
+            <View style={styles.originItem}>
+              <Text style={[styles.originLabel, { color: THEME.dark }]}>Started By</Text>
+              <Text style={[styles.originValue, { color: THEME.dark }]}>{ritual.origin.startedBy}</Text>
             </View>
-          </LinearGradient>
+            <View style={[styles.originDivider, { backgroundColor: THEME.primary }]} />
+            <View style={styles.originItem}>
+              <Text style={[styles.originLabel, { color: THEME.dark }]}>Since</Text>
+              <Text style={[styles.originValue, { color: THEME.dark }]}>{ritual.origin.year}</Text>
+            </View>
+            <View style={[styles.originDivider, { backgroundColor: THEME.primary }]} />
+            <View style={styles.originItem}>
+              <Text style={[styles.originLabel, { color: THEME.dark }]}>Generations</Text>
+              <Text style={[styles.originValue, { color: THEME.dark }]}>{ritual.origin.generations}</Text>
+            </View>
+          </View>
         </View>
 
         {/* Description */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>About This Tradition</Text>
+          <Text style={styles.sectionTitle}>About</Text>
           <Text style={styles.descriptionText}>{ritual.description}</Text>
         </View>
 
-        {/* Significance */}
-        <View style={styles.significanceCard}>
-          <View style={styles.significanceHeader}>
-            <Ionicons name="heart" size={24} color="#EF4444" />
-            <Text style={styles.significanceTitle}>Why It Matters</Text>
-          </View>
-          <Text style={styles.significanceText}>{ritual.significance}</Text>
+        {/* When Celebrated */}
+        <View style={styles.infoCard}>
+          <Ionicons name="calendar" size={20} color={THEME.primary} />
+          <Text style={styles.infoText}>{ritual.whenCelebrated}</Text>
         </View>
 
-        {/* Details Grid */}
-        <View style={styles.detailsGrid}>
-          <View style={styles.detailCard}>
-            <Ionicons name="calendar" size={24} color="#8B5CF6" />
-            <Text style={styles.detailLabel}>When</Text>
-            <Text style={styles.detailValue}>{ritual.whenCelebrated}</Text>
-          </View>
-          <View style={styles.detailCard}>
-            <Ionicons name="people" size={24} color="#3B82F6" />
-            <Text style={styles.detailLabel}>Who</Text>
-            <Text style={styles.detailValue}>{ritual.whoParticipates}</Text>
-          </View>
-        </View>
-
-        {/* Ritual Steps */}
+        {/* Steps */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>How We Celebrate</Text>
-          {ritual.ritualSteps.map((step, index) => (
-            <View key={index} style={styles.ritualStep}>
-              <View style={styles.stepIconContainer}>
-                <LinearGradient
-                  colors={['#8B5CF6', '#7C3AED']}
-                  style={styles.stepIconGradient}
-                >
-                  <Ionicons name={step.icon as any} size={20} color="white" />
-                </LinearGradient>
+          {ritual.steps.map((step, index) => (
+            <View key={index} style={styles.stepItem}>
+              <View style={[styles.stepIcon, { backgroundColor: THEME.light }]}>
+                <Ionicons name={step.icon as any} size={20} color={THEME.primary} />
               </View>
               <View style={styles.stepContent}>
                 <View style={styles.stepHeader}>
-                  <Text style={styles.stepTitle}>{step.step}</Text>
-                  <Text style={styles.stepTime}>{step.time}</Text>
+                  <Text style={styles.stepActivity}>{step.activity}</Text>
+                  <Text style={[styles.stepTime, { color: THEME.primary }]}>{step.time}</Text>
                 </View>
-                <Text style={styles.stepDescription}>{step.description}</Text>
               </View>
             </View>
           ))}
         </View>
 
-        {/* Photo Gallery */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Memories</Text>
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.photoGallery}
-          >
-            {ritual.photos.map((photo, index) => (
-              <TouchableOpacity key={index} style={styles.photoCard}>
-                <Image source={{ uri: photo }} style={styles.photo} />
-                <LinearGradient
-                  colors={['transparent', 'rgba(0, 0, 0, 0.4)']}
-                  style={styles.photoGradient}
-                >
-                  <Ionicons name="expand-outline" size={20} color="white" />
-                </LinearGradient>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-
-        {/* Stats Footer */}
-        <View style={styles.statsFooter}>
-          <View style={styles.statFooterItem}>
-            <Ionicons name="people-circle" size={32} color="#3B82F6" />
-            <Text style={styles.statFooterNumber}>{ritual.participants}</Text>
-            <Text style={styles.statFooterLabel}>Participants</Text>
+        {/* Stats */}
+        <View style={styles.statsRow}>
+          <View style={styles.statCard}>
+            <Ionicons name="people" size={28} color={THEME.primary} />
+            <Text style={styles.statNumber}>{ritual.participants}</Text>
+            <Text style={styles.statLabel}>Participants</Text>
           </View>
-          <View style={styles.statFooterDivider} />
-          <View style={styles.statFooterItem}>
-            <Ionicons name="time" size={32} color="#F59E0B" />
-            <Text style={styles.statFooterNumber}>{ritual.yearsActive}</Text>
-            <Text style={styles.statFooterLabel}>Years Active</Text>
+          <View style={styles.statCard}>
+            <Ionicons name="time" size={28} color={THEME.primary} />
+            <Text style={styles.statNumber}>{ritual.yearsActive}</Text>
+            <Text style={styles.statLabel}>Years Active</Text>
           </View>
         </View>
 
-        {/* Action Button */}
-        <TouchableOpacity style={styles.actionButton}>
-          <LinearGradient
-            colors={['#10B981', '#059669']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.actionGradient}
-          >
-            <Ionicons name="add-circle-outline" size={24} color="white" />
-            <Text style={styles.actionText}>Mark as Participating This Year</Text>
-          </LinearGradient>
+        {/* Participate Button */}
+        <TouchableOpacity 
+          style={[
+            styles.participateButton,
+            { backgroundColor: isParticipating ? '#10B981' : THEME.primary }
+          ]}
+          onPress={() => setIsParticipating(!isParticipating)}
+        >
+          <Ionicons 
+            name={isParticipating ? "checkmark-circle" : "add-circle-outline"} 
+            size={20} 
+            color="white" 
+          />
+          <Text style={styles.participateText}>
+            {isParticipating ? 'Participating This Year' : 'Mark as Participating'}
+          </Text>
         </TouchableOpacity>
 
         <View style={{ height: 40 }} />
@@ -238,80 +157,58 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FAFAFA',
   },
-  imageHeader: {
-    height: 320,
-    position: 'relative',
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    backgroundColor: 'white',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.06)',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1F2937',
   },
   coverImage: {
     width: '100%',
-    height: '100%',
+    height: 200,
   },
-  headerGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+  ritualHeader: {
+    backgroundColor: 'white',
     padding: spacing.lg,
-    justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.06)',
   },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    alignItems: 'center',
-    justifyContent: 'center',
+  badge: {
     alignSelf: 'flex-start',
-  },
-  headerContent: {
-    gap: spacing.sm,
-  },
-  traditionBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderRadius: 20,
-    gap: 6,
+    paddingVertical: 6,
+    borderRadius: 12,
+    marginBottom: spacing.sm,
   },
-  traditionBadgeText: {
-    fontSize: 12,
+  badgeText: {
+    fontSize: 11,
     fontWeight: '700',
-    color: '#F59E0B',
   },
-  headerTitle: {
-    fontSize: 32,
+  ritualTitle: {
+    fontSize: 24,
     fontWeight: '800',
-    color: 'white',
-    textShadowColor: 'rgba(0, 0, 0, 0.5)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+    color: '#1F2937',
+    marginBottom: 4,
   },
-  headerSubtitle: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.95)',
-    fontWeight: '500',
-  },
-  content: {
-    flex: 1,
+  ritualSubtitle: {
+    fontSize: 14,
+    color: '#6B7280',
   },
   originCard: {
     marginHorizontal: spacing.lg,
-    marginTop: -30,
-    marginBottom: spacing.xl,
-    borderRadius: 20,
-    overflow: 'hidden',
-    shadowColor: '#F59E0B',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  originGradient: {
+    marginTop: spacing.lg,
+    marginBottom: spacing.lg,
     padding: spacing.lg,
+    borderRadius: 16,
   },
   originRow: {
     flexDirection: 'row',
@@ -321,220 +218,127 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   originLabel: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: 11,
     fontWeight: '600',
     marginBottom: 4,
   },
   originValue: {
-    fontSize: 16,
-    color: 'white',
+    fontSize: 14,
     fontWeight: '800',
     textAlign: 'center',
   },
   originDivider: {
     width: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    opacity: 0.3,
   },
   section: {
     paddingHorizontal: spacing.lg,
-    marginBottom: spacing.xl,
+    marginBottom: spacing.lg,
   },
   sectionTitle: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: '800',
     color: '#1F2937',
     marginBottom: spacing.md,
   },
   descriptionText: {
-    fontSize: 16,
-    lineHeight: 26,
-    color: '#374151',
-    textAlign: 'justify',
-  },
-  significanceCard: {
-    marginHorizontal: spacing.lg,
-    marginBottom: spacing.xl,
-    backgroundColor: 'white',
-    borderRadius: 16,
-    padding: spacing.lg,
-    borderLeftWidth: 4,
-    borderLeftColor: '#EF4444',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
-    elevation: 3,
-  },
-  significanceHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    marginBottom: spacing.md,
-  },
-  significanceTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#EF4444',
-  },
-  significanceText: {
     fontSize: 15,
     lineHeight: 24,
-    color: '#4B5563',
-    fontStyle: 'italic',
+    color: '#374151',
   },
-  detailsGrid: {
+  infoCard: {
     flexDirection: 'row',
-    paddingHorizontal: spacing.lg,
-    gap: spacing.md,
-    marginBottom: spacing.xl,
-  },
-  detailCard: {
-    flex: 1,
-    backgroundColor: 'white',
-    padding: spacing.lg,
-    borderRadius: 16,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  detailLabel: {
-    fontSize: 13,
-    color: '#6B7280',
-    fontWeight: '600',
-    marginTop: spacing.sm,
-    marginBottom: 4,
-  },
-  detailValue: {
-    fontSize: 13,
-    color: '#1F2937',
-    fontWeight: '500',
-    textAlign: 'center',
-    lineHeight: 18,
-  },
-  ritualStep: {
-    flexDirection: 'row',
-    marginBottom: spacing.lg,
     backgroundColor: 'white',
-    borderRadius: 16,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
     padding: spacing.lg,
+    borderRadius: 12,
+    gap: spacing.md,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.04,
     shadowRadius: 8,
     elevation: 2,
   },
-  stepIconContainer: {
-    marginRight: spacing.md,
+  infoText: {
+    fontSize: 14,
+    color: '#374151',
+    fontWeight: '600',
   },
-  stepIconGradient: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+  stepItem: {
+    flexDirection: 'row',
+    marginBottom: spacing.md,
+    gap: spacing.md,
+  },
+  stepIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
   },
   stepContent: {
     flex: 1,
+    paddingTop: 4,
   },
   stepHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.xs,
   },
-  stepTitle: {
-    fontSize: 16,
-    fontWeight: '800',
+  stepActivity: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '600',
     color: '#1F2937',
+    lineHeight: 20,
   },
   stepTime: {
     fontSize: 12,
-    fontWeight: '600',
-    color: '#8B5CF6',
+    fontWeight: '700',
   },
-  stepDescription: {
-    fontSize: 14,
-    lineHeight: 22,
-    color: '#6B7280',
-  },
-  photoGallery: {
-    paddingRight: spacing.lg,
-    gap: spacing.md,
-  },
-  photoCard: {
-    width: 200,
-    height: 200,
-    borderRadius: 16,
-    overflow: 'hidden',
-    position: 'relative',
-  },
-  photo: {
-    width: '100%',
-    height: '100%',
-  },
-  photoGradient: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 60,
-    alignItems: 'flex-end',
-    justifyContent: 'flex-end',
-    padding: spacing.md,
-  },
-  statsFooter: {
+  statsRow: {
     flexDirection: 'row',
-    backgroundColor: 'white',
     marginHorizontal: spacing.lg,
     marginBottom: spacing.lg,
-    padding: spacing.xl,
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
+    gap: spacing.md,
   },
-  statFooterItem: {
+  statCard: {
     flex: 1,
+    backgroundColor: 'white',
+    padding: spacing.lg,
+    borderRadius: 16,
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  statFooterNumber: {
-    fontSize: 28,
+  statNumber: {
+    fontSize: 24,
     fontWeight: '800',
     color: '#1F2937',
-    marginTop: spacing.sm,
-    marginBottom: 4,
+    marginTop: spacing.xs,
+    marginBottom: 2,
   },
-  statFooterLabel: {
+  statLabel: {
     fontSize: 12,
     color: '#6B7280',
     fontWeight: '600',
   },
-  statFooterDivider: {
-    width: 1,
-    backgroundColor: '#E5E7EB',
-    marginHorizontal: spacing.md,
-  },
-  actionButton: {
-    marginHorizontal: spacing.lg,
-    borderRadius: 16,
-    overflow: 'hidden',
-    marginBottom: spacing.lg,
-  },
-  actionGradient: {
+  participateButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: spacing.md + 2,
-    gap: spacing.sm,
+    marginHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    borderRadius: 12,
+    gap: spacing.xs,
   },
-  actionText: {
-    fontSize: 16,
+  participateText: {
+    fontSize: 15,
     fontWeight: '700',
     color: 'white',
   },

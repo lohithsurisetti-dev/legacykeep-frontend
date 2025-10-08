@@ -1,153 +1,111 @@
 /**
  * Wisdom Screen Sample
- * Premium design for elder wisdom sharing
+ * Clean, premium design with gold theme
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { spacing } from '../../../../shared/constants';
 
+// Gold theme
+const THEME = {
+  primary: '#F59E0B',
+  light: '#FEF3C7',
+  dark: '#D97706',
+};
+
 const WisdomScreen = () => {
-  const wisdomPost = {
+  const [isLiked, setIsLiked] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+
+  const wisdom = {
     elder: {
       name: 'Grandfather Kumar',
       age: 78,
       avatar: 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150&h=150&fit=crop&crop=face',
-      relationship: 'Grandfather'
     },
-    wisdom: {
-      title: 'On Building Lasting Relationships',
-      content: 'In my 78 years, I\'ve learned that the strongest bonds are built not in moments of celebration, but in times of quiet understanding. Listen more than you speak, forgive faster than you judge, and never let pride stand between you and the people you love.',
-      category: 'Life Lessons',
-      tags: ['Relationships', 'Family', 'Communication'],
-      sharedDate: '2 days ago',
-      context: 'Shared during family dinner discussion'
-    },
-    engagement: {
-      hearts: 47,
-      saved: 23,
-      shared: 12,
-      reflections: [
-        { name: 'Priya', text: 'This changed my perspective completely' },
-        { name: 'Rajesh', text: 'Needed to hear this today, thank you Grandpa' }
-      ]
-    }
+    title: 'On Building Lasting Relationships',
+    content: 'In my 78 years, I\'ve learned that the strongest bonds are built not in moments of celebration, but in times of quiet understanding. Listen more than you speak, forgive faster than you judge, and never let pride stand between you and the people you love.',
+    category: 'Life Lessons',
+    date: '2 days ago',
+    hearts: 47,
+    reflections: 12
   };
 
   return (
     <View style={styles.container}>
-      {/* Header */}
+      {/* Simple Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton}>
+        <TouchableOpacity>
           <Ionicons name="arrow-back" size={24} color="#1F2937" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Elder Wisdom</Text>
-        <TouchableOpacity style={styles.moreButton}>
-          <Ionicons name="ellipsis-horizontal" size={24} color="#1F2937" />
-        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Wisdom</Text>
+        <View style={{ width: 24 }} />
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Elder Profile Card */}
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Elder Card - Clean */}
         <View style={styles.elderCard}>
-          <LinearGradient
-            colors={['#F59E0B', '#D97706']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.elderGradient}
-          >
-            <Image source={{ uri: wisdomPost.elder.avatar }} style={styles.elderAvatar} />
-            <View style={styles.elderInfo}>
-              <Text style={styles.elderName}>{wisdomPost.elder.name}</Text>
-              <Text style={styles.elderAge}>{wisdomPost.elder.age} years of wisdom</Text>
-            </View>
-            <View style={styles.wisdomBadge}>
-              <Ionicons name="sparkles" size={16} color="#F59E0B" />
-            </View>
-          </LinearGradient>
-        </View>
-
-        {/* Category Badge */}
-        <View style={styles.categoryBadge}>
-          <Ionicons name="book-outline" size={14} color="#8B5CF6" />
-          <Text style={styles.categoryText}>{wisdomPost.wisdom.category}</Text>
-        </View>
-
-        {/* Wisdom Title */}
-        <Text style={styles.wisdomTitle}>{wisdomPost.wisdom.title}</Text>
-
-        {/* Wisdom Content */}
-        <View style={styles.wisdomContentCard}>
-          <View style={styles.quoteIconTop}>
-            <Ionicons name="chatbox-ellipses" size={24} color="#F59E0B" />
+          <Image source={{ uri: wisdom.elder.avatar }} style={styles.elderAvatar} />
+          <View style={styles.elderInfo}>
+            <Text style={styles.elderName}>{wisdom.elder.name}</Text>
+            <Text style={styles.elderAge}>{wisdom.elder.age} years</Text>
           </View>
-          <Text style={styles.wisdomText}>{wisdomPost.wisdom.content}</Text>
-          <View style={styles.quoteIconBottom}>
-            <Ionicons name="chatbox-ellipses" size={24} color="#F59E0B" style={{ transform: [{ rotate: '180deg' }] }} />
+          <View style={[styles.categoryBadge, { backgroundColor: THEME.light }]}>
+            <Text style={[styles.categoryText, { color: THEME.dark }]}>{wisdom.category}</Text>
           </View>
         </View>
 
-        {/* Context */}
-        <View style={styles.contextCard}>
-          <Ionicons name="information-circle-outline" size={16} color="#6B7280" />
-          <Text style={styles.contextText}>{wisdomPost.wisdom.context}</Text>
+        {/* Wisdom Content - Simple Card */}
+        <View style={styles.contentCard}>
+          <Text style={styles.wisdomTitle}>{wisdom.title}</Text>
+          <View style={[styles.divider, { backgroundColor: THEME.primary }]} />
+          <Text style={styles.wisdomText}>{wisdom.content}</Text>
         </View>
 
-        {/* Tags */}
-        <View style={styles.tagsContainer}>
-          {wisdomPost.wisdom.tags.map((tag, index) => (
-            <View key={index} style={styles.tag}>
-              <Text style={styles.tagText}>#{tag}</Text>
-            </View>
-          ))}
-        </View>
-
-        {/* Engagement Stats */}
-        <View style={styles.engagementRow}>
-          <TouchableOpacity style={styles.engagementButton}>
-            <Ionicons name="heart" size={24} color="#EF4444" />
-            <Text style={styles.engagementText}>{wisdomPost.engagement.hearts}</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.engagementButton}>
-            <Ionicons name="bookmark" size={24} color="#F59E0B" />
-            <Text style={styles.engagementText}>{wisdomPost.engagement.saved}</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.engagementButton}>
-            <Ionicons name="share-social" size={24} color="#3B82F6" />
-            <Text style={styles.engagementText}>{wisdomPost.engagement.shared}</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Reflections Section */}
-        <View style={styles.reflectionsSection}>
-          <Text style={styles.reflectionsTitle}>Family Reflections</Text>
-          {wisdomPost.engagement.reflections.map((reflection, index) => (
-            <View key={index} style={styles.reflectionCard}>
-              <View style={styles.reflectionHeader}>
-                <Text style={styles.reflectionName}>{reflection.name}</Text>
-                <Ionicons name="heart-outline" size={16} color="#9CA3AF" />
-              </View>
-              <Text style={styles.reflectionText}>{reflection.text}</Text>
-            </View>
-          ))}
-        </View>
-
-        {/* Add Your Reflection */}
-        <TouchableOpacity style={styles.addReflectionButton}>
-          <LinearGradient
-            colors={['#8B5CF6', '#7C3AED']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.addReflectionGradient}
+        {/* Engagement Bar - Minimal */}
+        <View style={styles.engagementBar}>
+          <TouchableOpacity 
+            style={styles.engagementButton}
+            onPress={() => setIsLiked(!isLiked)}
           >
-            <Ionicons name="add-circle-outline" size={20} color="white" />
-            <Text style={styles.addReflectionText}>Add Your Reflection</Text>
-          </LinearGradient>
+            <Ionicons 
+              name={isLiked ? "heart" : "heart-outline"} 
+              size={24} 
+              color={isLiked ? THEME.primary : "#9CA3AF"} 
+            />
+            <Text style={styles.engagementText}>{wisdom.hearts}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.engagementButton}>
+            <Ionicons name="chatbubble-outline" size={24} color="#9CA3AF" />
+            <Text style={styles.engagementText}>{wisdom.reflections}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.engagementButton}
+            onPress={() => setIsSaved(!isSaved)}
+          >
+            <Ionicons 
+              name={isSaved ? "bookmark" : "bookmark-outline"} 
+              size={24} 
+              color={isSaved ? THEME.primary : "#9CA3AF"} 
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.engagementButton}>
+            <Ionicons name="share-outline" size={24} color="#9CA3AF" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Add Reflection - Simple CTA */}
+        <TouchableOpacity style={[styles.ctaButton, { backgroundColor: THEME.primary }]}>
+          <Ionicons name="add" size={20} color="white" />
+          <Text style={styles.ctaText}>Add Your Reflection</Text>
         </TouchableOpacity>
+
+        <View style={{ height: 40 }} />
       </ScrollView>
     </View>
   );
@@ -166,220 +124,118 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     backgroundColor: 'white',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
-  },
-  backButton: {
-    padding: spacing.xs,
+    borderBottomColor: 'rgba(0, 0, 0, 0.06)',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
     color: '#1F2937',
   },
-  moreButton: {
-    padding: spacing.xs,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
-  },
   elderCard: {
-    borderRadius: 16,
-    overflow: 'hidden',
-    marginBottom: spacing.lg,
-    shadowColor: '#F59E0B',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-  elderGradient: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: 'white',
+    margin: spacing.lg,
     padding: spacing.lg,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   elderAvatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    borderWidth: 3,
-    borderColor: 'white',
+    width: 56,
+    height: 56,
+    borderRadius: 28,
   },
   elderInfo: {
     flex: 1,
     marginLeft: spacing.md,
   },
   elderName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
-    color: 'white',
+    color: '#1F2937',
     marginBottom: 2,
   },
   elderAge: {
     fontSize: 13,
-    color: 'rgba(255, 255, 255, 0.9)',
-    fontWeight: '500',
-  },
-  wisdomBadge: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: 'white',
-    alignItems: 'center',
-    justifyContent: 'center',
+    color: '#6B7280',
   },
   categoryBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    backgroundColor: 'rgba(139, 92, 246, 0.1)',
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderRadius: 20,
-    gap: 6,
-    marginBottom: spacing.md,
+    paddingVertical: 6,
+    borderRadius: 12,
   },
   categoryText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#8B5CF6',
+    fontSize: 11,
+    fontWeight: '700',
   },
-  wisdomTitle: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: '#1F2937',
-    marginBottom: spacing.lg,
-    lineHeight: 32,
-  },
-  wisdomContentCard: {
+  contentCard: {
     backgroundColor: 'white',
-    borderRadius: 20,
-    padding: spacing.xl,
+    marginHorizontal: spacing.lg,
     marginBottom: spacing.lg,
+    padding: spacing.xl,
+    borderRadius: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
-    elevation: 3,
-    borderLeftWidth: 4,
-    borderLeftColor: '#F59E0B',
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  quoteIconTop: {
+  wisdomTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#1F2937',
     marginBottom: spacing.md,
-  },
-  wisdomText: {
-    fontSize: 17,
     lineHeight: 28,
-    color: '#374151',
-    fontWeight: '500',
-    fontStyle: 'italic',
   },
-  quoteIconBottom: {
-    alignSelf: 'flex-end',
-    marginTop: spacing.md,
-  },
-  contextCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(107, 114, 128, 0.08)',
-    padding: spacing.md,
-    borderRadius: 12,
-    gap: spacing.sm,
+  divider: {
+    height: 3,
+    width: 40,
+    borderRadius: 2,
     marginBottom: spacing.lg,
   },
-  contextText: {
-    fontSize: 13,
-    color: '#6B7280',
-    fontWeight: '500',
-    flex: 1,
+  wisdomText: {
+    fontSize: 16,
+    lineHeight: 26,
+    color: '#374151',
   },
-  tagsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-    marginBottom: spacing.xl,
-  },
-  tag: {
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderRadius: 16,
-  },
-  tagText: {
-    fontSize: 12,
-    color: '#3B82F6',
-    fontWeight: '600',
-  },
-  engagementRow: {
+  engagementBar: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     backgroundColor: 'white',
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.md,
     padding: spacing.lg,
     borderRadius: 16,
-    marginBottom: spacing.xl,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.04,
     shadowRadius: 8,
     elevation: 2,
   },
   engagementButton: {
     alignItems: 'center',
-    gap: 6,
+    gap: 4,
   },
   engagementText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '700',
     color: '#1F2937',
   },
-  reflectionsSection: {
-    marginBottom: spacing.xl,
-  },
-  reflectionsTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1F2937',
-    marginBottom: spacing.md,
-  },
-  reflectionCard: {
-    backgroundColor: 'white',
-    padding: spacing.lg,
-    borderRadius: 12,
-    marginBottom: spacing.md,
-    borderLeftWidth: 3,
-    borderLeftColor: '#8B5CF6',
-  },
-  reflectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.xs,
-  },
-  reflectionName: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#1F2937',
-  },
-  reflectionText: {
-    fontSize: 14,
-    color: '#6B7280',
-    lineHeight: 22,
-  },
-  addReflectionButton: {
-    borderRadius: 16,
-    overflow: 'hidden',
-    marginBottom: spacing.xl,
-  },
-  addReflectionGradient: {
+  ctaButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    marginHorizontal: spacing.lg,
     paddingVertical: spacing.md,
-    gap: spacing.sm,
+    borderRadius: 12,
+    gap: spacing.xs,
   },
-  addReflectionText: {
-    fontSize: 16,
+  ctaText: {
+    fontSize: 15,
     fontWeight: '700',
     color: 'white',
   },

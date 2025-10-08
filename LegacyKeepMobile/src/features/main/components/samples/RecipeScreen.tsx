@@ -1,133 +1,111 @@
 /**
  * Recipe Screen Sample
- * Modern design for family recipes
+ * Clean, premium design with green theme
  */
 
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { spacing } from '../../../../shared/constants';
+
+// Green theme
+const THEME = {
+  primary: '#10B981',
+  light: '#D1FAE5',
+  dark: '#059669',
+};
 
 const RecipeScreen = () => {
   const [servings, setServings] = useState(4);
+  const [checkedSteps, setCheckedSteps] = useState<Set<number>>(new Set());
 
   const recipe = {
-    title: "Grandma's Special Biryani",
+    title: "Grandma's Biryani",
     author: {
       name: 'Grandmother Lakshmi',
       avatar: 'https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?w=150&h=150&fit=crop&crop=face',
-      relationship: 'Grandmother'
     },
-    image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=800&h=600&fit=crop',
-    stats: {
-      prepTime: '30 min',
-      cookTime: '45 min',
-      difficulty: 'Medium',
-      servings: 4
-    },
-    story: 'This recipe has been passed down through 3 generations. Made it every Sunday for the family.',
+    image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=800&h=400&fit=crop',
+    prepTime: '30 min',
+    cookTime: '45 min',
     ingredients: [
-      { item: 'Basmati Rice', amount: '2 cups' },
-      { item: 'Chicken', amount: '500g' },
-      { item: 'Yogurt', amount: '1 cup' },
-      { item: 'Onions (sliced)', amount: '3 large' },
-      { item: 'Biryani Masala', amount: '3 tbsp' },
-      { item: 'Saffron', amount: '1 pinch' },
+      'Basmati Rice - 2 cups',
+      'Chicken - 500g',
+      'Yogurt - 1 cup',
+      'Onions - 3 large',
+      'Biryani Masala - 3 tbsp',
+      'Saffron - 1 pinch',
     ],
     steps: [
       'Marinate chicken with yogurt and spices for 30 minutes',
-      'Fry onions until golden brown and crispy',
-      'Layer rice and chicken in a heavy-bottomed pot',
-      'Add saffron milk and fried onions on top',
+      'Fry onions until golden brown',
+      'Layer rice and chicken in pot',
+      'Add saffron milk on top',
       'Cook on low heat for 45 minutes',
-      'Let it rest for 10 minutes before serving'
     ],
-    tips: 'The secret is in the layering and the slow cooking. Never rush biryani!',
-    madeBy: 24,
-    saved: 67
+    tip: 'The secret is in the layering and slow cooking!',
+  };
+
+  const toggleStep = (index: number) => {
+    const newChecked = new Set(checkedSteps);
+    if (newChecked.has(index)) {
+      newChecked.delete(index);
+    } else {
+      newChecked.add(index);
+    }
+    setCheckedSteps(newChecked);
   };
 
   return (
     <View style={styles.container}>
-      {/* Header with Image */}
-      <View style={styles.imageContainer}>
-        <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
-        <LinearGradient
-          colors={['transparent', 'rgba(0, 0, 0, 0.7)']}
-          style={styles.imageGradient}
-        >
-          <TouchableOpacity style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="white" />
-          </TouchableOpacity>
-          <View style={styles.imageActions}>
-            <TouchableOpacity style={styles.imageActionButton}>
-              <Ionicons name="heart-outline" size={28} color="white" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.imageActionButton}>
-              <Ionicons name="bookmark-outline" size={28} color="white" />
-            </TouchableOpacity>
-          </View>
-        </LinearGradient>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity>
+          <Ionicons name="arrow-back" size={24} color="#1F2937" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Recipe</Text>
+        <TouchableOpacity>
+          <Ionicons name="bookmark-outline" size={24} color="#1F2937" />
+        </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Recipe Image */}
+        <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
+
         {/* Recipe Header */}
         <View style={styles.recipeHeader}>
           <Text style={styles.recipeTitle}>{recipe.title}</Text>
           
-          {/* Author */}
           <View style={styles.authorRow}>
             <Image source={{ uri: recipe.author.avatar }} style={styles.authorAvatar} />
-            <View>
-              <Text style={styles.authorName}>{recipe.author.name}</Text>
-              <Text style={styles.authorRelation}>{recipe.author.relationship}'s Recipe</Text>
-            </View>
+            <Text style={styles.authorName}>{recipe.author.name}</Text>
           </View>
 
-          {/* Stats */}
-          <View style={styles.statsRow}>
-            <View style={styles.statItem}>
-              <Ionicons name="time-outline" size={18} color="#10B981" />
-              <Text style={styles.statText}>{recipe.stats.prepTime}</Text>
+          <View style={styles.timeRow}>
+            <View style={styles.timeItem}>
+              <Ionicons name="time-outline" size={18} color={THEME.primary} />
+              <Text style={styles.timeText}>{recipe.prepTime}</Text>
             </View>
-            <View style={styles.statItem}>
-              <Ionicons name="flame-outline" size={18} color="#EF4444" />
-              <Text style={styles.statText}>{recipe.stats.cookTime}</Text>
+            <View style={styles.timeItem}>
+              <Ionicons name="flame-outline" size={18} color={THEME.primary} />
+              <Text style={styles.timeText}>{recipe.cookTime}</Text>
             </View>
-            <View style={styles.statItem}>
-              <Ionicons name="bar-chart-outline" size={18} color="#F59E0B" />
-              <Text style={styles.statText}>{recipe.stats.difficulty}</Text>
+            <View style={styles.servingsControl}>
+              <TouchableOpacity 
+                style={styles.servingsButton}
+                onPress={() => setServings(Math.max(1, servings - 1))}
+              >
+                <Ionicons name="remove" size={16} color="#6B7280" />
+              </TouchableOpacity>
+              <Text style={styles.servingsText}>{servings} servings</Text>
+              <TouchableOpacity 
+                style={styles.servingsButton}
+                onPress={() => setServings(servings + 1)}
+              >
+                <Ionicons name="add" size={16} color="#6B7280" />
+              </TouchableOpacity>
             </View>
-          </View>
-        </View>
-
-        {/* Story Card */}
-        <View style={styles.storyCard}>
-          <View style={styles.storyHeader}>
-            <Ionicons name="book" size={20} color="#8B5CF6" />
-            <Text style={styles.storyTitle}>Family Story</Text>
-          </View>
-          <Text style={styles.storyText}>{recipe.story}</Text>
-        </View>
-
-        {/* Servings Adjuster */}
-        <View style={styles.servingsCard}>
-          <Text style={styles.servingsLabel}>Servings</Text>
-          <View style={styles.servingsControls}>
-            <TouchableOpacity 
-              style={styles.servingsButton}
-              onPress={() => setServings(Math.max(1, servings - 1))}
-            >
-              <Ionicons name="remove" size={20} color="#6B7280" />
-            </TouchableOpacity>
-            <Text style={styles.servingsNumber}>{servings}</Text>
-            <TouchableOpacity 
-              style={styles.servingsButton}
-              onPress={() => setServings(servings + 1)}
-            >
-              <Ionicons name="add" size={20} color="#6B7280" />
-            </TouchableOpacity>
           </View>
         </View>
 
@@ -136,10 +114,8 @@ const RecipeScreen = () => {
           <Text style={styles.sectionTitle}>Ingredients</Text>
           {recipe.ingredients.map((ingredient, index) => (
             <View key={index} style={styles.ingredientItem}>
-              <View style={styles.ingredientBullet} />
-              <Text style={styles.ingredientText}>
-                <Text style={styles.ingredientAmount}>{ingredient.amount}</Text> {ingredient.item}
-              </Text>
+              <View style={[styles.bullet, { backgroundColor: THEME.primary }]} />
+              <Text style={styles.ingredientText}>{ingredient}</Text>
             </View>
           ))}
         </View>
@@ -148,34 +124,35 @@ const RecipeScreen = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Instructions</Text>
           {recipe.steps.map((step, index) => (
-            <View key={index} style={styles.stepItem}>
-              <View style={styles.stepNumber}>
-                <Text style={styles.stepNumberText}>{index + 1}</Text>
+            <TouchableOpacity
+              key={index}
+              style={styles.stepItem}
+              onPress={() => toggleStep(index)}
+            >
+              <View style={[
+                styles.stepNumber,
+                { backgroundColor: checkedSteps.has(index) ? THEME.primary : '#F3F4F6' }
+              ]}>
+                {checkedSteps.has(index) ? (
+                  <Ionicons name="checkmark" size={16} color="white" />
+                ) : (
+                  <Text style={[styles.stepNumberText, { color: checkedSteps.has(index) ? 'white' : '#6B7280' }]}>
+                    {index + 1}
+                  </Text>
+                )}
               </View>
-              <Text style={styles.stepText}>{step}</Text>
-            </View>
+              <Text style={[
+                styles.stepText,
+                checkedSteps.has(index) && styles.stepTextChecked
+              ]}>{step}</Text>
+            </TouchableOpacity>
           ))}
         </View>
 
-        {/* Grandma's Tip */}
-        <View style={styles.tipCard}>
-          <View style={styles.tipHeader}>
-            <Ionicons name="bulb" size={20} color="#F59E0B" />
-            <Text style={styles.tipTitle}>Grandma's Secret Tip</Text>
-          </View>
-          <Text style={styles.tipText}>{recipe.tips}</Text>
-        </View>
-
-        {/* Engagement Footer */}
-        <View style={styles.engagementFooter}>
-          <View style={styles.engagementStat}>
-            <Ionicons name="people" size={20} color="#3B82F6" />
-            <Text style={styles.engagementStatText}>{recipe.madeBy} family members made this</Text>
-          </View>
-          <View style={styles.engagementStat}>
-            <Ionicons name="bookmark" size={20} color="#F59E0B" />
-            <Text style={styles.engagementStatText}>{recipe.saved} saved</Text>
-          </View>
+        {/* Tip */}
+        <View style={[styles.tipCard, { backgroundColor: THEME.light }]}>
+          <Ionicons name="bulb" size={20} color={THEME.dark} />
+          <Text style={[styles.tipText, { color: THEME.dark }]}>{recipe.tip}</Text>
         </View>
 
         <View style={{ height: 40 }} />
@@ -189,56 +166,33 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FAFAFA',
   },
-  imageContainer: {
-    height: 300,
-    position: 'relative',
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    backgroundColor: 'white',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.06)',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1F2937',
   },
   recipeImage: {
     width: '100%',
-    height: '100%',
-  },
-  imageGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'space-between',
-    padding: spacing.lg,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignSelf: 'flex-start',
-  },
-  imageActions: {
-    flexDirection: 'row',
-    gap: spacing.md,
-    alignSelf: 'flex-end',
-  },
-  imageActionButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  content: {
-    flex: 1,
+    height: 240,
   },
   recipeHeader: {
     backgroundColor: 'white',
     padding: spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
+    borderBottomColor: 'rgba(0, 0, 0, 0.06)',
   },
   recipeTitle: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: '800',
     color: '#1F2937',
     marginBottom: spacing.md,
@@ -246,111 +200,58 @@ const styles = StyleSheet.create({
   authorRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: spacing.lg,
     gap: spacing.md,
+    marginBottom: spacing.md,
   },
   authorAvatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 2,
-    borderColor: '#F59E0B',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
   },
   authorName: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#1F2937',
-  },
-  authorRelation: {
-    fontSize: 12,
+    fontSize: 14,
+    fontWeight: '600',
     color: '#6B7280',
-    fontWeight: '500',
   },
-  statsRow: {
-    flexDirection: 'row',
-    gap: spacing.lg,
-  },
-  statItem: {
+  timeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: spacing.lg,
   },
-  statText: {
+  timeItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  timeText: {
     fontSize: 13,
     fontWeight: '600',
     color: '#374151',
   },
-  storyCard: {
-    backgroundColor: 'rgba(139, 92, 246, 0.08)',
-    padding: spacing.lg,
-    margin: spacing.lg,
-    borderRadius: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: '#8B5CF6',
-  },
-  storyHeader: {
+  servingsControl: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginLeft: 'auto',
     gap: spacing.sm,
-    marginBottom: spacing.sm,
-  },
-  storyTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#8B5CF6',
-  },
-  storyText: {
-    fontSize: 14,
-    color: '#6B7280',
-    lineHeight: 22,
-    fontStyle: 'italic',
-  },
-  servingsCard: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    padding: spacing.lg,
-    marginHorizontal: spacing.lg,
-    marginBottom: spacing.lg,
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  servingsLabel: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#1F2937',
-  },
-  servingsControls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
   },
   servingsButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     backgroundColor: '#F3F4F6',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  servingsNumber: {
-    fontSize: 18,
+  servingsText: {
+    fontSize: 13,
     fontWeight: '700',
     color: '#1F2937',
-    minWidth: 30,
-    textAlign: 'center',
   },
   section: {
-    paddingHorizontal: spacing.lg,
-    marginBottom: spacing.xl,
+    padding: spacing.lg,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '800',
     color: '#1F2937',
     marginBottom: spacing.md,
@@ -361,93 +262,94 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     gap: spacing.md,
   },
-  ingredientBullet: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#10B981',
+  bullet: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
   ingredientText: {
     fontSize: 15,
     color: '#374151',
-    flex: 1,
-  },
-  ingredientAmount: {
-    fontWeight: '700',
-    color: '#1F2937',
   },
   stepItem: {
     flexDirection: 'row',
-    marginBottom: spacing.lg,
+    alignItems: 'flex-start',
+    marginBottom: spacing.md,
     gap: spacing.md,
   },
   stepNumber: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#10B981',
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
   stepNumberText: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '800',
-    color: 'white',
   },
   stepText: {
     flex: 1,
     fontSize: 15,
     color: '#374151',
-    lineHeight: 24,
+    lineHeight: 22,
     paddingTop: 4,
   },
-  tipCard: {
-    backgroundColor: '#FEF3C7',
-    padding: spacing.lg,
-    marginHorizontal: spacing.lg,
-    marginBottom: spacing.xl,
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: '#FCD34D',
+  stepTextChecked: {
+    color: '#9CA3AF',
+    textDecorationLine: 'line-through',
   },
-  tipHeader: {
+  tipCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
-    marginBottom: spacing.sm,
-  },
-  tipTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#92400E',
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+    padding: spacing.lg,
+    borderRadius: 12,
+    gap: spacing.md,
   },
   tipText: {
+    flex: 1,
     fontSize: 14,
-    color: '#78350F',
-    lineHeight: 22,
-    fontStyle: 'italic',
+    fontWeight: '600',
+    lineHeight: 20,
   },
-  engagementFooter: {
+  engagementBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
     backgroundColor: 'white',
-    padding: spacing.lg,
     marginHorizontal: spacing.lg,
+    marginBottom: spacing.md,
+    padding: spacing.md,
     borderRadius: 16,
-    gap: spacing.md,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.04,
     shadowRadius: 8,
     elevation: 2,
   },
-  engagementStat: {
+  engagementButton: {
+    alignItems: 'center',
+    gap: 4,
+  },
+  engagementText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#1F2937',
+  },
+  ctaButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
+    justifyContent: 'center',
+    marginHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    borderRadius: 12,
+    gap: spacing.xs,
   },
-  engagementStatText: {
-    fontSize: 14,
-    color: '#6B7280',
-    fontWeight: '600',
+  ctaText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: 'white',
   },
 });
 
