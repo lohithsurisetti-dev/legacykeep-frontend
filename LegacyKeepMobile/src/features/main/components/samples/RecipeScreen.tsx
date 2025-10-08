@@ -124,28 +124,34 @@ const RecipeScreen = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Instructions</Text>
           {recipe.steps.map((step, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.stepItem}
-              onPress={() => toggleStep(index)}
-            >
-              <View style={[
-                styles.stepNumber,
-                { backgroundColor: checkedSteps.has(index) ? THEME.primary : '#F3F4F6' }
-              ]}>
-                {checkedSteps.has(index) ? (
-                  <Ionicons name="checkmark" size={16} color="white" />
-                ) : (
-                  <Text style={[styles.stepNumberText, { color: checkedSteps.has(index) ? 'white' : '#6B7280' }]}>
-                    {index + 1}
-                  </Text>
-                )}
-              </View>
-              <Text style={[
-                styles.stepText,
-                checkedSteps.has(index) && styles.stepTextChecked
-              ]}>{step}</Text>
-            </TouchableOpacity>
+            <View key={index} style={styles.stepContainer}>
+              <TouchableOpacity
+                style={styles.stepItem}
+                onPress={() => toggleStep(index)}
+              >
+                <View style={[
+                  styles.stepNumber,
+                  { backgroundColor: checkedSteps.has(index) ? THEME.primary : '#F3F4F6' }
+                ]}>
+                  {checkedSteps.has(index) ? (
+                    <Ionicons name="checkmark" size={16} color="white" />
+                  ) : (
+                    <Text style={[styles.stepNumberText, { color: checkedSteps.has(index) ? 'white' : '#6B7280' }]}>
+                      {index + 1}
+                    </Text>
+                  )}
+                </View>
+                <Text style={[
+                  styles.stepText,
+                  checkedSteps.has(index) && styles.stepTextChecked
+                ]}>{step}</Text>
+              </TouchableOpacity>
+              
+              {/* Add Photo Icon */}
+              <TouchableOpacity style={styles.addPhotoButton}>
+                <Ionicons name="camera-outline" size={18} color={THEME.primary} />
+              </TouchableOpacity>
+            </View>
           ))}
         </View>
 
@@ -271,11 +277,26 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#374151',
   },
-  stepItem: {
+  stepContainer: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     marginBottom: spacing.md,
+    gap: spacing.sm,
+  },
+  stepItem: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     gap: spacing.md,
+  },
+  addPhotoButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#F3F4F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
   },
   stepNumber: {
     width: 28,
