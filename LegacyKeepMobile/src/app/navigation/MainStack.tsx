@@ -232,7 +232,7 @@ const MainStack: React.FC = () => {
         component={AudioCallScreen}
         options={{
           headerShown: false,
-          presentation: 'fullScreenModal',
+          presentation: 'modal',
         }}
       />
       
@@ -241,7 +241,7 @@ const MainStack: React.FC = () => {
         component={VideoCallScreen}
         options={{
           headerShown: false,
-          presentation: 'fullScreenModal',
+          presentation: 'modal',
         }}
       />
     </Stack.Navigator>
