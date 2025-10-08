@@ -11,6 +11,7 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { logger } from '../utils/logger';
 
 // Import language resources
 import en from './locales/en.json';
@@ -41,7 +42,7 @@ const LANGUAGE_DETECTOR = {
       const detectedLanguage = deviceLanguage.split('_')[0];
       callback(detectedLanguage);
     } catch (error) {
-      console.log('Language detection error:', error);
+      logger.warn('Language detection error:', error);
       callback('en'); // Fallback to English
     }
   },
@@ -50,7 +51,7 @@ const LANGUAGE_DETECTOR = {
     try {
       await AsyncStorage.setItem('@legacykeep:language', lng);
     } catch (error) {
-      console.log('Language save error:', error);
+      logger.warn('Language save error:', error);
     }
   },
 };
@@ -88,13 +89,13 @@ i18n
     compatibilityJSON: 'v4',
   })
   .then(() => {
-    console.log('✅ i18n initialized successfully');
-    console.log('Available languages:', Object.keys(i18n.options.resources || {}));
-    console.log('Current language:', i18n.language);
-    console.log('Welcome title translation:', i18n.t('auth.welcome.title'));
+    logger.success('i18n initialized successfully');
+    logger.debug('Available languages:', Object.keys(i18n.options.resources || {}));
+    logger.debug('Current language:', i18n.language);
+    logger.debug('Welcome title translation:', i18n.t('auth.welcome.title'));
   })
   .catch((error) => {
-    console.error('❌ i18n initialization failed:', error);
+    logger.error('i18n initialization failed:', error);
   });
 
 export default i18n;
@@ -114,7 +115,7 @@ export const changeLanguage = async (languageCode: string) => {
     await i18n.changeLanguage(languageCode);
     await AsyncStorage.setItem('@legacykeep:language', languageCode);
   } catch (error) {
-    console.log('Language change error:', error);
+    logger.warn('Language change error:', error);
   }
 };
 
@@ -132,3 +133,7 @@ export * from './texts';
 export * from './theme';
 export { globalStyles } from './globalStyles';
 export { responsiveStyles } from './responsiveStyles';
+
+// Export new constants
+export * from './appConstants';
+export * from './assets';

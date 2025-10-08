@@ -6,6 +6,7 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { authService, userService, tokenStorage } from '../../shared/services';
+import { authLogger } from '../../shared/utils/logger';
 
 // =============================================================================
 // Types
@@ -116,7 +117,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             return;
           }
         } catch (profileError) {
-          console.warn('Failed to get user profile, clearing tokens:', profileError);
+          authLogger.warn('Failed to get user profile, clearing tokens:', profileError);
           await tokenStorage.clearTokens();
         }
       }
@@ -127,7 +128,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         isLoading: false,
       }));
     } catch (error) {
-      console.error('Failed to initialize auth:', error);
+      authLogger.error('Failed to initialize auth:', error);
       setAuthState(prev => ({
         ...prev,
         isLoading: false,
@@ -244,7 +245,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         refreshToken: null,
       });
     } catch (error) {
-      console.error('Logout error:', error);
+      authLogger.error('Logout error:', error);
       
       // Even if API fails, clear local state and tokens
       await tokenStorage.clearTokens();
@@ -274,7 +275,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         throw new Error('Token refresh failed');
       }
     } catch (error) {
-      console.error('Token refresh error:', error);
+      authLogger.error('Token refresh error:', error);
       // If refresh fails, logout the user
       await logout();
     }

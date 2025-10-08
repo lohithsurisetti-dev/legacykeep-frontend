@@ -28,41 +28,42 @@ export interface EnvironmentConfig {
 
 /**
  * Environment-based API configuration
+ * Uses environment variables with fallback defaults
  */
 export const API_CONFIG: EnvironmentConfig = {
   development: {
     endpoints: {
-      auth: 'http://192.168.1.81:8084/api/v1',
-      user: 'http://192.168.1.81:8082/user/api/v1',
-      notification: 'http://192.168.1.81:8083/notification/api/v1',
+      auth: process.env.EXPO_PUBLIC_AUTH_SERVICE_URL || 'http://192.168.1.81:8084/api/v1',
+      user: process.env.EXPO_PUBLIC_USER_SERVICE_URL || 'http://192.168.1.81:8082/user/api/v1',
+      notification: process.env.EXPO_PUBLIC_NOTIFICATION_SERVICE_URL || 'http://192.168.1.81:8083/notification/api/v1',
     },
-    timeout: 30000,
-    retries: 3,
-    retryDelay: 1000,
-    enableMock: true,
-    enableLogging: true,
+    timeout: parseInt(process.env.EXPO_PUBLIC_API_TIMEOUT || '30000', 10),
+    retries: parseInt(process.env.EXPO_PUBLIC_API_RETRIES || '3', 10),
+    retryDelay: parseInt(process.env.EXPO_PUBLIC_API_RETRY_DELAY || '1000', 10),
+    enableMock: process.env.EXPO_PUBLIC_ENABLE_MOCK_API !== 'false',
+    enableLogging: __DEV__,
   },
   staging: {
     endpoints: {
-      auth: 'https://auth-staging.legacykeep.com/api/v1',
-      user: 'https://user-staging.legacykeep.com/api/v1',
-      notification: 'https://notification-staging.legacykeep.com/api/v1',
+      auth: process.env.EXPO_PUBLIC_AUTH_SERVICE_URL || 'https://auth-staging.legacykeep.com/api/v1',
+      user: process.env.EXPO_PUBLIC_USER_SERVICE_URL || 'https://user-staging.legacykeep.com/api/v1',
+      notification: process.env.EXPO_PUBLIC_NOTIFICATION_SERVICE_URL || 'https://notification-staging.legacykeep.com/api/v1',
     },
-    timeout: 30000,
-    retries: 3,
-    retryDelay: 1000,
+    timeout: parseInt(process.env.EXPO_PUBLIC_API_TIMEOUT || '30000', 10),
+    retries: parseInt(process.env.EXPO_PUBLIC_API_RETRIES || '3', 10),
+    retryDelay: parseInt(process.env.EXPO_PUBLIC_API_RETRY_DELAY || '1000', 10),
     enableMock: false,
     enableLogging: true,
   },
   production: {
     endpoints: {
-      auth: 'https://auth.legacykeep.com/api/v1',
-      user: 'https://user.legacykeep.com/api/v1',
-      notification: 'https://notification.legacykeep.com/api/v1',
+      auth: process.env.EXPO_PUBLIC_AUTH_SERVICE_URL || 'https://auth.legacykeep.com/api/v1',
+      user: process.env.EXPO_PUBLIC_USER_SERVICE_URL || 'https://user.legacykeep.com/api/v1',
+      notification: process.env.EXPO_PUBLIC_NOTIFICATION_SERVICE_URL || 'https://notification.legacykeep.com/api/v1',
     },
-    timeout: 30000,
-    retries: 3,
-    retryDelay: 1000,
+    timeout: parseInt(process.env.EXPO_PUBLIC_API_TIMEOUT || '30000', 10),
+    retries: parseInt(process.env.EXPO_PUBLIC_API_RETRIES || '3', 10),
+    retryDelay: parseInt(process.env.EXPO_PUBLIC_API_RETRY_DELAY || '1000', 10),
     enableMock: false,
     enableLogging: false,
   },

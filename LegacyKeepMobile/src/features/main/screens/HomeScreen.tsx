@@ -9,7 +9,7 @@ import { View, Text, StyleSheet, SafeAreaView, ScrollView, Animated, TouchableOp
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
-import { typography, spacing } from '../../../shared/constants';
+import { typography, spacing, UI_CONSTANTS, DEFAULTS } from '../../../shared/constants';
 import { HomeHeader, QuickInsightsBar } from '../../../shared/components/ui';
 import { useLanguage } from '../../../app/providers/LanguageContext';
 import { useTheme } from '../../../app/providers/ThemeContext';
@@ -19,6 +19,7 @@ import { ROUTES } from '../../../app/navigation/types';
 import { getActivePings } from '../data/mockPingPongData';
 import { Ping } from '../types/pingpong.types';
 import { FamilyFeed } from '../components/FamilyFeed';
+import { logger } from '../../../shared/utils/logger';
 
 const HomeScreen: React.FC = () => {
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -35,12 +36,12 @@ const HomeScreen: React.FC = () => {
   useEffect(() => {
     const loadActivePings = () => {
       const pings = getActivePings('family_1');
-      console.log('Loaded pings:', pings.length, pings.map(p => p.userName));
+      logger.debug('Loaded pings:', pings.length, pings.map(p => p.userName));
       setActivePings(pings);
     };
     
     loadActivePings();
-    const interval = setInterval(loadActivePings, 30000);
+    const interval = setInterval(loadActivePings, UI_CONSTANTS.INTERVAL.PING_REFRESH);
     return () => clearInterval(interval);
   }, []);
 
@@ -50,21 +51,21 @@ const HomeScreen: React.FC = () => {
 
   const handleSendMessage = (insight: InsightItem) => {
     // TODO: Navigate to chat with person
-    console.log('Send message for:', insight);
+    logger.debug('Send message for:', insight);
   };
 
   const handleCreateStory = (insight: InsightItem) => {
     // TODO: Navigate to story creation with context
-    console.log('Create story for:', insight);
+    logger.debug('Create story for:', insight);
   };
 
   const handleViewDetails = (insight: InsightItem) => {
     // TODO: Navigate to event/person details
-    console.log('View details for:', insight);
+    logger.debug('View details for:', insight);
   };
 
   const handlePongPress = (pingId: string) => {
-    console.log('Pong pressed for ping:', pingId);
+    logger.debug('Pong pressed for ping:', pingId);
     // Simple response action
   };
 
@@ -84,14 +85,15 @@ const HomeScreen: React.FC = () => {
     return `${Math.floor(diffInMinutes / 60)}h ${diffInMinutes % 60}m`;
   };
 
-  // Calculate progress percentage (0-100) based on 30-minute pivot
+  // Calculate progress percentage (0-100) based on ping expiry time
   const getTimeProgress = (ping: any) => {
     const now = new Date();
     const expiry = new Date(ping.expiresAt);
     const remainingMinutes = Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60));
     
-    // 30 minutes = 100% progress, 0 minutes = 0% progress
-    const progress = Math.max(0, Math.min(100, ((30 - remainingMinutes) / 30) * 100));
+    const { EXPIRY_MINUTES } = UI_CONSTANTS.PING;
+    // EXPIRY_MINUTES = 100% progress, 0 minutes = 0% progress
+    const progress = Math.max(0, Math.min(100, ((EXPIRY_MINUTES - remainingMinutes) / EXPIRY_MINUTES) * 100));
     
     return progress;
   };
@@ -99,10 +101,10 @@ const HomeScreen: React.FC = () => {
 
   // Dynamic content based on user data
   const userName = user?.firstName || 'User';
-  const familyName = 'The Miller Family'; // TODO: Get from user's family data
+  const familyName = DEFAULTS.FAMILY_NAME; // TODO: Get from user's family data
   const userInitials = user?.firstName && user?.lastName 
     ? `${user.firstName[0]}${user.lastName[0]}` 
-    : 'LS';
+    : DEFAULTS.USER_INITIALS;
 
   // Sample insights data - TODO: Replace with real API data
   const sampleInsights: InsightItem[] = [
@@ -249,7 +251,7 @@ const HomeScreen: React.FC = () => {
                                   {ping.userName || 'Unknown User'}
                                 </Text>
                                 <Text style={styles.pongUserRelation}>
-                                  Family Member
+                                  {DEFAULTS.RELATIONSHIP}
                                 </Text>
                               </View>
                             </View>
@@ -383,9 +385,9 @@ const createStyles = (colors: any) => StyleSheet.create({
     gap: spacing.sm,
   },
   pongCard: {
-    width: 280,
-    height: 160,
-    borderRadius: 16,
+    width: UI_CONSTANTS.PONG_CARD.WIDTH,
+    height: UI_CONSTANTS.PONG_CARD.HEIGHT,
+    borderRadius: UI_CONSTANTS.PONG_CARD.BORDER_RADIUS,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
