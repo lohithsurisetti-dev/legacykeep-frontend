@@ -93,6 +93,7 @@ export type MainStackParamList = {
   DocumentSample: undefined;
   VideoSample: undefined;
   MusicSample: undefined;
+  DreamSample: undefined;
 };
 
 export type TabParamList = {

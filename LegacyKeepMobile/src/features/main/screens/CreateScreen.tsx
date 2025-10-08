@@ -832,145 +832,168 @@ const CreateScreen: React.FC = () => {
             <Text style={styles.sampleSectionSubtitle}>See how different content types will look</Text>
             
             <View style={styles.sampleScreensGrid}>
-              <TouchableOpacity 
-                style={styles.sampleScreenCard}
-                onPress={() => navigation.navigate('WisdomSample' as never)}
-              >
-                <LinearGradient
-                  colors={['#F59E0B', '#D97706']}
-                  style={styles.sampleScreenGradient}
+              {/* Row 1 */}
+              <View style={styles.sampleScreenRow}>
+                <TouchableOpacity 
+                  style={styles.sampleScreenCard}
+                  onPress={() => navigation.navigate('WisdomSample' as never)}
                 >
-                  <Ionicons name="bulb" size={32} color="white" />
+                  <LinearGradient
+                    colors={['#F59E0B', '#D97706']}
+                    style={styles.sampleScreenGradient}
+                  >
+                  <Ionicons name="bulb" size={24} color="white" />
                   <Text style={styles.sampleScreenTitle}>Wisdom</Text>
-                  <Text style={styles.sampleScreenSubtitle}>Elder wisdom</Text>
                 </LinearGradient>
               </TouchableOpacity>
 
-              <TouchableOpacity 
-                style={styles.sampleScreenCard}
-                onPress={() => navigation.navigate('RecipeSample' as never)}
-              >
-                <LinearGradient
-                  colors={['#10B981', '#059669']}
-                  style={styles.sampleScreenGradient}
+                <TouchableOpacity 
+                  style={styles.sampleScreenCard}
+                  onPress={() => navigation.navigate('RecipeSample' as never)}
                 >
-                  <Ionicons name="restaurant" size={32} color="white" />
-                  <Text style={styles.sampleScreenTitle}>Recipe</Text>
-                  <Text style={styles.sampleScreenSubtitle}>Family recipes</Text>
-                </LinearGradient>
-              </TouchableOpacity>
+                  <LinearGradient
+                    colors={['#10B981', '#059669']}
+                    style={styles.sampleScreenGradient}
+                  >
+                  <Ionicons name="restaurant" size={24} color="white" />
+                    <Text style={styles.sampleScreenTitle}>Recipe</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
 
-              <TouchableOpacity 
-                style={styles.sampleScreenCard}
-                onPress={() => navigation.navigate('StorySample' as never)}
-              >
-                <LinearGradient
-                  colors={['#8B5CF6', '#7C3AED']}
-                  style={styles.sampleScreenGradient}
+              {/* Row 2 */}
+              <View style={styles.sampleScreenRow}>
+                <TouchableOpacity 
+                  style={styles.sampleScreenCard}
+                  onPress={() => navigation.navigate('StorySample' as never)}
                 >
-                  <Ionicons name="book" size={32} color="white" />
+                  <LinearGradient
+                    colors={['#8B5CF6', '#7C3AED']}
+                    style={styles.sampleScreenGradient}
+                  >
+                  <Ionicons name="book" size={24} color="white" />
                   <Text style={styles.sampleScreenTitle}>Story</Text>
-                  <Text style={styles.sampleScreenSubtitle}>Narratives</Text>
                 </LinearGradient>
               </TouchableOpacity>
 
-              <TouchableOpacity 
-                style={styles.sampleScreenCard}
-                onPress={() => navigation.navigate('ReminderSample' as never)}
-              >
-                <LinearGradient
-                  colors={['#3B82F6', '#2563EB']}
-                  style={styles.sampleScreenGradient}
+                <TouchableOpacity 
+                  style={styles.sampleScreenCard}
+                  onPress={() => navigation.navigate('ReminderSample' as never)}
                 >
-                  <Ionicons name="checkbox" size={32} color="white" />
+                  <LinearGradient
+                    colors={['#3B82F6', '#2563EB']}
+                    style={styles.sampleScreenGradient}
+                  >
+                  <Ionicons name="checkbox" size={24} color="white" />
                   <Text style={styles.sampleScreenTitle}>Reminder</Text>
-                  <Text style={styles.sampleScreenSubtitle}>Chores & lists</Text>
                 </LinearGradient>
               </TouchableOpacity>
+              </View>
 
-              <TouchableOpacity 
-                style={styles.sampleScreenCard}
-                onPress={() => navigation.navigate('RitualSample' as never)}
-              >
-                <LinearGradient
-                  colors={['#EF4444', '#DC2626']}
-                  style={styles.sampleScreenGradient}
+              {/* Row 3 */}
+              <View style={styles.sampleScreenRow}>
+                <TouchableOpacity 
+                  style={styles.sampleScreenCard}
+                  onPress={() => navigation.navigate('RitualSample' as never)}
                 >
-                  <Ionicons name="flame" size={32} color="white" />
+                  <LinearGradient
+                    colors={['#EF4444', '#DC2626']}
+                    style={styles.sampleScreenGradient}
+                  >
+                  <Ionicons name="flame" size={24} color="white" />
                   <Text style={styles.sampleScreenTitle}>Ritual</Text>
-                  <Text style={styles.sampleScreenSubtitle}>Traditions</Text>
                 </LinearGradient>
               </TouchableOpacity>
 
-              <TouchableOpacity 
-                style={styles.sampleScreenCard}
-                onPress={() => navigation.navigate('PhotoSample' as never)}
-              >
-                <LinearGradient
-                  colors={['#059669', '#047857']}
-                  style={styles.sampleScreenGradient}
+                <TouchableOpacity 
+                  style={styles.sampleScreenCard}
+                  onPress={() => navigation.navigate('PhotoSample' as never)}
                 >
-                  <Ionicons name="camera" size={32} color="white" />
+                  <LinearGradient
+                    colors={['#059669', '#047857']}
+                    style={styles.sampleScreenGradient}
+                  >
+                  <Ionicons name="camera" size={24} color="white" />
                   <Text style={styles.sampleScreenTitle}>Photo</Text>
-                  <Text style={styles.sampleScreenSubtitle}>Memories</Text>
                 </LinearGradient>
               </TouchableOpacity>
+              </View>
 
-              <TouchableOpacity 
-                style={styles.sampleScreenCard}
-                onPress={() => navigation.navigate('VoiceSample' as never)}
-              >
-                <LinearGradient
-                  colors={['#0d9488', '#0f766e']}
-                  style={styles.sampleScreenGradient}
+              {/* Row 4 */}
+              <View style={styles.sampleScreenRow}>
+                <TouchableOpacity 
+                  style={styles.sampleScreenCard}
+                  onPress={() => navigation.navigate('VoiceSample' as never)}
                 >
-                  <Ionicons name="mic" size={32} color="white" />
+                  <LinearGradient
+                    colors={['#0d9488', '#0f766e']}
+                    style={styles.sampleScreenGradient}
+                  >
+                  <Ionicons name="mic" size={24} color="white" />
                   <Text style={styles.sampleScreenTitle}>Voice</Text>
-                  <Text style={styles.sampleScreenSubtitle}>Messages</Text>
                 </LinearGradient>
               </TouchableOpacity>
 
-              <TouchableOpacity 
-                style={styles.sampleScreenCard}
-                onPress={() => navigation.navigate('DocumentSample' as never)}
-              >
-                <LinearGradient
-                  colors={['#be185d', '#9d174d']}
-                  style={styles.sampleScreenGradient}
+                <TouchableOpacity 
+                  style={styles.sampleScreenCard}
+                  onPress={() => navigation.navigate('DocumentSample' as never)}
                 >
-                  <Ionicons name="document-text" size={32} color="white" />
+                  <LinearGradient
+                    colors={['#be185d', '#9d174d']}
+                    style={styles.sampleScreenGradient}
+                  >
+                  <Ionicons name="document-text" size={24} color="white" />
                   <Text style={styles.sampleScreenTitle}>Document</Text>
-                  <Text style={styles.sampleScreenSubtitle}>Records</Text>
                 </LinearGradient>
               </TouchableOpacity>
+              </View>
 
-              <TouchableOpacity 
-                style={styles.sampleScreenCard}
-                onPress={() => navigation.navigate('VideoSample' as never)}
-              >
-                <LinearGradient
-                  colors={['#dc2626', '#b91c1c']}
-                  style={styles.sampleScreenGradient}
+              {/* Row 5 */}
+              <View style={styles.sampleScreenRow}>
+                <TouchableOpacity 
+                  style={styles.sampleScreenCard}
+                  onPress={() => navigation.navigate('VideoSample' as never)}
                 >
-                  <Ionicons name="videocam" size={32} color="white" />
+                  <LinearGradient
+                    colors={['#dc2626', '#b91c1c']}
+                    style={styles.sampleScreenGradient}
+                  >
+                  <Ionicons name="videocam" size={24} color="white" />
                   <Text style={styles.sampleScreenTitle}>Video</Text>
-                  <Text style={styles.sampleScreenSubtitle}>Moments</Text>
                 </LinearGradient>
               </TouchableOpacity>
 
-              <TouchableOpacity 
-                style={styles.sampleScreenCard}
-                onPress={() => navigation.navigate('MusicSample' as never)}
-              >
-                <LinearGradient
-                  colors={['#7c3aed', '#6b21a8']}
-                  style={styles.sampleScreenGradient}
+                <TouchableOpacity 
+                  style={styles.sampleScreenCard}
+                  onPress={() => navigation.navigate('MusicSample' as never)}
                 >
-                  <Ionicons name="musical-notes" size={32} color="white" />
+                  <LinearGradient
+                    colors={['#7c3aed', '#6b21a8']}
+                    style={styles.sampleScreenGradient}
+                  >
+                  <Ionicons name="musical-notes" size={24} color="white" />
                   <Text style={styles.sampleScreenTitle}>Music</Text>
-                  <Text style={styles.sampleScreenSubtitle}>Songs</Text>
                 </LinearGradient>
               </TouchableOpacity>
+              </View>
+
+              {/* Row 6 */}
+              <View style={styles.sampleScreenRow}>
+                <TouchableOpacity 
+                  style={styles.sampleScreenCard}
+                  onPress={() => navigation.navigate('DreamSample' as never)}
+                >
+                  <LinearGradient
+                    colors={['#4F46E5', '#3730A3']}
+                    style={styles.sampleScreenGradient}
+                  >
+                  <Ionicons name="moon" size={24} color="white" />
+                    <Text style={styles.sampleScreenTitle}>Dream</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+
+                <View style={styles.sampleScreenCard} />
+              </View>
             </View>
           </View>
         </View>
@@ -1832,38 +1855,41 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   sampleScreensGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.md,
     paddingHorizontal: spacing.lg,
   },
   sampleScreenCard: {
     width: (screenWidth - spacing.lg * 2 - spacing.md) / 2,
-    height: normalize(160),
-    borderRadius: 20,
+    height: normalize(80),
+    borderRadius: 12,
     overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  sampleScreenRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: spacing.md,
+    gap: spacing.md,
   },
   sampleScreenGradient: {
     flex: 1,
-    padding: spacing.lg,
+    padding: spacing.sm,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: spacing.sm,
+    gap: 2,
   },
   sampleScreenTitle: {
-    fontSize: normalize(18),
-    fontWeight: '800',
+    fontSize: normalize(12),
+    fontWeight: '700',
     color: 'white',
     textAlign: 'center',
   },
   sampleScreenSubtitle: {
-    fontSize: normalize(12),
-    color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: normalize(10),
+    color: 'rgba(255, 255, 255, 0.85)',
     textAlign: 'center',
     fontWeight: '500',
   },

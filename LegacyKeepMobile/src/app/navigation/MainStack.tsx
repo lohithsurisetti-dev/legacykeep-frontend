@@ -32,6 +32,7 @@ import VoiceScreen from '../../features/main/components/samples/VoiceScreen';
 import DocumentScreen from '../../features/main/components/samples/DocumentScreen';
 import VideoScreen from '../../features/main/components/samples/VideoScreen';
 import MusicScreen from '../../features/main/components/samples/MusicScreen';
+import DreamScreen from '../../features/main/components/samples/DreamScreen';
 
 const Stack = createStackNavigator<MainStackParamList>();
 
@@ -211,6 +212,14 @@ const MainStack: React.FC = () => {
       <Stack.Screen
         name="MusicSample"
         component={MusicScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      
+      <Stack.Screen
+        name="DreamSample"
+        component={DreamScreen}
         options={{
           headerShown: false,
         }}
