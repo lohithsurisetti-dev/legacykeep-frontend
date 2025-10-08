@@ -149,7 +149,7 @@ const RecipeScreen = () => {
               
               {/* Add Photo Icon */}
               <TouchableOpacity style={styles.addPhotoButton}>
-                <Ionicons name="camera-outline" size={18} color={THEME.primary} />
+                <Ionicons name="image-outline" size={18} color={THEME.primary} />
               </TouchableOpacity>
             </View>
           ))}

@@ -83,6 +83,16 @@ export type MainStackParamList = {
   HelpSupport: undefined;
   About: undefined;
   Media: undefined;
+  WisdomSample: undefined;
+  RecipeSample: undefined;
+  StorySample: undefined;
+  ReminderSample: undefined;
+  RitualSample: undefined;
+  PhotoSample: undefined;
+  VoiceSample: undefined;
+  DocumentSample: undefined;
+  VideoSample: undefined;
+  MusicSample: undefined;
 };
 
 export type TabParamList = {
