@@ -204,7 +204,7 @@ const HomeScreen: React.FC = () => {
                   >
                   {activePings.map((ping, index) => {
                     // Different gradients for each card
-                    const gradients = [
+                    const gradients: [string, string][] = [
                       ['rgba(103, 126, 234, 0.8)', 'rgba(118, 75, 162, 0.8)'], // Purple-blue
                       ['rgba(16, 185, 129, 0.8)', 'rgba(5, 150, 105, 0.8)'], // Green
                       ['rgba(245, 158, 11, 0.8)', 'rgba(217, 119, 6, 0.8)'], // Orange
@@ -314,8 +314,8 @@ const HomeScreen: React.FC = () => {
 
             {/* Instagram-Style Family Feed */}
             <FamilyFeed />
+          </View>
 
-      </View>
         </Animated.ScrollView>
 
         </SafeAreaView>
@@ -358,7 +358,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     alignItems: 'center',
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.sm,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.sm,
   },
   pongSectionHeaderCollapsed: {
     marginBottom: spacing.xs,
@@ -383,9 +383,9 @@ const createStyles = (colors: any) => StyleSheet.create({
     gap: spacing.sm,
   },
   pongCard: {
-    width: 300,
-    height: 180, // Increased height for better content
-    borderRadius: 20,
+    width: 280,
+    height: 160,
+    borderRadius: 16,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -398,7 +398,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   pongGlassmorphism: {
     flex: 1,
-    borderRadius: 20,
+    borderRadius: 16,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.3)',
@@ -411,11 +411,11 @@ const createStyles = (colors: any) => StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.2)',
-    borderRadius: 20,
+    borderRadius: 16,
     zIndex: 1,
   },
   pongCardGradient: {
-    padding: spacing.lg,
+    padding: spacing.md,
     height: '100%', // Take full card height
     justifyContent: 'space-between', // Distribute content evenly
     zIndex: 2,

@@ -20,7 +20,8 @@ import {
   Modal,
   StatusBar,
   Pressable,
-  Animated
+  Animated,
+  Vibration
 } from 'react-native';
 import { PanGestureHandler, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
@@ -44,6 +45,47 @@ const { width: screenWidth } = Dimensions.get('window');
 const formatTime = (timestamp: string) => {
   // Simple time formatting - in real app, use proper date formatting
   return timestamp;
+};
+
+// Typing Indicator Component
+const TypingIndicator: React.FC<{
+  users: string[];
+  animation: Animated.Value;
+}> = ({ users, animation }) => {
+  if (users.length === 0) return null;
+
+  const dot1Opacity = animation.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [0.3, 1, 0.3],
+  });
+
+  const dot2Opacity = animation.interpolate({
+    inputRange: [0, 0.33, 0.66, 1],
+    outputRange: [0.3, 0.3, 1, 0.3],
+  });
+
+  const dot3Opacity = animation.interpolate({
+    inputRange: [0, 0.66, 1],
+    outputRange: [0.3, 0.3, 1],
+  });
+
+  return (
+    <View style={styles.typingIndicator}>
+      <View style={styles.typingAvatar}>
+        <Ionicons name="person" size={16} color="white" />
+      </View>
+      <View style={styles.typingBubble}>
+        <Text style={styles.typingText}>
+          {users.length === 1 ? `${users[0]} is typing` : `${users.length} people are typing`}
+        </Text>
+        <View style={styles.typingDots}>
+          <Animated.View style={[styles.typingDot, { opacity: dot1Opacity }]} />
+          <Animated.View style={[styles.typingDot, { opacity: dot2Opacity }]} />
+          <Animated.View style={[styles.typingDot, { opacity: dot3Opacity }]} />
+        </View>
+      </View>
+    </View>
+  );
 };
 
 // Simple Reactions Bar Component
@@ -404,7 +446,14 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
   const [flippedMessages, setFlippedMessages] = useState<Set<string>>(new Set());
   const [showMessageOverlay, setShowMessageOverlay] = useState(false);
   const [selectedMessageForOverlay, setSelectedMessageForOverlay] = useState<ChatMessage | null>(null);
+  const [isTyping, setIsTyping] = useState(false);
+  const [typingUsers, setTypingUsers] = useState<string[]>([]);
   const scrollViewRef = useRef<ScrollView>(null);
+  
+  // Animation values
+  const typingAnimation = useRef(new Animated.Value(0)).current;
+  const messageSendAnimation = useRef(new Animated.Value(0)).current;
+  const pulseAnimation = useRef(new Animated.Value(1)).current;
   
   // Generate consistent colors for each sender
   const getSenderColor = (senderId: string) => {
@@ -431,6 +480,63 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
     const index = Math.abs(hash) % colors.length;
     return colors[index];
   };
+
+  // Typing indicator animation
+  useEffect(() => {
+    if (isTyping) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(typingAnimation, {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+          Animated.timing(typingAnimation, {
+            toValue: 0,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    } else {
+      typingAnimation.setValue(0);
+    }
+  }, [isTyping]);
+
+  // Message send animation
+  const animateMessageSend = () => {
+    Vibration.vibrate(50); // Haptic feedback
+    Animated.sequence([
+      Animated.timing(messageSendAnimation, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(messageSendAnimation, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  // Pulse animation for interactive elements
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnimation, {
+          toValue: 1.1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnimation, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
 
   // Flip message function
   const toggleMessageFlip = (messageId: string) => {
@@ -786,19 +892,51 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
           
           {/* Send button - only show when there's text */}
           {message.trim() && (
-            <TouchableOpacity 
-              style={styles.sendButton}
-              onPress={handleSendMessage}
+            <Animated.View 
+              style={[
+                styles.sendButton,
+                {
+                  transform: [
+                    {
+                      scale: messageSendAnimation.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [1, 1.2],
+                      }),
+                    },
+                  ],
+                },
+              ]}
             >
-              <LinearGradient
-                colors={gradients.peacock}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.sendButtonGradient}
+              <TouchableOpacity 
+                onPress={() => {
+                  animateMessageSend();
+                  handleSendMessage();
+                }}
+                activeOpacity={0.8}
               >
-                <Ionicons name="send" size={20} color="white" />
-              </LinearGradient>
-            </TouchableOpacity>
+                <LinearGradient
+                  colors={gradients.peacock}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.sendButtonGradient}
+                >
+                  <Animated.View
+                    style={{
+                      transform: [
+                        {
+                          rotate: messageSendAnimation.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: ['0deg', '15deg'],
+                          }),
+                        },
+                      ],
+                    }}
+                  >
+                    <Ionicons name="send" size={20} color="white" />
+                  </Animated.View>
+                </LinearGradient>
+              </TouchableOpacity>
+            </Animated.View>
           )}
         </View>
       </View>
@@ -872,6 +1010,12 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
               {renderMessage(msg, index)}
             </View>
           ))}
+          
+          {/* Typing Indicator */}
+          <TypingIndicator 
+            users={typingUsers} 
+            animation={typingAnimation} 
+          />
         </ScrollView>
         
         {/* Input Area */}
@@ -1589,6 +1733,48 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  },
+  // Typing Indicator Styles
+  typingIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  typingAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.primary[500],
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: spacing.sm,
+  },
+  typingBubble: {
+    backgroundColor: '#E5E7EB',
+    borderRadius: 18,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    maxWidth: '70%',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  typingText: {
+    fontSize: typography.sizes.sm,
+    color: colors.text.secondary,
+    marginRight: spacing.xs,
+  },
+  typingDots: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  typingDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.text.secondary,
+    marginHorizontal: 2,
   },
 });
 

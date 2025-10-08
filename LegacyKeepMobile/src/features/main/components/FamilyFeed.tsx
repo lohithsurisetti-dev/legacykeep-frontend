@@ -18,9 +18,10 @@ import {
   TextInput,
   Alert,
   Vibration,
+  Pressable,
 } from 'react-native';
+import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { typography, spacing } from '../../../shared/constants';
 import { useTheme } from '../../../app/providers/ThemeContext';
 
@@ -195,6 +196,370 @@ const mockFeedPosts: FeedPost[] = [
     createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), // 6 hours ago
     isLiked: false,
     isBookmarked: false
+  },
+  {
+    id: 'post_4',
+    type: 'single_image',
+    author: {
+      id: 'user_6',
+      name: 'Emma Wilson',
+      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
+      relationship: 'Sister'
+    },
+    content: {
+      caption: 'Throwback to our childhood adventures! Remember when we used to explore the woods behind grandpa\'s house? Good times! 🌲✨',
+      media: [{
+        id: 'media_4',
+        type: 'image',
+        url: 'https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=800&h=600&fit=crop'
+      }]
+    },
+    interactions: {
+      likes: 38,
+      comments: 11,
+      shares: 5,
+      bookmarks: 14,
+      views: 234,
+      ratings: [],
+      reactions: [
+        { userId: 'user_2', type: 'MEMORY', emoji: '🧠' },
+        { userId: 'user_3', type: 'LOVE', emoji: '❤️' }
+      ]
+    },
+    createdAt: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
+    isLiked: false,
+    isBookmarked: false
+  },
+  {
+    id: 'post_5',
+    type: 'single_image',
+    author: {
+      id: 'user_7',
+      name: 'Michael Chen',
+      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
+      relationship: 'Cousin'
+    },
+    content: {
+      caption: 'Family game night was epic! Nothing beats the competitive spirit and laughter we share. Who\'s ready for round two? 🎲🏆',
+      media: [{
+        id: 'media_5',
+        type: 'image',
+        url: 'https://images.unsplash.com/photo-1606167668584-78701c57f13d?w=800&h=600&fit=crop'
+      }]
+    },
+    interactions: {
+      likes: 45,
+      comments: 18,
+      shares: 6,
+      bookmarks: 9,
+      views: 312,
+      ratings: [],
+      reactions: [
+        { userId: 'user_2', type: 'LAUGH', emoji: '😂' },
+        { userId: 'user_4', type: 'PRIDE', emoji: '🏆' }
+      ]
+    },
+    createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+    isLiked: false,
+    isBookmarked: false
+  },
+  {
+    id: 'post_6',
+    type: 'single_image',
+    author: {
+      id: 'user_8',
+      name: 'Sarah Martinez',
+      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face',
+      relationship: 'Aunt'
+    },
+    content: {
+      caption: 'Captured this beautiful sunset during our family picnic. Grateful for these peaceful moments together. 🌅💛',
+      media: [{
+        id: 'media_6',
+        type: 'image',
+        url: 'https://images.unsplash.com/photo-1495954484750-af469f2f9be5?w=800&h=600&fit=crop'
+      }]
+    },
+    interactions: {
+      likes: 56,
+      comments: 9,
+      shares: 8,
+      bookmarks: 21,
+      views: 398,
+      ratings: [],
+      reactions: [
+        { userId: 'user_3', type: 'GRATITUDE', emoji: '🙏' },
+        { userId: 'user_5', type: 'LOVE', emoji: '❤️' }
+      ]
+    },
+    createdAt: new Date(Date.now() - 18 * 60 * 60 * 1000).toISOString(),
+    isLiked: false,
+    isBookmarked: false
+  },
+  {
+    id: 'post_7',
+    type: 'single_image',
+    author: {
+      id: 'user_2',
+      name: 'John Doe',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+      relationship: 'Brother'
+    },
+    content: {
+      caption: 'Found this old photo from our trip to the mountains! Can\'t believe how time flies. Miss these carefree days! ⛰️📸',
+      media: [{
+        id: 'media_7',
+        type: 'image',
+        url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop'
+      }]
+    },
+    interactions: {
+      likes: 29,
+      comments: 7,
+      shares: 4,
+      bookmarks: 11,
+      views: 187,
+      ratings: [],
+      reactions: [
+        { userId: 'user_3', type: 'MEMORY', emoji: '🧠' },
+        { userId: 'user_4', type: 'LOVE', emoji: '❤️' }
+      ]
+    },
+    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+    isLiked: false,
+    isBookmarked: false
+  },
+  {
+    id: 'post_8',
+    type: 'single_image',
+    author: {
+      id: 'user_4',
+      name: 'Priya Sharma',
+      avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face',
+      relationship: 'Mother'
+    },
+    content: {
+      caption: 'Sharing grandma\'s handwritten recipe book. Each page holds precious memories and love. Let\'s keep these traditions alive! 📖💕',
+      media: [{
+        id: 'media_8',
+        type: 'image',
+        url: 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800&h=600&fit=crop'
+      }]
+    },
+    interactions: {
+      likes: 52,
+      comments: 14,
+      shares: 11,
+      bookmarks: 28,
+      views: 423,
+      ratings: [],
+      reactions: [
+        { userId: 'user_2', type: 'WISDOM', emoji: '🧙‍♂️' },
+        { userId: 'user_5', type: 'TRADITION', emoji: '🏛️' },
+        { userId: 'user_6', type: 'GRATITUDE', emoji: '🙏' }
+      ]
+    },
+    createdAt: new Date(Date.now() - 30 * 60 * 60 * 1000).toISOString(),
+    isLiked: false,
+    isBookmarked: false
+  },
+  {
+    id: 'post_9',
+    type: 'single_image',
+    author: {
+      id: 'user_6',
+      name: 'Emma Wilson',
+      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
+      relationship: 'Sister'
+    },
+    content: {
+      caption: 'Our old family home before the renovation. So many memories made in these rooms. 🏡💭',
+      media: [{
+        id: 'media_9',
+        type: 'image',
+        url: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&h=600&fit=crop'
+      }]
+    },
+    interactions: {
+      likes: 41,
+      comments: 13,
+      shares: 6,
+      bookmarks: 17,
+      views: 267,
+      ratings: [],
+      reactions: [
+        { userId: 'user_3', type: 'MEMORY', emoji: '🧠' },
+        { userId: 'user_4', type: 'LOVE', emoji: '❤️' }
+      ]
+    },
+    createdAt: new Date(Date.now() - 36 * 60 * 60 * 1000).toISOString(),
+    isLiked: false,
+    isBookmarked: false
+  },
+  {
+    id: 'post_10',
+    type: 'single_image',
+    author: {
+      id: 'user_3',
+      name: 'David Thompson',
+      avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=150&h=150&fit=crop&crop=face',
+      relationship: 'Father'
+    },
+    content: {
+      caption: 'Teaching the next generation our family\'s woodworking traditions. Proud to pass on these skills! 🪵🔨',
+      media: [{
+        id: 'media_10',
+        type: 'image',
+        url: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?w=800&h=600&fit=crop'
+      }]
+    },
+    interactions: {
+      likes: 37,
+      comments: 9,
+      shares: 5,
+      bookmarks: 15,
+      views: 221,
+      ratings: [],
+      reactions: [
+        { userId: 'user_2', type: 'TRADITION', emoji: '🏛️' },
+        { userId: 'user_4', type: 'PRIDE', emoji: '🏆' }
+      ]
+    },
+    createdAt: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
+    isLiked: false,
+    isBookmarked: false
+  },
+  {
+    id: 'post_11',
+    type: 'single_image',
+    author: {
+      id: 'user_7',
+      name: 'Michael Chen',
+      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
+      relationship: 'Cousin'
+    },
+    content: {
+      caption: 'Beach day with the fam! Building sandcastles and making memories. Life is good! 🏖️☀️',
+      media: [{
+        id: 'media_11',
+        type: 'image',
+        url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop'
+      }]
+    },
+    interactions: {
+      likes: 62,
+      comments: 16,
+      shares: 8,
+      bookmarks: 19,
+      views: 412,
+      ratings: [],
+      reactions: [
+        { userId: 'user_2', type: 'LOVE', emoji: '❤️' },
+        { userId: 'user_6', type: 'GRATITUDE', emoji: '🙏' }
+      ]
+    },
+    createdAt: new Date(Date.now() - 60 * 60 * 60 * 1000).toISOString(),
+    isLiked: false,
+    isBookmarked: false
+  },
+  {
+    id: 'post_12',
+    type: 'single_image',
+    author: {
+      id: 'user_8',
+      name: 'Sarah Martinez',
+      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face',
+      relationship: 'Aunt'
+    },
+    content: {
+      caption: 'Organizing old family albums. Found so many treasures! Each photo tells a beautiful story. 📚✨',
+      media: [{
+        id: 'media_12',
+        type: 'image',
+        url: 'https://images.unsplash.com/photo-1516414447565-b14be0adf13e?w=800&h=600&fit=crop'
+      }]
+    },
+    interactions: {
+      likes: 48,
+      comments: 11,
+      shares: 7,
+      bookmarks: 24,
+      views: 334,
+      ratings: [],
+      reactions: [
+        { userId: 'user_2', type: 'MEMORY', emoji: '🧠' },
+        { userId: 'user_4', type: 'WISDOM', emoji: '🧙‍♂️' }
+      ]
+    },
+    createdAt: new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString(),
+    isLiked: false,
+    isBookmarked: false
+  },
+  {
+    id: 'post_13',
+    type: 'single_image',
+    author: {
+      id: 'user_2',
+      name: 'John Doe',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+      relationship: 'Brother'
+    },
+    content: {
+      caption: 'Just found this gem from our high school days! Can\'t stop laughing at our old fashion choices! 😂📸',
+      media: [{
+        id: 'media_13',
+        type: 'image',
+        url: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&h=600&fit=crop'
+      }]
+    },
+    interactions: {
+      likes: 33,
+      comments: 19,
+      shares: 6,
+      bookmarks: 8,
+      views: 198,
+      ratings: [],
+      reactions: [
+        { userId: 'user_4', type: 'LAUGH', emoji: '😂' },
+        { userId: 'user_6', type: 'MEMORY', emoji: '🧠' }
+      ]
+    },
+    createdAt: new Date(Date.now() - 84 * 60 * 60 * 1000).toISOString(),
+    isLiked: false,
+    isBookmarked: false
+  },
+  {
+    id: 'post_14',
+    type: 'single_image',
+    author: {
+      id: 'user_4',
+      name: 'Priya Sharma',
+      avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face',
+      relationship: 'Mother'
+    },
+    content: {
+      caption: 'Morning meditation in the garden. Finding peace in our family sanctuary. 🧘‍♀️🌿',
+      media: [{
+        id: 'media_14',
+        type: 'image',
+        url: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&h=600&fit=crop'
+      }]
+    },
+    interactions: {
+      likes: 44,
+      comments: 7,
+      shares: 4,
+      bookmarks: 18,
+      views: 267,
+      ratings: [],
+      reactions: [
+        { userId: 'user_3', type: 'GRATITUDE', emoji: '🙏' },
+        { userId: 'user_7', type: 'BLESSING', emoji: '🙏' }
+      ]
+    },
+    createdAt: new Date(Date.now() - 96 * 60 * 60 * 1000).toISOString(),
+    isLiked: false,
+    isBookmarked: false
   }
 ];
 
@@ -215,7 +580,11 @@ const REACTION_TYPES = {
   TRADITION: { emoji: '🏛️', color: '#3F51B5' }
 };
 
-export const FamilyFeed: React.FC = () => {
+interface FamilyFeedProps {
+  scrollY?: Animated.Value;
+}
+
+export const FamilyFeed: React.FC<FamilyFeedProps> = ({ scrollY: parentScrollY }) => {
   const { colors } = useTheme();
   const [posts, setPosts] = useState<FeedPost[]>(mockFeedPosts);
   const [showReactions, setShowReactions] = useState<string | null>(null);
@@ -223,8 +592,64 @@ export const FamilyFeed: React.FC = () => {
   const [commentText, setCommentText] = useState('');
   const [expandedPosts, setExpandedPosts] = useState<Set<string>>(new Set());
   const [carouselIndex, setCarouselIndex] = useState<Record<string, number>>({});
+  const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
+  const [bookmarkedPosts, setBookmarkedPosts] = useState<Set<string>>(new Set());
+  const [authorPostIndex, setAuthorPostIndex] = useState<Record<string, number>>({});
+
+  // Animation values
+  const cardAnimations = useRef<Record<string, Animated.Value>>({}).current;
+  const likeAnimations = useRef<Record<string, Animated.Value>>({}).current;
+  const shimmerAnimation = useRef(new Animated.Value(0)).current;
+  const swipeAnimations = useRef<Record<string, Animated.Value>>({}).current;
+  const cardSwapAnimations = useRef<Record<string, Animated.Value>>({}).current;
 
   const styles = createStyles(colors);
+
+  // Get all posts by an author, sorted by timestamp (newest first)
+  const getAuthorPosts = (authorId: string) => {
+    return posts
+      .filter(p => p.author.id === authorId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  };
+
+  // Initialize animations for each post
+  useEffect(() => {
+    posts.forEach((post, index) => {
+      if (!cardAnimations[post.id]) {
+        cardAnimations[post.id] = new Animated.Value(0);
+        likeAnimations[post.id] = new Animated.Value(1);
+        
+        // Staggered entrance animation
+        setTimeout(() => {
+          Animated.timing(cardAnimations[post.id], {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: true,
+          }).start();
+        }, index * 100);
+      }
+    });
+  }, [posts]);
+
+  // Shimmer effect for loading states
+  useEffect(() => {
+    const shimmerLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(shimmerAnimation, {
+          toValue: 1,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shimmerAnimation, {
+          toValue: 0,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    shimmerLoop.start();
+    return () => shimmerLoop.stop();
+  }, []);
 
   // Toggle post expansion
   const togglePostExpansion = (postId: string) => {
@@ -242,6 +667,21 @@ export const FamilyFeed: React.FC = () => {
   // Handle like toggle
   const handleLike = (postId: string) => {
     Vibration.vibrate(50);
+    
+    // Animate like button
+    Animated.sequence([
+      Animated.timing(likeAnimations[postId], {
+        toValue: 1.3,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.timing(likeAnimations[postId], {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
     setPosts(prev => prev.map(post => 
       post.id === postId 
         ? {
@@ -258,20 +698,18 @@ export const FamilyFeed: React.FC = () => {
 
   // Handle bookmark toggle
   const handleBookmark = (postId: string) => {
-    Vibration.vibrate(50);
-    setPosts(prev => prev.map(post => 
-      post.id === postId 
-        ? {
-            ...post,
-            isBookmarked: !post.isBookmarked,
-            interactions: {
-              ...post.interactions,
-              bookmarks: post.isBookmarked ? post.interactions.bookmarks - 1 : post.interactions.bookmarks + 1
-            }
-          }
-        : post
-    ));
+    Vibration.vibrate(30);
+    setBookmarkedPosts(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(postId)) {
+        newSet.delete(postId);
+      } else {
+        newSet.add(postId);
+      }
+      return newSet;
+    });
   };
+
 
   // Handle reaction
   const handleReaction = (postId: string, reactionType: keyof typeof REACTION_TYPES) => {
@@ -445,124 +883,279 @@ export const FamilyFeed: React.FC = () => {
 
   return (
     <View style={styles.feedContainer}>
-      {posts.map((post) => (
-        <View key={post.id} style={styles.postContainer}>
+      {posts.map((post, index) => {
+        // Tesseract Grid Logic: Get all posts by this author
+        const authorPosts = getAuthorPosts(post.author.id);
+        const currentIndex = authorPostIndex[post.author.id] || 0;
+        const currentPost = authorPosts[currentIndex] || post;
+        const hasMultiplePosts = authorPosts.length > 1;
+
+        // Initialize animations
+        if (!swipeAnimations[post.id]) {
+          swipeAnimations[post.id] = new Animated.Value(0);
+        }
+        if (!cardSwapAnimations[post.id]) {
+          cardSwapAnimations[post.id] = new Animated.Value(1);
+        }
+
+        // Handle horizontal swipe for author's posts with smooth slide transition
+        const handleSwipeGesture = (event: any) => {
+          const { translationX, state } = event.nativeEvent;
+          
+          if (state === State.ACTIVE) {
+            // Follow finger smoothly
+            swipeAnimations[post.id].setValue(translationX);
+            
+            // Scale down as user swipes
+            const scaleValue = 1 - (Math.abs(translationX) / screenWidth) * 0.15;
+            cardSwapAnimations[post.id].setValue(Math.max(0.85, scaleValue));
+          } else if (state === State.END) {
+            // Determine if swipe threshold met
+            if (Math.abs(translationX) > 100 && hasMultiplePosts) {
+              Vibration.vibrate(20);
+              
+              const direction = translationX > 0 ? 1 : -1; // 1 for right, -1 for left
+              
+              // Slide out current card completely with scale
+              Animated.parallel([
+                Animated.timing(swipeAnimations[post.id], {
+                  toValue: direction * screenWidth,
+                  duration: 200,
+                  useNativeDriver: true,
+                }),
+                Animated.timing(cardSwapAnimations[post.id], {
+                  toValue: 0.85,
+                  duration: 200,
+                  useNativeDriver: true,
+                }),
+              ]).start(() => {
+                // Update which post to show
+                if (direction > 0) {
+                  // Swipe right - show older post
+                  setAuthorPostIndex(prev => ({
+                    ...prev,
+                    [post.author.id]: Math.min(authorPosts.length - 1, (prev[post.author.id] || 0) + 1)
+                  }));
+                } else {
+                  // Swipe left - show newer post
+                  setAuthorPostIndex(prev => ({
+                    ...prev,
+                    [post.author.id]: Math.max(0, (prev[post.author.id] || 0) - 1)
+                  }));
+                }
+                
+                // Position new card off-screen on opposite side, scaled down
+                swipeAnimations[post.id].setValue(-direction * screenWidth);
+                cardSwapAnimations[post.id].setValue(0.85);
+                
+                // Slide in new card with scale up
+                Animated.parallel([
+                  Animated.spring(swipeAnimations[post.id], {
+                    toValue: 0,
+                    useNativeDriver: true,
+                    friction: 7,
+                    tension: 35,
+                  }),
+                  Animated.spring(cardSwapAnimations[post.id], {
+                    toValue: 1,
+                    useNativeDriver: true,
+                    friction: 7,
+                    tension: 35,
+                  }),
+                ]).start();
+              });
+            } else {
+              // Spring back to center if threshold not met
+              Animated.parallel([
+                Animated.spring(swipeAnimations[post.id], {
+                  toValue: 0,
+                  useNativeDriver: true,
+                  friction: 8,
+                  tension: 40,
+                }),
+                Animated.spring(cardSwapAnimations[post.id], {
+                  toValue: 1,
+                  useNativeDriver: true,
+                  friction: 8,
+                  tension: 40,
+                }),
+              ]).start();
+            }
+          }
+        };
+
+        const postContent = (
+          <Animated.View 
+            key={post.id} 
+            style={[
+              styles.postContainer,
+              {
+                transform: [
+                  {
+                    translateX: swipeAnimations[post.id],
+                  },
+                  {
+                    scale: cardSwapAnimations[post.id],
+                  },
+                ],
+              },
+            ]}
+          >
             {/* Post Header */}
             <View style={styles.postHeader}>
-              <View style={styles.authorInfo}>
-                <Image
-                  source={{ uri: post.author.avatar }}
-                  style={styles.authorAvatar}
-                />
-                <View style={styles.authorDetails}>
-                  <Text style={styles.authorName}>{post.author.name}</Text>
-                  <Text style={styles.authorRelation}>{post.author.relationship}</Text>
+                <View style={styles.authorInfo}>
+                  <Image
+                    source={{ uri: currentPost.author.avatar }}
+                    style={styles.authorAvatar}
+                  />
+                  <View style={styles.authorDetails}>
+                    <Text style={styles.authorName}>{currentPost.author.name}</Text>
+                    <Text style={styles.authorRelation}>{currentPost.author.relationship}</Text>
+                  </View>
                 </View>
               </View>
-            </View>
 
-          {/* Post Media */}
-          {renderPostMedia(post)}
+              {/* Post Media */}
+              {renderPostMedia(currentPost)}
 
-          {/* Post Interactions */}
-          <View style={styles.interactionsContainer}>
-            <View style={styles.interactionRow}>
-              <View style={styles.leftInteractions}>
-                <TouchableOpacity
-                  style={styles.interactionButton}
-                  onPress={() => handleLike(post.id)}
-                >
-                  <Ionicons
-                    name={post.isLiked ? "sparkles" : "sparkles-outline"}
-                    size={24}
-                    color={post.isLiked ? "#FF6B35" : colors.text}
-                  />
-                </TouchableOpacity>
-                
-                <TouchableOpacity
-                  style={styles.interactionButton}
-                  onPress={() => setShowReactions(post.id)}
-                >
-                  <Ionicons name="happy-outline" size={24} color={colors.text} />
-                </TouchableOpacity>
+              {/* Post Interactions */}
+              <View style={styles.interactionsContainer}>
+                <View style={styles.interactionRow}>
+                  <View style={styles.leftInteractions}>
+                    <Animated.View
+                      style={{
+                        transform: [
+                          {
+                            scale: likeAnimations[currentPost.id]?.interpolate({
+                              inputRange: [1, 1.3],
+                              outputRange: [1, 1.3],
+                            }) || 1,
+                          },
+                        ],
+                      }}
+                    >
+                      <TouchableOpacity
+                        style={[
+                          styles.interactionButton,
+                          currentPost.isLiked && styles.likedButton
+                        ]}
+                        onPress={() => handleLike(currentPost.id)}
+                        activeOpacity={0.7}
+                      >
+                        <Ionicons
+                          name={currentPost.isLiked ? "sparkles" : "sparkles-outline"}
+                          size={24}
+                          color={currentPost.isLiked ? "#FF6B35" : "#6B7280"}
+                        />
+                      </TouchableOpacity>
+                    </Animated.View>
+                    
+                    <TouchableOpacity
+                      style={styles.interactionButton}
+                      onPress={() => setShowReactions(currentPost.id)}
+                    >
+                      <Ionicons name="happy-outline" size={24} color={colors.text} />
+                    </TouchableOpacity>
 
-                <TouchableOpacity
-                  style={styles.interactionButton}
-                  onPress={() => setShowComments(post.id)}
-                >
-                  <Ionicons name="chatbubble-outline" size={24} color={colors.text} />
-                </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.interactionButton}
+                      onPress={() => setShowComments(currentPost.id)}
+                    >
+                      <Ionicons name="chatbubble-outline" size={24} color={colors.text} />
+                    </TouchableOpacity>
 
-                <TouchableOpacity style={styles.interactionButton}>
-                  <Ionicons name="share-outline" size={24} color={colors.text} />
-                </TouchableOpacity>
-              </View>
+                    <TouchableOpacity style={styles.interactionButton}>
+                      <Ionicons name="share-outline" size={24} color={colors.text} />
+                    </TouchableOpacity>
+                  </View>
 
-              <TouchableOpacity
-                style={styles.interactionButton}
-                onPress={() => handleBookmark(post.id)}
-              >
-                <Ionicons
-                  name={post.isBookmarked ? "bookmark" : "bookmark-outline"}
-                  size={24}
-                  color={post.isBookmarked ? "#FF9800" : colors.text}
-                />
-              </TouchableOpacity>
-            </View>
+                  <TouchableOpacity
+                    style={[
+                      styles.interactionButton,
+                      bookmarkedPosts.has(currentPost.id) && styles.bookmarkedButton
+                    ]}
+                    onPress={() => handleBookmark(currentPost.id)}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons
+                      name={bookmarkedPosts.has(currentPost.id) ? "bookmark" : "bookmark-outline"}
+                      size={24}
+                      color={bookmarkedPosts.has(currentPost.id) ? "#FF9800" : "#6B7280"}
+                    />
+                  </TouchableOpacity>
+                </View>
 
-            {/* Interaction Counts */}
-            <View style={styles.interactionCounts}>
-              <Text style={styles.interactionCount}>
-                {post.interactions.likes} likes
-              </Text>
-              {post.interactions.reactions.length > 0 && (
-                <View style={styles.reactionsDisplay}>
-                  {post.interactions.reactions.slice(0, 3).map((reaction, index) => (
-                    <Text key={index} style={styles.reactionEmoji}>
-                      {reaction.emoji}
-                    </Text>
-                  ))}
-                  {post.interactions.reactions.length > 3 && (
-                    <Text style={styles.reactionCount}>
-                      +{post.interactions.reactions.length - 3}
-                    </Text>
+                {/* Interaction Counts */}
+                <View style={styles.interactionCounts}>
+                  <Text style={styles.interactionCount}>
+                    {currentPost.interactions.likes} likes
+                  </Text>
+                  {currentPost.interactions.reactions.length > 0 && (
+                    <View style={styles.reactionsDisplay}>
+                      {currentPost.interactions.reactions.slice(0, 3).map((reaction, idx) => (
+                        <Text key={idx} style={styles.reactionEmoji}>
+                          {reaction.emoji}
+                        </Text>
+                      ))}
+                      {currentPost.interactions.reactions.length > 3 && (
+                        <Text style={styles.reactionCount}>
+                          +{currentPost.interactions.reactions.length - 3}
+                        </Text>
+                      )}
+                    </View>
                   )}
                 </View>
-              )}
-            </View>
 
-            {/* Post Caption */}
-            <View>
-              <Text style={[
-                styles.postCaption,
-                !expandedPosts.has(post.id) && styles.postCaptionTruncated
-              ]} numberOfLines={expandedPosts.has(post.id) ? 0 : 1}>
-                <Text style={styles.authorNameInline}>{post.author.name}</Text> {post.content.caption}
-              </Text>
-              {(post.content.caption.length > 50 || post.content.caption.includes('\n')) && (
-                <TouchableOpacity onPress={() => togglePostExpansion(post.id)}>
-                  <Text style={styles.showMoreText}>
-                    {expandedPosts.has(post.id) ? 'Show less' : 'Show more...'}
+                {/* Post Caption */}
+                <View>
+                  <Text style={[
+                    styles.postCaption,
+                    !expandedPosts.has(currentPost.id) && styles.postCaptionTruncated
+                  ]} numberOfLines={expandedPosts.has(currentPost.id) ? 0 : 1}>
+                    <Text style={styles.authorNameInline}>{currentPost.author.name}</Text>
+                    <Text>{` ${currentPost.content.caption}`}</Text>
                   </Text>
-                </TouchableOpacity>
-              )}
-            </View>
+                  {(currentPost.content.caption.length > 50 || currentPost.content.caption.includes('\n')) && (
+                    <TouchableOpacity onPress={() => togglePostExpansion(currentPost.id)}>
+                      <Text style={styles.showMoreText}>
+                        {expandedPosts.has(currentPost.id) ? 'Show less' : 'Show more...'}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
 
-            {/* Comments Preview */}
-            {post.interactions.comments > 0 && (
-              <TouchableOpacity
-                style={styles.commentsPreview}
-                onPress={() => setShowComments(post.id)}
-              >
-                <Text style={styles.commentsCount}>
-                  View all {post.interactions.comments} comments
-                </Text>
-              </TouchableOpacity>
-            )}
+                {/* Comments Preview */}
+                {currentPost.interactions.comments > 0 && (
+                  <TouchableOpacity
+                    style={styles.commentsPreview}
+                    onPress={() => setShowComments(currentPost.id)}
+                  >
+                    <Text style={styles.commentsCount}>
+                      View all {currentPost.interactions.comments} comments
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+          </Animated.View>
+        );
 
-          </View>
-        </View>
-      ))}
+        // Wrap with PanGestureHandler if author has multiple posts
+        if (hasMultiplePosts) {
+          return (
+            <PanGestureHandler
+              key={post.id}
+              onGestureEvent={handleSwipeGesture}
+              onHandlerStateChange={handleSwipeGesture}
+              activeOffsetX={[-20, 20]}
+              failOffsetY={[-10, 10]}
+            >
+              {postContent}
+            </PanGestureHandler>
+          );
+        }
+
+        return postContent;
+      })}
 
       {/* Reactions Modal */}
       <Modal
@@ -643,7 +1236,7 @@ export const FamilyFeed: React.FC = () => {
 
 const createStyles = (colors: any) => StyleSheet.create({
   feedContainer: {
-    paddingHorizontal: spacing.sm,
+    paddingHorizontal: 0,
     marginBottom: spacing.xl,
   },
   feedTitle: {
@@ -656,15 +1249,28 @@ const createStyles = (colors: any) => StyleSheet.create({
     textAlign: 'center',
   },
   postContainer: {
-    backgroundColor: 'white',
-    borderRadius: 16,
-    marginBottom: spacing.lg,
+    borderRadius: 20,
+    marginBottom: spacing.sm,
     marginHorizontal: spacing.xs,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.25,
-    shadowRadius: 24,
-    elevation: 12,
+    backgroundColor: '#FFFFFF',
+    // Deep layered shadow for 3D effect
+    shadowColor: '#000000',
+    shadowOffset: { 
+      width: 0, 
+      height: 15,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 25,
+    elevation: 25,
+    overflow: 'visible',
+    // Stronger border for definition
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.12)',
+  },
+  postGradient: {
+    borderRadius: 20,
+    paddingBottom: spacing.sm,
+    backgroundColor: '#FFFFFF',
   },
   postHeader: {
     flexDirection: 'row',
@@ -672,11 +1278,11 @@ const createStyles = (colors: any) => StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
-    backgroundColor: '#fafafa',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e5e5',
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    borderBottomWidth: 0.5,
+    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
   },
   authorInfo: {
     flexDirection: 'row',
@@ -769,28 +1375,36 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   interactionsContainer: {
     padding: spacing.md,
-    backgroundColor: 'white',
-    borderBottomLeftRadius: 16,
-    borderBottomRightRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   interactionRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
   },
   leftInteractions: {
     flexDirection: 'row',
-    gap: spacing.md,
+    gap: spacing.xs,
   },
   interactionButton: {
-    padding: spacing.sm,
+    padding: spacing.xs,
+    borderRadius: 10,
+    marginRight: spacing.xs,
+  },
+  likedButton: {
+    // No special background, just the icon color change
+  },
+  bookmarkedButton: {
+    // No special background, just the icon color change
   },
   interactionCounts: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
   },
   interactionCount: {
     fontSize: typography.sizes.sm,
