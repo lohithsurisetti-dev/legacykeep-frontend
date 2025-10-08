@@ -907,7 +907,6 @@ const ProfileScreen: React.FC<Props> = () => {
       { id: 'photos', label: 'Photos', icon: 'images-outline' },
       { id: 'inspirations', label: 'Inspirations', icon: 'heart-outline' },
       { id: 'tagged', label: 'Tagged', icon: 'person-outline' },
-      { id: 'stories', label: 'Stories', icon: 'book-outline' },
     ];
 
      const getTabColor = (index: number) => {
@@ -958,7 +957,7 @@ const ProfileScreen: React.FC<Props> = () => {
       name: 'Mahatma Gandhi',
       role: 'Role Model',
       quote: 'Be the change you wish to see in the world',
-      image: 'https://images.unsplash.com/photo-1605811324610-1e4d0fdfb0e1?w=600&h=800&fit=crop',
+      image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&h=800&fit=crop',
       impact: 'Taught me the power of non-violence and truth',
       category: 'Historical Figure',
       resonanceCount: 127,
@@ -1053,9 +1052,6 @@ const ProfileScreen: React.FC<Props> = () => {
         {/* Section Header */}
         <View style={styles.inspirationsHeader}>
           <Text style={styles.inspirationsTitle}>My Inspirations</Text>
-          <Text style={styles.inspirationsSubtitle}>
-            People who shaped my journey and inspired my path
-          </Text>
         </View>
 
         {/* Premium Carousel */}
@@ -1153,7 +1149,7 @@ const ProfileScreen: React.FC<Props> = () => {
                         resonatedInspirations.has(person.id) && styles.resonanceCountOverlayActive
                       ]}>
                         {person.resonanceCount + (resonatedInspirations.has(person.id) ? 1 : 0)}
-                      </Text>
+          </Text>
                     </TouchableOpacity>
           </View>
 
@@ -1302,15 +1298,10 @@ const ProfileScreen: React.FC<Props> = () => {
             onPress={handleEditProfile}
             activeOpacity={0.7}
           >
-            <LinearGradient
-              colors={gradients.profile}
-              style={styles.editProfileGradient}
-              start={gradientConfigs.profile?.start || { x: 0, y: 0 }}
-              end={gradientConfigs.profile?.end || { x: 1, y: 0 }}
-            >
-              <Ionicons name="create-outline" size={16} color="white" />
+            <View style={styles.editProfileContent}>
+              <Ionicons name="create-outline" size={16} color={colors.neutral[600]} />
               <Text style={styles.editProfileText}>Edit Profile</Text>
-            </LinearGradient>
+            </View>
               </TouchableOpacity>
           </View>
 
@@ -1332,16 +1323,6 @@ const ProfileScreen: React.FC<Props> = () => {
               </Text>
       </View>
             </View>
-        )}
-        {activeTab === 'stories' && (
-          <View style={styles.photosSection}>
-            <View style={styles.emptyState}>
-              <Ionicons name="book-outline" size={48} color={colors.neutral?.[400] || '#9E9E9E'} />
-              <Text style={[styles.emptyStateText, { color: themeColors.textSecondary }]}>
-                No stories yet
-              </Text>
-          </View>
-      </View>
         )}
 
         </ScrollView>
@@ -1564,21 +1545,17 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
     marginBottom: -spacing.sm,
   },
-  editProfileGradient: {
+  editProfileContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.lg,
     borderRadius: 20,
-    shadowColor: colors.neutral[900],
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    backgroundColor: 'transparent',
   },
   editProfileText: {
-    color: 'white',
+    color: colors.neutral[600],
     fontSize: typography.sizes.sm,
     fontWeight: typography.weights.semibold,
     marginLeft: spacing.xs,
@@ -2045,17 +2022,19 @@ const styles = StyleSheet.create({
 
   // Inspirations Carousel Styles
   inspirationsContainer: {
-    paddingVertical: spacing.xl,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.xl,
   },
   inspirationsHeader: {
     paddingHorizontal: spacing.lg,
-    marginBottom: spacing.xl,
+    marginBottom: spacing.lg,
   },
   inspirationsTitle: {
     fontSize: 28,
     fontWeight: '800',
     color: colors.text.primary,
     marginBottom: spacing.xs,
+    textAlign: 'center',
   },
   inspirationsSubtitle: {
     fontSize: 16,
@@ -2067,10 +2046,12 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   inspirationCard: {
-    height: 460,
+    height: 400,
     borderRadius: 20,
     overflow: 'hidden',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F0F2F5',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.08)',
     shadowColor: '#F59E0B',
     shadowOffset: {
       width: 0,
@@ -2123,19 +2104,19 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   inspirationContent: {
-    padding: spacing.lg,
+    padding: spacing.md,
   },
   inspirationName: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '800',
     color: colors.text.primary,
-    marginBottom: 4,
+    marginBottom: 2,
   },
   inspirationRole: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '500',
     color: '#F59E0B',
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -2166,10 +2147,10 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   impactText: {
-    fontSize: 14,
+    fontSize: 13,
     color: colors.text.secondary,
-    lineHeight: 22,
-    marginBottom: spacing.md,
+    lineHeight: 20,
+    marginBottom: spacing.sm,
   },
   resonanceButtonOverlay: {
     position: 'absolute',

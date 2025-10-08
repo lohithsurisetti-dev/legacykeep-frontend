@@ -19,6 +19,7 @@ import {
   Alert,
   Vibration,
   Pressable,
+  Easing,
 } from 'react-native';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
@@ -759,6 +760,72 @@ const mockFeedPosts: FeedPost[] = [
     createdAt: new Date(Date.now() - 168 * 60 * 60 * 1000).toISOString(),
     isLiked: false,
     isBookmarked: false
+  },
+  {
+    id: 'post_21',
+    type: 'single_image',
+    author: {
+      id: 'user_2',
+      name: 'John Doe',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+      relationship: 'Brother'
+    },
+    content: {
+      caption: 'Throwback to our first road trip together! Best memories with the best people. 🚗💨',
+      media: [{
+        id: 'media_21',
+        type: 'image',
+        url: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&h=600&fit=crop'
+      }]
+    },
+    interactions: {
+      likes: 36,
+      comments: 11,
+      shares: 5,
+      bookmarks: 9,
+      views: 198,
+      ratings: [],
+      reactions: [
+        { userId: 'user_6', type: 'MEMORY', emoji: '🧠' },
+        { userId: 'user_7', type: 'LAUGH', emoji: '😂' }
+      ]
+    },
+    createdAt: new Date(Date.now() - 180 * 60 * 60 * 1000).toISOString(),
+    isLiked: false,
+    isBookmarked: false
+  },
+  {
+    id: 'post_22',
+    type: 'single_image',
+    author: {
+      id: 'user_2',
+      name: 'John Doe',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+      relationship: 'Brother'
+    },
+    content: {
+      caption: 'Sunday morning basketball with the crew. Nothing beats the competition and camaraderie! 🏀🔥',
+      media: [{
+        id: 'media_22',
+        type: 'image',
+        url: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=800&h=600&fit=crop'
+      }]
+    },
+    interactions: {
+      likes: 47,
+      comments: 13,
+      shares: 6,
+      bookmarks: 11,
+      views: 234,
+      ratings: [],
+      reactions: [
+        { userId: 'user_3', type: 'PRIDE', emoji: '🏆' },
+        { userId: 'user_7', type: 'WOW', emoji: '😮' }
+      ]
+    },
+    createdAt: new Date(Date.now() - 192 * 60 * 60 * 1000).toISOString(),
+    isLiked: false,
+    isBookmarked: false
   }
 ];
 
@@ -1096,6 +1163,8 @@ export const FamilyFeed: React.FC<FamilyFeedProps> = ({ scrollY: parentScrollY }
         const currentPost = authorPosts[currentIndex] || post;
         const hasMultiplePosts = authorPosts.length > 1;
         
+        console.log(`Rendering ${post.author.name}: currentIndex=${currentIndex}, currentPost=${currentPost.id}, total=${authorPosts.length}`);
+        
         // Use author ID as animation key (not post ID, since post changes)
         const animationKey = post.author.id;
 
@@ -1176,16 +1245,21 @@ export const FamilyFeed: React.FC<FamilyFeedProps> = ({ scrollY: parentScrollY }
               ]).start(() => {
                 // Update which post to show
                 if (direction > 0) {
-                  // Swipe right - show older post
+                  // Swipe right - show newer post (decrease index)
+                  const newIndex = Math.max(0, (authorPostIndex[post.author.id] || 0) - 1);
+                  console.log(`Swipe right for ${post.author.name}: ${currentIndex} → ${newIndex}, Total posts: ${authorPosts.length}`);
+                  console.log('Posts:', authorPosts.map(p => p.id));
                   setAuthorPostIndex(prev => ({
                     ...prev,
-                    [post.author.id]: Math.min(authorPosts.length - 1, (prev[post.author.id] || 0) + 1)
+                    [post.author.id]: newIndex
                   }));
                 } else {
-                  // Swipe left - show newer post
+                  // Swipe left - show older post (increase index)
+                  const newIndex = Math.min(authorPosts.length - 1, (authorPostIndex[post.author.id] || 0) + 1);
+                  console.log(`Swipe left for ${post.author.name}: ${currentIndex} → ${newIndex}, Total posts: ${authorPosts.length}`);
                   setAuthorPostIndex(prev => ({
                     ...prev,
-                    [post.author.id]: Math.max(0, (prev[post.author.id] || 0) - 1)
+                    [post.author.id]: newIndex
                   }));
                 }
                 
@@ -1370,16 +1444,80 @@ export const FamilyFeed: React.FC<FamilyFeedProps> = ({ scrollY: parentScrollY }
                 </View>
 
                 {/* Comments Preview */}
-                {currentPost.interactions.comments > 0 && (
-                  <TouchableOpacity
-                    style={styles.commentsPreview}
-                    onPress={() => setShowComments(currentPost.id)}
-                  >
-                    <Text style={styles.commentsCount}>
-                      View all {currentPost.interactions.comments} comments
-                    </Text>
-                  </TouchableOpacity>
-                )}
+                {/* Comments Preview and Navigation */}
+                <View style={styles.commentsNavigationRow}>
+                  {currentPost.interactions.comments > 0 && (
+                    <TouchableOpacity
+                      style={styles.commentsPreview}
+                      onPress={() => setShowComments(currentPost.id)}
+                    >
+                      <Text style={styles.commentsCount}>
+                        View all {currentPost.interactions.comments} comments
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                  
+                  {/* Navigation Icons - Only show if author has multiple posts */}
+                  {hasMultiplePosts && (
+                    <View style={styles.navigationIcons}>
+                      {currentIndex > 0 && (
+                        <TouchableOpacity
+                          style={styles.navIconButton}
+                          onPress={() => {
+                            // Train animation - go through each post sequentially
+                            Vibration.vibrate(20);
+                            
+                            const animateToNext = (fromIndex: number) => {
+                              if (fromIndex <= 0) {
+                                // Reached the latest post
+                                return;
+                              }
+                              
+                              // Animate to next newer post with smooth timing
+                              Animated.timing(swipeAnimations[animationKey], {
+                                toValue: screenWidth,
+                                duration: 180,
+                                useNativeDriver: true,
+                                easing: Easing.out(Easing.ease),
+                              }).start(() => {
+                                // Update to next post
+                                const nextIndex = fromIndex - 1;
+                                setAuthorPostIndex(prev => ({
+                                  ...prev,
+                                  [post.author.id]: nextIndex
+                                }));
+                                
+                                // Position and slide in smoothly
+                                swipeAnimations[animationKey].setValue(-screenWidth);
+                                Animated.timing(swipeAnimations[animationKey], {
+                                  toValue: 0,
+                                  duration: 180,
+                                  useNativeDriver: true,
+                                  easing: Easing.out(Easing.ease),
+                                }).start(() => {
+                                  // Continue to next post immediately
+                                  animateToNext(nextIndex);
+                                });
+                              });
+                            };
+                            
+                            // Start the train animation
+                            animateToNext(currentIndex);
+                          }}
+                          activeOpacity={0.7}
+                        >
+                          <Ionicons name="chevron-forward-circle-outline" size={22} color="#6B7280" />
+                        </TouchableOpacity>
+                      )}
+                      
+                      {currentIndex === 0 && (
+                        <View style={styles.navIconButton}>
+                          <Ionicons name="chevron-back-circle-outline" size={22} color="#9CA3AF" />
+                        </View>
+                      )}
+                    </View>
+                  )}
+                </View>
               </View>
           </Animated.View>
         );
@@ -1519,7 +1657,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   postHeader: {
     flexDirection: 'row',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
@@ -1528,6 +1666,20 @@ const createStyles = (colors: any) => StyleSheet.create({
     borderTopRightRadius: 20,
     borderBottomWidth: 0.5,
     borderBottomColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  commentsNavigationRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: spacing.xs,
+  },
+  navigationIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  navIconButton: {
+    padding: spacing.xs,
   },
   authorInfo: {
     flexDirection: 'row',
