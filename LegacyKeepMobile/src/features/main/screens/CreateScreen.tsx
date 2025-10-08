@@ -574,7 +574,7 @@ const CreateScreen: React.FC = () => {
             >
               <LinearGradient colors={['#6366F1', '#8B5CF6']} style={styles.quickActionGradient}>
                 <Ionicons name="images" size={responsiveIconSize(24)} color="white" />
-                <Text style={styles.quickActionText}>Media</Text>
+                <Text style={styles.quickActionText} numberOfLines={1} adjustsFontSizeToFit>Media</Text>
               </LinearGradient>
             </TouchableOpacity>
             
@@ -585,7 +585,7 @@ const CreateScreen: React.FC = () => {
             >
               <LinearGradient colors={['#10B981', '#059669']} style={styles.quickActionGradient}>
                 <Ionicons name="mic" size={responsiveIconSize(24)} color="white" />
-                <Text style={styles.quickActionText}>Voice</Text>
+                <Text style={styles.quickActionText} numberOfLines={1} adjustsFontSizeToFit>Voice</Text>
               </LinearGradient>
             </TouchableOpacity>
             
@@ -596,7 +596,7 @@ const CreateScreen: React.FC = () => {
             >
               <LinearGradient colors={['#F59E0B', '#D97706']} style={styles.quickActionGradient}>
                 <Ionicons name="document-text" size={responsiveIconSize(24)} color="white" />
-                <Text style={styles.quickActionText}>Note</Text>
+                <Text style={styles.quickActionText} numberOfLines={1} adjustsFontSizeToFit>Note</Text>
               </LinearGradient>
             </TouchableOpacity>
             
@@ -607,7 +607,7 @@ const CreateScreen: React.FC = () => {
             >
               <LinearGradient colors={['#8B5CF6', '#7C3AED']} style={styles.quickActionGradient}>
                 <Ionicons name="notifications" size={responsiveIconSize(24)} color="white" />
-                <Text style={styles.quickActionText}>Remind</Text>
+                <Text style={styles.quickActionText} numberOfLines={1} adjustsFontSizeToFit>Remind</Text>
               </LinearGradient>
             </TouchableOpacity>
           </Animated.View>
@@ -1176,9 +1176,10 @@ const styles = StyleSheet.create({
   },
   quickActionText: {
     color: 'white',
-    fontSize: 14,
+    fontSize: normalize(12),
     fontWeight: '600',
     marginTop: spacing.xs,
+    textAlign: 'center',
   },
 
   // Premium Features Section
