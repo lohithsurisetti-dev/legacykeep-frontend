@@ -1159,7 +1159,7 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB', // bg-gray-50 from HTML
+    backgroundColor: '#E5E7EB', // Darker gray for better contrast with white bubbles
   },
   header: {
     flexDirection: 'row',
@@ -1495,7 +1495,7 @@ const styles = StyleSheet.create({
   },
   inputRow: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
+    alignItems: 'center',
     paddingVertical: spacing.xs, // Reduced vertical padding
   },
   inputButton: {
@@ -1512,7 +1512,7 @@ const styles = StyleSheet.create({
     maxHeight: 100,
     minHeight: 36, // Added minimum height
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    borderColor: 'rgba(209, 213, 219, 0.6)', // Subtle gray border
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,

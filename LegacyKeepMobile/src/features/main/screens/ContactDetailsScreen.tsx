@@ -47,6 +47,14 @@ interface ContactDetailsScreenProps {
   navigation: any;
 }
 
+type BadgeType = 'birthday' | 'bucketlist' | 'zodiac' | 'hobby';
+
+interface BadgeContent {
+  title: string;
+  icon: string;
+  content: string | string[];
+}
+
 const ContactDetailsScreen: React.FC<ContactDetailsScreenProps> = ({ route, navigation }) => {
   const { contact } = route.params;
   const [selectedTheme, setSelectedTheme] = useState(contact.theme || 'default');
@@ -55,9 +63,12 @@ const ContactDetailsScreen: React.FC<ContactDetailsScreenProps> = ({ route, navi
   const [isMuted, setIsMuted] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
+  const [expandedBadge, setExpandedBadge] = useState<BadgeType | null>(null);
   
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
+  const popupOpacity = useRef(new Animated.Value(0)).current;
+  const popupScale = useRef(new Animated.Value(0.8)).current;
 
   React.useEffect(() => {
     Animated.parallel([
@@ -126,6 +137,54 @@ const ContactDetailsScreen: React.FC<ContactDetailsScreenProps> = ({ route, navi
       case 'pin':
         setIsPinned(!isPinned);
         break;
+    }
+  };
+
+  const handleBadgePress = (badgeType: BadgeType) => {
+    if (expandedBadge === badgeType) {
+      // Close popup
+      Animated.parallel([
+        Animated.timing(popupOpacity, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(popupScale, {
+          toValue: 0.8,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start(() => setExpandedBadge(null));
+    } else {
+      // Open popup
+      setExpandedBadge(badgeType);
+      Animated.parallel([
+        Animated.timing(popupOpacity, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(popupScale, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  };
+
+  const getBadgeContent = (badgeType: BadgeType): BadgeContent => {
+    switch (badgeType) {
+      case 'birthday':
+        return { title: 'Birthday', icon: 'gift', content: 'March 15th' };
+      case 'bucketlist':
+        return { title: 'Bucket List', icon: 'cart', content: ['Gaming Setup', 'New Camera', 'Concert Tickets'] };
+      case 'zodiac':
+        return { title: 'Zodiac', icon: 'star', content: 'Pisces ♓' };
+      case 'hobby':
+        return { title: 'Hobby', icon: 'musical-notes', content: 'Music & Photography' };
+      default:
+        return { title: '', icon: '', content: '' };
     }
   };
 
@@ -276,9 +335,57 @@ const ContactDetailsScreen: React.FC<ContactDetailsScreenProps> = ({ route, navi
     </Modal>
   );
 
+  const renderBadgePopup = () => {
+    if (!expandedBadge) return null;
+
+    const badgeContent = getBadgeContent(expandedBadge);
+
+    return (
+      <Modal
+        visible={expandedBadge !== null}
+        transparent
+        animationType="none"
+        onRequestClose={() => handleBadgePress(expandedBadge)}
+      >
+        <TouchableOpacity 
+          style={styles.popupOverlay}
+          activeOpacity={1}
+          onPress={() => handleBadgePress(expandedBadge)}
+        >
+          <Animated.View 
+            style={[
+              styles.popupCard,
+              {
+                opacity: popupOpacity,
+                transform: [{ scale: popupScale }],
+              }
+            ]}
+          >
+            <View style={styles.popupHeader}>
+              <Ionicons name={badgeContent.icon as any} size={32} color="#667eea" />
+              <Text style={styles.popupTitle}>{badgeContent.title}</Text>
+            </View>
+            <View style={styles.popupContent}>
+              {Array.isArray(badgeContent.content) ? (
+                badgeContent.content.map((item, index) => (
+                  <Text key={index} style={styles.popupListItem}>• {item}</Text>
+                ))
+              ) : (
+                <Text style={styles.popupText}>{badgeContent.content}</Text>
+              )}
+            </View>
+          </Animated.View>
+        </TouchableOpacity>
+      </Modal>
+    );
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+      
+      {/* Badge Popup */}
+      {renderBadgePopup()}
       
       {/* Background with animated gradient */}
       <LinearGradient
@@ -311,17 +418,53 @@ const ContactDetailsScreen: React.FC<ContactDetailsScreenProps> = ({ route, navi
           <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
             {/* Contact Info */}
             <View style={styles.contactInfo}>
-              <View style={styles.avatarContainer}>
-                {contact.avatar ? (
-                  <Image source={{ uri: contact.avatar }} style={styles.avatar} />
-                ) : (
-                  <View style={styles.avatarPlaceholder}>
-                    <Text style={styles.avatarText}>
-                      {contact.name.split(' ').map(n => n[0]).join('')}
-                    </Text>
-                  </View>
-                )}
-                {contact.isOnline && <View style={styles.onlineIndicator} />}
+              <View style={styles.avatarWrapper}>
+                {/* Left side icons */}
+                <TouchableOpacity 
+                  style={styles.leftIconTop}
+                  onPress={() => handleBadgePress('birthday')}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="gift" size={24} color="#6b7280" />
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={styles.leftIconBottom}
+                  onPress={() => handleBadgePress('bucketlist')}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="cart" size={24} color="#6b7280" />
+                </TouchableOpacity>
+
+                {/* Avatar */}
+                <View style={styles.avatarContainer}>
+                  {contact.avatar ? (
+                    <Image source={{ uri: contact.avatar }} style={styles.avatar} />
+                  ) : (
+                    <View style={styles.avatarPlaceholder}>
+                      <Text style={styles.avatarText}>
+                        {contact.name.split(' ').map(n => n[0]).join('')}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+
+                {/* Right side icons */}
+                <TouchableOpacity 
+                  style={styles.rightIconTop}
+                  onPress={() => handleBadgePress('zodiac')}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="star" size={24} color="#6b7280" />
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={styles.rightIconBottom}
+                  onPress={() => handleBadgePress('hobby')}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="musical-notes" size={24} color="#6b7280" />
+                </TouchableOpacity>
               </View>
               
               <Text style={styles.contactName}>{contact.name}</Text>
@@ -571,31 +714,56 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0, 0, 0, 0.05)',
   },
+  avatarWrapper: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.md,
+  },
   avatarContainer: {
     position: 'relative',
-    marginBottom: spacing.sm,
   },
   avatar: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    borderWidth: 2,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 3,
     borderColor: 'rgba(102, 126, 234, 0.3)',
   },
   avatarPlaceholder: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     backgroundColor: 'rgba(102, 126, 234, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
+    borderWidth: 3,
     borderColor: 'rgba(102, 126, 234, 0.3)',
   },
   avatarText: {
-    fontSize: 20,
+    fontSize: 32,
     fontWeight: typography.weights.bold,
     color: '#667eea',
+  },
+  leftIconTop: {
+    position: 'absolute',
+    left: -35,
+    top: 42,
+  },
+  leftIconBottom: {
+    position: 'absolute',
+    left: -25,
+    bottom: 10,
+  },
+  rightIconTop: {
+    position: 'absolute',
+    right: -35,
+    top: 42,
+  },
+  rightIconBottom: {
+    position: 'absolute',
+    right: -25,
+    bottom: 10,
   },
   onlineIndicator: {
     position: 'absolute',
@@ -842,6 +1010,52 @@ const styles = StyleSheet.create({
     width: 24,
     height: 8,
     borderRadius: 4,
+  },
+  
+  // Badge Popup Styles
+  popupOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.xl,
+  },
+  popupCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: spacing.xl,
+    width: '85%',
+    maxWidth: 320,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  popupHeader: {
+    alignItems: 'center',
+    marginBottom: spacing.lg,
+  },
+  popupTitle: {
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.bold,
+    color: '#1f2937',
+    marginTop: spacing.sm,
+  },
+  popupContent: {
+    alignItems: 'center',
+  },
+  popupText: {
+    fontSize: typography.sizes.lg,
+    color: '#4b5563',
+    textAlign: 'center',
+    fontWeight: typography.weights.semibold,
+  },
+  popupListItem: {
+    fontSize: typography.sizes.md,
+    color: '#6b7280',
+    marginBottom: spacing.xs,
+    width: '100%',
   },
 });
 
