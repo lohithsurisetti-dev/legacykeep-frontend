@@ -48,7 +48,7 @@ const formatTime = (timestamp: string) => {
   return timestamp;
 };
 
-// Typing Indicator Component
+// Enhanced Typing Indicator Component with glassmorphism
 const TypingIndicator: React.FC<{
   users: string[];
   animation: Animated.Value;
@@ -73,23 +73,46 @@ const TypingIndicator: React.FC<{
   return (
     <View style={styles.typingIndicator}>
       <View style={styles.typingAvatar}>
-        <Ionicons name="person" size={16} color="white" />
+        <LinearGradient
+          colors={['#667eea', '#764ba2']}
+          style={styles.typingAvatarGradient}
+        >
+          <Ionicons name="person" size={16} color="white" />
+        </LinearGradient>
       </View>
       <View style={styles.typingBubble}>
         <Text style={styles.typingText}>
           {users.length === 1 ? `${users[0]} is typing` : `${users.length} people are typing`}
         </Text>
         <View style={styles.typingDots}>
-          <Animated.View style={[styles.typingDot, { opacity: dot1Opacity }]} />
-          <Animated.View style={[styles.typingDot, { opacity: dot2Opacity }]} />
-          <Animated.View style={[styles.typingDot, { opacity: dot3Opacity }]} />
+          <Animated.View style={[
+            styles.typingDot, 
+            { 
+              opacity: dot1Opacity,
+              backgroundColor: '#667eea'
+            }
+          ]} />
+          <Animated.View style={[
+            styles.typingDot, 
+            { 
+              opacity: dot2Opacity,
+              backgroundColor: '#667eea'
+            }
+          ]} />
+          <Animated.View style={[
+            styles.typingDot, 
+            { 
+              opacity: dot3Opacity,
+              backgroundColor: '#667eea'
+            }
+          ]} />
         </View>
       </View>
     </View>
   );
 };
 
-// Simple Reactions Bar Component
+// Enhanced Reactions Bar Component with spring animations
 const ReactionsBar: React.FC<{
   reactions: string[];
   onReaction: (emoji: string) => void;
@@ -97,6 +120,16 @@ const ReactionsBar: React.FC<{
   showAddButton?: boolean;
   style?: any;
 }> = ({ reactions, onReaction, onAddReaction, showAddButton = true, style }) => {
+  const [pressedEmoji, setPressedEmoji] = useState<string | null>(null);
+  
+  const handleReactionPress = (emoji: string) => {
+    setPressedEmoji(emoji);
+    onReaction(emoji);
+    
+    // Reset pressed state after animation
+    setTimeout(() => setPressedEmoji(null), 200);
+  };
+
   return (
     <View style={[styles.reactionsBarWrapper, style]}>
       <ScrollView 
@@ -106,14 +139,23 @@ const ReactionsBar: React.FC<{
         style={styles.reactionsScroll}
       >
         {reactions.map((emoji, index) => (
-          <TouchableOpacity
+          <Animated.View
             key={emoji}
-            style={styles.reactionEmojiButton}
-            onPress={() => onReaction(emoji)}
-            activeOpacity={0.7}
+            style={[
+              styles.reactionEmojiButton,
+              pressedEmoji === emoji && {
+                transform: [{ scale: 1.3 }],
+              }
+            ]}
           >
-            <Text style={styles.reactionEmojiText}>{emoji}</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.reactionEmojiButtonInner}
+              onPress={() => handleReactionPress(emoji)}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.reactionEmojiText}>{emoji}</Text>
+            </TouchableOpacity>
+          </Animated.View>
         ))}
         
         {showAddButton && (
@@ -122,7 +164,12 @@ const ReactionsBar: React.FC<{
             onPress={onAddReaction}
             activeOpacity={0.7}
           >
-            <Ionicons name="add-circle-outline" size={20} color="#FFFFFF" />
+            <LinearGradient
+              colors={['rgba(255,255,255,0.2)', 'rgba(255,255,255,0.1)']}
+              style={styles.addReactionGradient}
+            >
+              <Ionicons name="add-circle-outline" size={20} color="#FFFFFF" />
+            </LinearGradient>
           </TouchableOpacity>
         )}
       </ScrollView>
@@ -504,18 +551,19 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
     }
   }, [isTyping]);
 
-  // Message send animation
+  // Enhanced message send animation with spring effect
   const animateMessageSend = () => {
     Vibration.vibrate(50); // Haptic feedback
     Animated.sequence([
       Animated.timing(messageSendAnimation, {
         toValue: 1,
-        duration: 200,
+        duration: 150,
         useNativeDriver: true,
       }),
-      Animated.timing(messageSendAnimation, {
+      Animated.spring(messageSendAnimation, {
         toValue: 0,
-        duration: 200,
+        tension: 300,
+        friction: 10,
         useNativeDriver: true,
       }),
     ]).start();
@@ -949,11 +997,12 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
       <View style={styles.container}>
         <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
         
-        {/* Blurred Background Chat Content */}
+        {/* Enhanced Blurred Background with Glassmorphism */}
         {showMessageOverlay && (
           <View style={styles.blurredBackground}>
-            <BlurView intensity={100} tint="dark" style={styles.blurView} />
+            <BlurView intensity={80} tint="dark" style={styles.blurView} />
             <View style={styles.darkOverlay} />
+            <View style={styles.glassmorphismOverlay} />
           </View>
         )}
       {/* Header */}
@@ -962,7 +1011,25 @@ const ChatConversationScreen: React.FC<ChatConversationScreenProps> = ({ route, 
           <Ionicons name="chevron-back" size={24} color="#6B7280" />
         </TouchableOpacity>
         
-        {renderHeader()}
+        <TouchableOpacity 
+          style={styles.headerContent}
+          onPress={() => navigation.navigate('ContactDetails' as never, { 
+            contact: chat.type === 'individual' ? {
+              id: chat.participants[0].id,
+              name: chat.participants[0].name,
+              avatar: chat.participants[0].avatar,
+              isOnline: chat.participants[0].isOnline,
+              relationship: 'Family Member'
+            } : {
+              id: chat.id,
+              name: chat.name,
+              avatar: chat.avatar,
+              relationship: 'Group Chat'
+            }
+          } as never)}
+        >
+          {renderHeader()}
+        </TouchableOpacity>
         
         {/* Call Icons */}
         <View style={styles.callButtonsContainer}>
@@ -1097,7 +1164,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.sm,
     paddingTop: 50, // Account for status bar
     paddingBottom: spacing.sm,
     backgroundColor: '#FFFFFF', // Full white background
@@ -1166,7 +1233,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   messagesContent: {
-    padding: spacing.md,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.md,
     paddingBottom: spacing.xl,
   },
   dateSeparator: {
@@ -1252,7 +1320,7 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   messageBubble: {
-    maxWidth: '80%',
+    maxWidth: '85%',
   },
   ownMessageBubble: {
     borderRadius: 18,
@@ -1268,35 +1336,39 @@ const styles = StyleSheet.create({
       // Clean styling without extra borders (gradient border is handled by parent)
     },
     otherMessageBubble: {
-      backgroundColor: 'rgba(16, 185, 129, 0.12)', // Glassmorphism emerald for others messages
+      backgroundColor: 'rgba(255, 255, 255, 0.9)', // Premium white with transparency
       borderBottomLeftRadius: 4,
       borderRadius: 18,
       paddingHorizontal: 14,
       paddingVertical: 10,
-      // Glassmorphism effects - different from self messages
+      // Enhanced glassmorphism effects
       borderWidth: 1,
-      borderColor: 'rgba(16, 185, 129, 0.18)',
-      shadowColor: '#10B981',
+      borderColor: 'rgba(255, 255, 255, 0.3)',
+      shadowColor: '#000',
       shadowOffset: {
         width: 0,
-        height: 3,
+        height: 4,
       },
-      shadowOpacity: 0.08,
-      shadowRadius: 6,
-      elevation: 2, // Slightly less elevation than self messages
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 3,
+      // Subtle inner glow
+      boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.5)',
     },
   groupMessageBubble: {
     // No special styling needed since sender info is now inside
   },
   flippedMessageBubble: {
-    backgroundColor: 'rgba(245, 158, 11, 0.15)', // Gold/amber tint for flipped messages
+    backgroundColor: 'rgba(255, 255, 255, 0.95)', // Enhanced premium white for flipped messages
     borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.3)',
+    borderColor: 'rgba(245, 158, 11, 0.4)',
     shadowColor: '#F59E0B',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 5,
+    // Golden inner glow
+    boxShadow: 'inset 0 1px 0 rgba(245, 158, 11, 0.3)',
   },
   messageText: {
     fontSize: typography.sizes.sm, // Improved font size (14px)
@@ -1412,7 +1484,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF', // Full white background
     borderTopWidth: 1,
     borderTopColor: '#E5E7EB', // border-gray-200 from HTML
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.sm,
     paddingTop: spacing.xs, // Reduced from spacing.sm
     paddingBottom: 25, // Reduced from 35
     elevation: 2,
@@ -1432,13 +1504,20 @@ const styles = StyleSheet.create({
   },
   textInputContainer: {
     flex: 1,
-    backgroundColor: '#F3F4F6', // bg-gray-100 from HTML
+    backgroundColor: 'rgba(243, 244, 246, 0.8)', // Glassmorphism gray background
     borderRadius: 20,
     paddingHorizontal: spacing.sm, // Reduced from spacing.md
     paddingVertical: spacing.xs, // Reduced from spacing.sm
     marginRight: spacing.sm,
     maxHeight: 100,
     minHeight: 36, // Added minimum height
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
   },
   textInputContainerExpanded: {
     flex: 2, // Expand more when typing
@@ -1652,6 +1731,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'transparent',
   },
+  reactionEmojiButtonInner: {
+    width: 36,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 18,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
   reactionEmojiText: {
     fontSize: 20,
     textAlign: 'center',
@@ -1664,6 +1753,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'transparent',
     marginLeft: spacing.xs,
+    overflow: 'hidden',
+  },
+  addReactionGradient: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   overlayReactionsBarInner: {
     backgroundColor: 'transparent',
@@ -1745,11 +1844,19 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
   },
+  glassmorphismOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
   // Typing Indicator Styles
   typingIndicator: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.sm,
     paddingVertical: spacing.sm,
     marginBottom: spacing.sm,
   },
@@ -1757,19 +1864,36 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: colors.primary[500],
+    marginRight: spacing.sm,
+    overflow: 'hidden',
+    shadowColor: '#667eea',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  typingAvatarGradient: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: spacing.sm,
   },
   typingBubble: {
-    backgroundColor: '#E5E7EB',
+    backgroundColor: 'rgba(229, 231, 235, 0.8)',
     borderRadius: 18,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     maxWidth: '70%',
     flexDirection: 'row',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   typingText: {
     fontSize: typography.sizes.sm,

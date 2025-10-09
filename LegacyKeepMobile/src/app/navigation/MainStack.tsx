@@ -35,6 +35,8 @@ import MusicScreen from '../../features/main/components/samples/MusicScreen';
 import DreamScreen from '../../features/main/components/samples/DreamScreen';
 import AudioCallScreen from '../../features/main/screens/AudioCallScreen';
 import VideoCallScreen from '../../features/main/screens/VideoCallScreen';
+import ContactDetailsScreen from '../../features/main/screens/ContactDetailsScreen';
+import NotificationsScreen from '../../features/main/screens/NotificationsScreen';
 
 const Stack = createStackNavigator<MainStackParamList>();
 
@@ -242,6 +244,23 @@ const MainStack: React.FC = () => {
         options={{
           headerShown: false,
           presentation: 'modal',
+        }}
+      />
+      
+      <Stack.Screen
+        name="ContactDetails"
+        component={ContactDetailsScreen}
+        options={{
+          headerShown: false,
+          presentation: 'modal',
+        }}
+      />
+      
+      <Stack.Screen
+        name="Notifications"
+        component={NotificationsScreen}
+        options={{
+          headerShown: false,
         }}
       />
     </Stack.Navigator>

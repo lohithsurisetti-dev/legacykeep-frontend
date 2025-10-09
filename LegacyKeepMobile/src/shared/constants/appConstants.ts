@@ -12,7 +12,7 @@
 export const UI_CONSTANTS = {
   // Card Dimensions
   PONG_CARD: {
-    WIDTH: 280,
+    WIDTH: 260,
     HEIGHT: 160,
     BORDER_RADIUS: 16,
   },

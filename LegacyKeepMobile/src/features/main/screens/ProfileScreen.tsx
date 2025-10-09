@@ -1321,8 +1321,8 @@ const ProfileScreen: React.FC<Props> = () => {
               <Text style={[styles.emptyStateText, { color: themeColors.textSecondary }]}>
                 No tagged content yet
               </Text>
+          </View>
       </View>
-            </View>
         )}
 
         </ScrollView>

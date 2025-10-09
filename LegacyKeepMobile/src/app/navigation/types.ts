@@ -96,6 +96,21 @@ export type MainStackParamList = {
   DreamSample: undefined;
   AudioCall: { contact: { name: string; avatar: string } };
   VideoCall: { contact: { name: string; avatar: string } };
+  ContactDetails: {
+    contact: {
+      id: string;
+      name: string;
+      avatar?: string;
+      isOnline?: boolean;
+      relationship?: string;
+      phone?: string;
+      email?: string;
+      lastSeen?: string;
+      status?: string;
+      theme?: string;
+    };
+  };
+  Notifications: undefined;
 };
 
 export type TabParamList = {

@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   searchContainer: {
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
   searchBar: {
@@ -385,10 +385,10 @@ const styles = StyleSheet.create({
     fontWeight: typography.weights.semibold,
     color: '#6B7280',
     marginBottom: spacing.sm,
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.md,
   },
   storiesContainer: {
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.md,
   },
   storyItem: {
     alignItems: 'center',
@@ -452,13 +452,13 @@ const styles = StyleSheet.create({
   chatItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
   },
   chatSeparator: {
     height: 1,
     backgroundColor: '#E5E7EB',
-    marginLeft: spacing.lg + 56 + spacing.md, // paddingLeft + avatar width + avatar margin
+    marginLeft: spacing.md + 56 + spacing.md, // paddingLeft + avatar width + avatar margin
   },
   chatAvatarContainer: {
     position: 'relative',

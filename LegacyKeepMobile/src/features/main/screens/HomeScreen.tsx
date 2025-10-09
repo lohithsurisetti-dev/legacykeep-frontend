@@ -30,7 +30,6 @@ const HomeScreen: React.FC = () => {
 
   // Pong cards state
   const [activePings, setActivePings] = useState<Ping[]>([]);
-  const [isPingPongCollapsed, setIsPingPongCollapsed] = useState(false);
 
   // Load active pings
   useEffect(() => {
@@ -47,6 +46,10 @@ const HomeScreen: React.FC = () => {
 
   const handleProfilePress = () => {
     (navigation as any).navigate(ROUTES.PROFILE);
+  };
+
+  const handleNotificationsPress = () => {
+    (navigation as any).navigate('Notifications');
   };
 
   const handleSendMessage = (insight: InsightItem) => {
@@ -67,10 +70,6 @@ const HomeScreen: React.FC = () => {
   const handlePongPress = (pingId: string) => {
     logger.debug('Pong pressed for ping:', pingId);
     // Simple response action
-  };
-
-  const togglePingPongSection = () => {
-    setIsPingPongCollapsed(!isPingPongCollapsed);
   };
 
   // Format remaining time with urgency indicators
@@ -147,9 +146,11 @@ const HomeScreen: React.FC = () => {
         <SafeAreaView style={styles.safeArea}>
         {/* Header - Fixed position for scroll-to-hide */}
         <HomeHeader 
-          onProfilePress={handleProfilePress} 
+          onProfilePress={handleProfilePress}
+          onNotificationsPress={handleNotificationsPress}
           scrollY={scrollY}
           userInitials={userInitials}
+          unreadCount={3}
         />
         
         {/* Scrollable Content */}
@@ -175,35 +176,13 @@ const HomeScreen: React.FC = () => {
 
             {/* Clean Pong Cards Section */}
             {activePings.length > 0 && (
-              <View style={[
-                styles.pongSection,
-                isPingPongCollapsed && styles.pongSectionCollapsed
-              ]}>
-                <TouchableOpacity 
-                  style={[
-                    styles.pongSectionHeader,
-                    isPingPongCollapsed && styles.pongSectionHeaderCollapsed
-                  ]}
-                  onPress={togglePingPongSection}
-                  activeOpacity={0.7}
+              <View style={styles.pongSection}>
+                <ScrollView 
+                  horizontal 
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.pongScrollView}
+                  contentContainerStyle={styles.pongScrollContent}
                 >
-                  <View style={styles.pongSectionTitleContainer}>
-                    <Text style={styles.pongSectionTitle}>Ping & Pong</Text>
-                    <Ionicons 
-                      name={isPingPongCollapsed ? "chevron-down" : "chevron-up"} 
-                      size={18} 
-                      color="black" 
-                      style={styles.pongSectionArrow}
-                    />
-                  </View>
-                </TouchableOpacity>
-                {!isPingPongCollapsed && (
-                  <ScrollView 
-                    horizontal 
-                    showsHorizontalScrollIndicator={false}
-                    style={styles.pongScrollView}
-                    contentContainerStyle={styles.pongScrollContent}
-                  >
                   {activePings.map((ping, index) => {
                     // Different gradients for each card
                     const gradients: [string, string][] = [
@@ -309,13 +288,14 @@ const HomeScreen: React.FC = () => {
                       </TouchableOpacity>
                     );
                   })}
-                  </ScrollView>
-                )}
+                </ScrollView>
               </View>
             )}
 
             {/* Instagram-Style Family Feed */}
-            <FamilyFeed />
+            <View style={styles.familyFeedSection}>
+              <FamilyFeed />
+            </View>
           </View>
 
         </Animated.ScrollView>
@@ -348,41 +328,20 @@ const createStyles = (colors: any) => StyleSheet.create({
 
   // Clean Pong Cards Section
   pongSection: {
-    marginBottom: spacing.lg,
-    paddingHorizontal: spacing.sm,
-  },
-  pongSectionCollapsed: {
-    marginBottom: spacing.sm,
-  },
-  pongSectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.sm,
-    marginBottom: spacing.sm,
-  },
-  pongSectionHeaderCollapsed: {
-    marginBottom: spacing.xs,
-  },
-  pongSectionTitleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  pongSectionTitle: {
-    fontSize: typography.sizes.lg,
-    fontWeight: typography.weights.bold,
-    color: colors.text,
-  },
-  pongSectionArrow: {
-    marginLeft: spacing.xs,
+    marginTop: -spacing.md,
+    marginBottom: spacing.md,
   },
   pongScrollView: {
-    marginHorizontal: -spacing.lg,
+    marginHorizontal: 0,
   },
   pongScrollContent: {
-    paddingHorizontal: spacing.lg,
-    gap: spacing.sm,
+    paddingHorizontal: spacing.xs,
+    gap: spacing.xs,
+  },
+  
+  // Family Feed Section
+  familyFeedSection: {
+    marginTop: -spacing.sm,
   },
   pongCard: {
     width: UI_CONSTANTS.PONG_CARD.WIDTH,
